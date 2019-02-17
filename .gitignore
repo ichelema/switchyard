@@ -17,3 +17,6 @@ test/version_tmp
 tmp
 vendor/bundle
 bin
+gems.tags
+tags
+!*.gitkeep
