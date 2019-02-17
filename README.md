@@ -1,10 +1,7 @@
-﻿
+# FunctionalLightService
 [![Gem Version](https://img.shields.io/gem/v/light-service.svg)](https://rubygems.org/gems/light-service)
-[![Build Status](https://secure.travis-ci.org/adomokos/light-service.png)](http://travis-ci.org/adomokos/light-service)
-[![Code Climate](https://codeclimate.com/github/adomokos/light-service.png)](https://codeclimate.com/github/adomokos/light-service)
+[![Build Status](https://travis-ci.org/sphynx79/functional-light-service.svg?branch=master)](https://travis-ci.org/sphynx79/functional-light-service)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](http://opensource.org/licenses/MIT)
-
-<br><br>
 
 ## Table of Content
 * [Why FunctionalLightService?](#why-lightservice)
@@ -18,7 +15,7 @@
 * [Error Codes](#error-codes)
 * [Action Rollback](#action-rollback)
 * [Localizing Messages](#localizing-messages)
-* [Orchestrator Logic in Organizers](#orchestrator-logic-in-organizers)
+* [Logic in Organizers](#logic-in-organizers)
 * [ContextFactory for Faster Action Testing](#contextfactory-for-faster-action-testing)
 
 
@@ -696,7 +693,7 @@ end
 
 To get the value of a `fail!` or `succeed!` message, simply call `#message` on the returned context.
 
-## Orchestrator Logic in Organizers
+## Logic in Organizers
 
 The Organizer - Action combination works really well for simple use cases. However, as business logic gets more complex, or when FunctionalLightService is used in an ETL workflow, the code that routes the different organizers becomes very complex and imperative. Let's look at a piece of code that does basic data transformations:
 
@@ -752,7 +749,7 @@ end
 
 This code is much easier to reason about, it's less noisy and it captures the goal of FunctionalLightService well: simple, declarative code that's easy to understand.
 
-The 5 different orchestrator constructs an organizer can have:
+The 5 different constructs an organizer can have:
 
 1. `reduce_until`
 2. `reduce_if`
