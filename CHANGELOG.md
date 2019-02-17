@@ -1,3 +1,15 @@
+## 0.2.1 (2019-02-17)
+### Fixed
+-  remove doble version in changelog  ( 2019-02-17 ) [ sphynx79]
+
+### Removed
+-  remove all orchestrator reference  ( 2019-02-17 ) [ sphynx79]
+
+### Changed
+-  cambiato versione parto dalla 0.1.0  ( 2019-02-17 ) [ sphynx79]
+
+
+
 ## 0.2.0 (2019-02-17)
 ### Removed
 -  remove all orchestrator reference  ( 2019-02-17 ) [ sphynx79]
