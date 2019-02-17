@@ -1,0 +1,28 @@
+require 'logger'
+require 'active_support/core_ext/string'
+
+require 'functional-light-service/version'
+
+module FunctionalLightService; end
+
+require 'functional-light-service/functional/monad'
+require 'functional-light-service/functional/enum'
+require 'functional-light-service/functional/result'
+require 'functional-light-service/errors'
+require 'functional-light-service/configuration'
+require 'functional-light-service/localization_adapter'
+require 'functional-light-service/context'
+require 'functional-light-service/context/key_verifier'
+require 'functional-light-service/organizer/scoped_reducable'
+require 'functional-light-service/organizer/with_reducer'
+require 'functional-light-service/organizer/with_reducer_log_decorator'
+require 'functional-light-service/organizer/with_reducer_factory'
+require 'functional-light-service/organizer/reduce_if'
+require 'functional-light-service/organizer/reduce_until'
+require 'functional-light-service/organizer/iterate'
+require 'functional-light-service/organizer/execute'
+require 'functional-light-service/organizer/with_callback'
+require 'functional-light-service/organizer/verify_call_method_exists'
+require 'functional-light-service/action'
+require 'functional-light-service/organizer'
+require 'functional-light-service/orchestrator'
