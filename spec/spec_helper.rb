@@ -14,6 +14,7 @@ end
 
 require 'functional-light-service'
 require 'functional-light-service/testing'
+require "functional-light-service/functional/null"
 require 'ostruct'
 require 'pry'
 require 'support'
