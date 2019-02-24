@@ -1,5 +1,5 @@
 # FunctionalLightService
-[![Gem Version](https://img.shields.io/gem/v/light-service.svg)](https://rubygems.org/gems/light-service)
+[![Gem Version](https://img.shields.io/gem/v/functional-light-service.svg)](https://rubygems.org/gems/functional-light-service)
 [![Build Status](https://travis-ci.org/sphynx79/functional-light-service.svg?branch=master)](https://travis-ci.org/sphynx79/functional-light-service)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](http://opensource.org/licenses/MIT)
 
