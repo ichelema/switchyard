@@ -8,6 +8,8 @@ module FunctionalLightService; end
 require 'functional-light-service/functional/monad'
 require 'functional-light-service/functional/enum'
 require 'functional-light-service/functional/result'
+require 'functional-light-service/functional/option'
+require 'functional-light-service/functional/null'
 require 'functional-light-service/errors'
 require 'functional-light-service/configuration'
 require 'functional-light-service/localization_adapter'

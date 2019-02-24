@@ -4,7 +4,9 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](http://opensource.org/licenses/MIT)
 
 ## Table of Content
-* [Why FunctionalLightService?](#why-lightservice)
+* [Requirements](#requirements)
+* [Installation](#installation)
+* [Why FunctionalLightService?](#why-functionallightservice?)
 * [Stopping the Series of Actions](#stopping-the-series-of-actions)
     * [Failing the Context](#failing-the-context)
     * [Skipping the Rest of the Actions](#skipping-the-rest-of-the-actions)
@@ -17,155 +19,301 @@
 * [Localizing Messages](#localizing-messages)
 * [Logic in Organizers](#logic-in-organizers)
 * [ContextFactory for Faster Action Testing](#contextfactory-for-faster-action-testing)
+* [Functional programming](#functional-programming)
+	* [Pattern](#pattern)
+	* [Usage](#functional-usage)
+		* [Result: Success & Failure](#functional-usage-success-failure)
+		* [Result Chaining](#functional-usage-chaining)
+		* [Complex Example in a Builder Action](#functional-usage-complex-action)
+		* [Pattern matching](#functional-usage-pattern-matching)
+		* [Option](#functional-usage-option)
+		* [Coercion](#functional-usage-coercion)
+		* [Enum](#functional-usage-enum)
+		* [Maybe](#functional-usage-maybe)
+* [Usage](#usage)
 
+
+## Requirements
+
+This gem requires ruby >= 2.5.0
+
+## Installation
+Add this line to your application's Gemfile:
+
+```bash
+    gem 'functional-light-service'
+```
+
+And then execute:
+```bash
+    $ bundle
+```
+
+Or install it yourself as:
+```bash
+    $ gem install functional-light-service
+```
 
 ## Why FunctionalLightService?
 
-What do you think of this code?
+While i was studying the functional programming in Ruby, i came across this fantastic gem Deterministic, that  it simplified my the writing of my Ruby code with a functional approach.
+I used deterministic making extensive use of the in_sequence method, that allowed me to concatenate a series of actions in sequence, if all method that i call work nice without exception, it returned me a modad with the status Success (), in case of failure the rest of the actions was not executed, and return a monad with the status Failure ().
+
+I writing this code:
 
 ```ruby
-class TaxController < ApplicationController
-  def update
-    @order = Order.find(params[:id])
-    tax_ranges = TaxRange.for_region(order.region)
+class Foo
+  include Deterministic::Prelude
 
-    if tax_ranges.nil?
-      render :action => :edit, :error => "The tax ranges were not found"
-      return # Avoiding the double render error
+  def call(input)
+    result = in_sequence do
+      get(:sanitized_input) { sanitize(input) }
+      and_then              { validate(sanitized_input) }
+      and_then              { connect_db }
+      get(:user)            { get_user(sanitized_input) }
+      and_yield             { print_response(user) }
     end
+    logger.warn(result.value) if result.failure?
+  rescue StandardError => e
+    logger.fatal(e.message)
+  end
 
-    tax_percentage = tax_ranges.for_total(@order.total)
+  def sanitize(input)
+    sanitized_input = {}
+    sanitized_input[:name] = input[:name].downcase
+    sanitized_input[:password] = input[:password].downcase
+    Success(sanitized_input)
+  end
 
-    if tax_percentage.nil?
-      render :action => :edit, :error => "The tax percentage  was not found"
-      return # Avoiding the double render error
+  def validate(sanitized_input)
+    try!  do
+      raise "Not allow empty name" if sanitized_input[:name].empty?
+      raise "Not allow empty password" if sanitized_input[:password].empty?
+    end.map_err { |n| Failure(n.message) }
+  end
+
+  def connect_db
+    try! do
+      raise "Error connection to db" if rand(0..1) == 1
+    end.map_err { |n| Failure(n.message) }
+  end
+
+  def get_user(sanitized_input)
+    user = FAKEDB.find do |_k, v|
+      sanitized_input[:name] == v[:name] && sanitized_input[:password] == v[:password]
     end
+    user.nil? ? Failure("Name or password error") : Success(user)
+  end
 
-    @order.tax = (@order.total * (tax_percentage/100)).round(2)
-
-    if @order.total_with_tax > 200
-      @order.provide_free_shipping!
-    end
-
-    redirect_to checkout_shipping_path(@order), :notice => "Tax was calculated successfully"
+  def print_response(user)
+    Success(logger.info("Login successful id: #{user[0]} name: #{user[1][:name]}"))
   end
 end
+
+Foo.new.call(:name => "foo", :password => "bar")
 ```
 
-This controller violates [SRP](http://en.wikipedia.org/wiki/Single_responsibility_principle) all over.
-Also, imagine what it would take to test this beast.
-You could move the tax_percentage finders and calculations into the tax model,
-but then you'll make your model logic heavy.
+At a certain point I felt the need to better structure my code and every action had its context.
+accidentally I came across  in this fantastic gem light-service, that did just what I wanted, it allows me to separate the business and logic, organize the actions in sequence, and write my actions in separate classes with each its context
 
-This controller does 3 things in order:
-* Looks up the tax percentage based on order total
-* Calculates the order tax
-* Provides free shipping if the total with tax is greater than $200
-
-The order of these tasks matters: you can't calculate the order tax without the percentage.
-Wouldn't it be nice to see this instead?
 
 ```ruby
-(
-  LooksUpTaxPercentage,
-  CalculatesOrderTax,
-  ChecksFreeShipping
-)
+class Foo
+  extend LightService::Organizer
+
+  def self.call(name: "", password: "")
+    result = with(:name => name, :password => password).reduce(actions)
+    logger.warn(result.message) if result.failure?
+  end
+
+  def self.actions
+    [
+      Sanitize,
+      Validate,
+      ConnectDb,
+      GetUser,
+      PrintResponse
+    ]
+  end
+end
+
+class Sanitize
+  extend LightService::Action
+  expects :name, :password
+  promises :sanitized_input
+
+  executed do |ctx|
+    sanitized_input = {}
+    sanitized_input[:name] = ctx.name.downcase
+    sanitized_input[:password] = ctx.password.downcase
+    ctx.sanitized_input = sanitized_input
+  end
+end
+
+class Validate
+  extend LightService::Action
+  expects :sanitized_input
+
+  executed do |ctx|
+    ctx.fail_and_return!("Not allow empty name") if ctx.sanitized_input[:name].empty?
+    ctx.fail_and_return!("Not allow empty password") if ctx.sanitized_input[:password].empty?
+  end
+end
+
+class ConnectDb
+  extend LightService::Action
+
+  executed do |ctx|
+    raise "Error connection to db"
+  rescue StandardError => e
+    ctx.fail!(e.message) if rand(0..1) == 1
+  end
+
+  # private_class_method :..
+end
+
+class GetUser
+  extend LightService::Action
+  expects :sanitized_input
+  promises :user
+
+  executed do |ctx|
+    user = FAKEDB.find do |_k, v|
+      ctx.sanitized_input[:name] == v[:name] && ctx.sanitized_input[:password] == v[:password]
+    end
+    ctx.fail_and_return!("Name or password error") if user.nil?
+    ctx.user = user
+  end
+end
+
+class PrintResponse
+  extend LightService::Action
+  expects :user
+
+  executed do |ctx|
+    logger.info("Login successful id: #{ctx.user[0]} name: #{ctx.user[1][:name]}")
+  end
+end
+
+Foo.call(:name => "foo", :password => "bar")
 ```
-
-This block of code should tell you the "story" of what's going on in this workflow.
-With the help of FunctionalLightService you can write code this way. First you need an organizer object that sets up the actions in order
-and executes them one-by-one. Then you need to create the actions with one method (that will do only one thing).
-
-This is how the organizer and actions interact with each other:
-
-![FunctionalLightService](https://raw.githubusercontent.com/adomokos/light-service/master/resources/organizer_and_actions.png)
+But in this case I lost the power of functional programming that deterministic gave me, why not take the best of two world, this is the reason that brought me make this gem. Now I can use same same feature that light-service give me with the power functional programming.
 
 ```ruby
-class CalculatesTax
+class Foo
   extend FunctionalLightService::Organizer
 
-  def self.call(order)
-    with(:order => order).reduce(
-        LooksUpTaxPercentageAction,
-        CalculatesOrderTaxAction,
-        ProvidesFreeShippingAction
-      )
+  def self.call(name: "", password: "")
+    result = with(:name => name, :password => password).reduce(actions)
+    logger.warn(result.message) if result.failure?
+  end
+
+  def self.actions
+    [
+      Sanitize,
+      Validate,
+      ConnectDb,
+      GetUser,
+      PrintResponse
+    ]
   end
 end
 
-class LooksUpTaxPercentageAction
+class Sanitize
   extend FunctionalLightService::Action
-  expects :order
-  promises :tax_percentage
-
-  executed do |context|
-    tax_ranges = TaxRange.for_region(context.order.region)
-    context.tax_percentage = 0
-
-    next context if object_is_nil?(tax_ranges, context, 'The tax ranges were not found')
-
-    context.tax_percentage = tax_ranges.for_total(context.order.total)
-
-    next context if object_is_nil?(context.tax_percentage, context, 'The tax percentage was not found')
-  end
-
-  def self.object_is_nil?(object, context, message)
-    if object.nil?
-      context.fail!(message)
-      return true
-    end
-
-    false
-  end
-end
-
-class CalculatesOrderTaxAction
-  extend ::FunctionalLightService::Action
-  expects :order, :tax_percentage
-
-  # I am using ctx as an abbreviation for context
-  executed do |ctx|
-    order = ctx.order
-    order.tax = (order.total * (ctx.tax_percentage/100)).round(2)
-  end
-
-end
-
-class ProvidesFreeShippingAction
-  extend FunctionalLightService::Action
-  expects :order
+  expects :name, :password
+  promises :sanitized_input
 
   executed do |ctx|
-    if ctx.order.total_with_tax > 200
-      ctx.order.provide_free_shipping!
+    name = ctx.name
+    password = ctx.password
+    ctx.sanitized_input = downcase(name, password).value
+  end
+
+  def self.downcase(name, password)
+    ctx.try! do
+      {
+        :name => name.downcase,
+        :password => password.downcase
+      }
+    end.map_err { ctx.fail!("Error nel method downcase") }
+  end
+
+  private_class_method :downcase
+end
+
+class Validate
+  extend FunctionalLightService::Action
+  expects :sanitized_input
+
+  executed do |ctx|
+    validate_params(ctx.sanitized_input).match do
+      None() { ctx.Success(0) }
+      Some() { |errors| ctx.fail_and_return!(errors) }
     end
   end
+
+  def self.validate_params(params)
+    return ctx.Some("Not allow empty name") if ctx.Option.any?(params[:name]).none?
+    return ctx.Some("Not allow empty password") if ctx.Option.any?(params[:password]).none?
+
+    ctx.None
+  end
+
+  private_class_method :validate_params
 end
-```
 
-And with all that, your controller should be super simple:
+class ConnectDb
+  extend FunctionalLightService::Action
 
-```ruby
-class TaxController < ApplicationContoller
-  def update
-    @order = Order.find(params[:id])
-
-    service_result = CalculatesTax.for_order(@order)
-
-    if service_result.failure?
-      render :action => :edit, :error => service_result.message
-    else
-      redirect_to checkout_shipping_path(@order), :notice => "Tax was calculated successfully"
-    end
-
+  executed do |ctx|
+    ctx.try! do
+      raise "Error connection to db" if rand(0..1) == 1
+    end.map_err { |n| ctx.fail!(n.message) }
   end
 end
+
+class GetUser
+  extend FunctionalLightService::Action
+  expects :sanitized_input
+  promises :user
+
+  executed do |ctx|
+    user = Success(ctx.sanitized_input[:name]) >> method(:fetch_name) >> method(:check_password)
+    ctx.user = user.value
+  end
+
+  def self.fetch_name(name)
+    records = FAKEDB.select { |_k, v| name == v[:name] }
+    ctx.fail_and_return!("Name not found in DB") if records.empty?
+
+    Success(records)
+  end
+
+  def self.check_password(records)
+    record = records.select { |_k, v| ctx.sanitized_input[:password] == v[:password] }
+    return ctx.fail_and_return!("Password is not correct") if record.empty?
+
+    Success(record)
+  end
+
+  private_class_method :fetch_name, :check_password
+end
+
+class PrintResponse
+  extend FunctionalLightService::Action
+  expects :user
+
+  executed do |ctx|
+    id = ctx.user.keys[0]
+    name = ctx.user.values[0][:name]
+    logger.info("Login successful id: #{id} name: #{name}")
+  end
+end
+
+Foo.call(:name => "foo", :password => "bar")
+
 ```
-I gave a [talk at RailsConf 2013](http://www.adomokos.com/2013/06/simple-and-elegant-rails-code-with.html) on
-simple and elegant Rails code where I told the story of how FunctionalLightService was extracted from the projects I had worked on.
-
-
 
 ## Stopping the Series of Actions
 When nothing unexpected happens during the organizer's call, the returned `context` will be successful. Here is how you can check for this:
@@ -213,7 +361,7 @@ class SubmitsOrderAction
   end
 end
 ```
-![fail-actions](https://raw.githubusercontent.com/adomokos/light-service/master/resources/fail_actions.png)
+![fail-actions](https://raw.githubusercontent.com/sphynx79/functional-light-service/master/resources/fail_actions.png)
 
 In the example above the organizer called 4 actions. The first 2 actions got executed successfully. The 3rd had a failure, that pushed the context into a failure state and the 4th action was skipped.
 
@@ -233,7 +381,7 @@ class ChecksOrderStatusAction
   end
 end
 ```
-![skip-actions](https://raw.githubusercontent.com/adomokos/light-service/master/resources/skip_actions.png)
+![skip-actions](https://raw.githubusercontent.com/sphynx79/functional-light-service/master/resources/skip_actions.png)
 
 In the example above the organizer called 4 actions. The first 2 actions got executed successfully. The 3rd decided to skip the rest, the 4th action was not invoked. The context was successful.
 
@@ -820,28 +968,437 @@ This context then can be passed to the action under test, freeing you up from th
 
 In case your organizer has more logic in its `call` method, you could create your own test organizer in your specs like you can see it in this [acceptance test](spec/acceptance/testing/context_factory_spec.rb#L4-L11). This is reusable in all your action tests.
 
-## Requirements
+## Functional programming
+FunctionalLightService is to help your code to be more confident, by utilizing functional programming patterns.
 
-This gem requires ruby 2.x
+## Patterns
+FunctionalLightService provides different monads, here is a short guide, when to use which
 
-## Installation
-Add this line to your application's Gemfile:
+#### Result: Success & Failure
+- an operation which can succeed or fail
+- the result (content) of of the success or failure is important
+- you are building one thing
+- chaining: if one fails (Failure), don't execute the rest
 
-    gem 'light-service'
+#### Option: Some & None
+- an operation which returns either some result or nothing
+- in case it returns nothing it is not important to know why
+- you are working rather with a collection of things
+- chaining: execute all and then select the successful ones (Some)
 
-And then execute:
 
-    $ bundle
+#### Maybe
+- an object may be nil, you want to avoid endless nil? checks
 
-Or install it yourself as:
+#### Enums (Algebraic Data Types)
+- roll your own pattern
 
-    $ gem install functional-light-service
+## Usage <a name="functional-usage"></a>
+### Result: Success & Failure <a name="functional-usage-success-failure"></a>
 
-## Usage
+```ruby
+Success(1).to_s                        # => "1"
+Success(Success(1))                    # => Success(1)
+
+Failure(1).to_s                        # => "1"
+Failure(Failure(1))                    # => Failure(1)
+```
+
+Maps a `Result` with the value `a` to the same `Result` with the value `b`.
+
+```ruby
+Success(1).fmap { |v| v + 1}           # => Success(2)
+Failure(1).fmap { |v| v - 1}           # => Failure(0)
+```
+
+Maps a `Result` with the value `a` to another `Result` with the value `b`.
+
+```ruby
+Success(1).bind { |v| Failure(v + 1) } # => Failure(2)
+Failure(1).bind { |v| Success(v - 1) } # => Success(0)
+```
+
+Maps a `Success` with the value `a` to another `Result` with the value `b`. It works like `#bind` but only on `Success`.
+
+```ruby
+Success(1).map { |n| Success(n + 1) }  # => Success(2)
+Failure(0).map { |n| Success(n + 1) }  # => Failure(0)
+```
+Maps a `Failure` with the value `a` to another `Result` with the value `b`. It works like `#bind` but only on `Failure`.
+
+```ruby
+Failure(1).map_err { |n| Success(n + 1) } # => Success(2)
+Success(0).map_err { |n| Success(n + 1) } # => Success(0)
+```
+
+```ruby
+Success(0).try { |n| raise "Error" }   # => Failure(Error)
+```
+
+Replaces `Success a` with `Result b`. If a `Failure` is passed as argument, it is ignored.
+
+```ruby
+Success(1).and Success(2)              # => Success(2)
+Failure(1).and Success(2)              # => Failure(1)
+```
+
+Replaces `Success a` with the result of the block. If a `Failure` is passed as argument, it is ignored.
+
+```ruby
+Success(1).and_then { Success(2) }     # => Success(2)
+Failure(1).and_then { Success(2) }     # => Failure(1)
+```
+
+Replaces `Failure a` with `Result`. If a `Failure` is passed as argument, it is ignored.
+
+```ruby
+Success(1).or Success(2)               # => Success(1)
+Failure(1).or Success(1)               # => Success(1)
+```
+
+Replaces `Failure a` with the result of the block. If a `Success` is passed as argument, it is ignored.
+
+```ruby
+Success(1).or_else { Success(2) }      # => Success(1)
+Failure(1).or_else { |n| Success(n)}   # => Success(1)
+```
+
+Executes the block passed, but completely ignores its result. If an error is raised within the block it will **NOT** be catched.
+
+Try failable operations to return `Success` or `Failure`
+
+```ruby
+include FunctionalLightService::Prelude::Result
+
+try! { 1 }                             # => Success(1)
+try! { raise "hell" }                  # => Failure(#<RuntimeError: hell>)
+```
+
+### Result Chaining <a name="functional-usage-chaining"></a>
+You can easily chain the execution of several operations. Here we got some nice function composition.
+The method must be a unary function, i.e. it always takes one parameter - the context, which is passed from call to call.
+
+The following aliases are defined
+
+```ruby
+alias :>> :map
+alias :<< :pipe
+```
+
+This allows the composition of procs or lambdas and thus allow a clear definiton of a pipeline.
+
+```ruby
+Success(params) >>
+  validate >>
+  build_request << log >>
+  send << log >>
+  build_response
+```
+
+#### Complex Example in a Builder Action <a name="functional-usage-complex-action"></a>
+
+```ruby
+class Foo
+  extend FunctionalLightService::Action
+  expects :params
+  alias :m :method
+
+  executed do |ctx|
+    Success(ctx.params) >> m(:validate) >> m(:send)
+  end
+
+  def self.validate(params)
+    # do stuff
+    Success(validate_and_cleansed_params)
+  end
+
+  def self.send(clean_params)
+    # do stuff
+    Success(result)
+  end
+end
+
+class Bar
+  extend FunctionalLightService::Organizer
+
+  def self.call(params)
+    with(:params => params).reduce(Foo)
+  end
+end
+
+Bar.call # Success(3)
+```
+
+Chaining works with blocks (`#map` is an alias for `#>>`)
+
+```ruby
+Success(1).map {|ctx| Success(ctx + 1)}
+```
+
+it also works with lambdas
+```ruby
+Success(1) >> ->(ctx) { Success(ctx + 1) } >> ->(ctx) { Success(ctx + 1) }
+```
+
+and it will break the chain of execution, when it encounters a `Failure` on its way
+
+```ruby
+def works(ctx)
+  Success(1)
+end
+
+def breaks(ctx)
+  Failure(2)
+end
+
+def never_executed(ctx)
+  Success(99)
+end
+
+Success(0) >> method(:works) >> method(:breaks) >> method(:never_executed) # Failure(2)
+```
+
+`#map` aka `#>>` will not catch any exceptions raised. If you want automatic exception handling, the `#try` aka `#>=` will catch an error and wrap it with a failure
+
+```ruby
+def error(ctx)
+  raise "error #{ctx}"
+end
+
+Success(1) >= method(:error) # Failure(RuntimeError(error 1))
+```
+### Pattern matching <a name="functional-usage-pattern-matching"></a>
+Now that you have some result, you want to control flow by providing patterns.
+`#match` can match by
+
+ * success, failure, result or any
+ * values
+ * lambdas
+ * classes
+
+```ruby
+Success(1).match do
+  Success() { |s| "success #{s}"}
+  Failure() { |f| "failure #{f}"}
+end # => "success 1"
+```
+Note1: the variant's inner value(s) have been unwrapped, and passed to the block.
+
+Note2: only the __first__ matching pattern block will be executed, so order __can__ be important.
+
+Note3: you can omit block parameters if you don't use them, or you can use `_` to signify that you don't care about their values. If you specify parameters, their number must match the number of values in the variant.
+
+The result returned will be the result of the __first__ `#try` or `#let`. As a side note, `#try` is a monad, `#let` is a functor.
+
+Guards
+
+```ruby
+Success(1).match do
+  Success(where { s == 1 }) { |s| "Success #{s}" }
+end # => "Success 1"
+```
+
+Note1: the guard has access to variable names defined by the block arguments.
+
+Note2: the guard is not evaluated using the enclosing context's `self`; if you need to call methods on the enclosing scope, you must specify a receiver.
+
+Also you can match the result class
+
+```ruby
+Success([1, 2, 3]).match do
+  Success(where { s.is_a?(Array) }) { |s| s.first }
+end # => 1
+```
+
+If no match was found a `NoMatchError` is raised, so make sure you always cover all possible outcomes.
+
+```ruby
+Success(1).match do
+  Failure() { |f| "you'll never get me" }
+end # => NoMatchError
+```
+
+Matches must be exhaustive, otherwise an error will be raised, showing the variants which have not been covered.
+
+### Option <a name="functional-usage-option"></a>
+
+```ruby
+Some(1).some?                          # #=> true
+Some(1).none?                          # #=> false
+None.some?                             # #=> false
+None.none?                             # #=> true
+```
+
+Maps an `Option` with the value `a` to the same `Option` with the value `b`.
+
+```ruby
+Some(1).fmap { |n| n + 1 }             # => Some(2)
+None.fmap { |n| n + 1 }                # => None
+```
+
+Maps a `Result` with the value `a` to another `Result` with the value `b`.
+
+```ruby
+Some(1).map  { |n| Some(n + 1) }       # => Some(2)
+Some(1).map  { |n| None }              # => None
+None.map     { |n| Some(n + 1) }       # => None
+```
+
+Get the inner value or provide a default for a `None`. Calling `#value` on a `None` will raise a `NoMethodError`
+
+```ruby
+Some(1).value                          # => 1
+Some(1).value_or(2)                    # => 1
+None.value                             # => NoMethodError
+None.value_or(0)                       # => 0
+```
+
+Add the inner values of option using `+`.
+
+```ruby
+Some(1) + Some(1)                      # => Some(2)
+Some([1]) + Some(1)                    # => TypeError: No implicit conversion
+None + Some(1)                         # => Some(1)
+Some(1) + None                         # => Some(1)
+Some([1]) + None + Some([2])           # => Some([1, 2])
+```
+
+### Coercion <a name="functional-usage-coercion"></a>
+```ruby
+Option.any?(nil)                       # => None
+Option.any?([])                        # => None
+Option.any?({})                        # => None
+Option.any?(1)                         # => Some(1)
+
+Option.some?(nil)                      # => None
+Option.some?([])                       # => Some([])
+Option.some?({})                       # => Some({})
+Option.some?(1)                        # => Some(1)
+
+Option.try! { 1 }                      # => Some(1)
+Option.try! { raise "error"}           # => None
+
+Some(1).match {
+  Some(where { s == 1 }) { |s| s + 1 }
+  Some()                 { |s| 1 }
+  None()                 { 0 }
+}                                      # => 2
+```
+
+### Enums <a name="functional-usage-enum"></a>
+All the above are implemented using enums, see their definition, for more details.
+
+```ruby
+Threenum = FunctionalLightService::enum {
+            Nullary()
+            Unary(:a)
+            Binary(:a, :b)
+           }
+
+Threenum.variants                      # => [:Nullary, :Unary, :Binary]
+```
+Initialize
+
+```ruby
+n = Threenum.Nullary                   # => Threenum::Nullary.new()
+n.value                                # => Error
+
+u = Threenum.Unary(1)                  # => Threenum::Unary.new(1)
+u.value                                # => 1
+
+b = Threenum::Binary(2, 3)             # => Threenum::Binary(2, 3)
+b.value                                # => { a:2, b: 3 }
+```
+Pattern matching
+
+```ruby
+Threenum::Unary(5).match {
+  Nullary() {        0 }
+  Unary()   { |u|    u }
+  Binary()  { |a, b| a + b }
+}                                      # => 5
+
+# or
+t = Threenum::Unary(5)
+Threenum.match(t) {
+  Nullary() {        0 }
+  Unary()   { |u|    u }
+  Binary()  { |a, b| a + b }
+}                                      # => 5
+```
+
+If you want to return the whole matched object, you'll need to pass a reference to the object (second case). Note that `self` refers to the scope enclosing the `match` call.
+
+```ruby
+def drop(n)
+  match {
+    Cons(where { n > 0 }) { |h, t| t.drop(n - 1) }
+    Cons()                { |_, _| self }
+    Nil() { raise EmptyListError }
+  }
+end
+```
+
+See the linked list implementation in the specs for more examples
+
+With guard clauses
+
+```ruby
+Threenum::Unary(5).match {
+  Nullary() {     0 }
+  Unary()   { |u| u }
+  Binary(where { a.is_a?(Fixnum) && b.is_a?(Fixnum) }) { |a, b| a + b }
+  Binary()  { |a, b| raise "Expected a, b to be numbers" }
+}                                      # => 5
+```
+
+Implementing methods for enums
+
+```ruby
+FunctionalLightService::impl(Threenum) {
+  def sum
+    match {
+      Nullary() {        0 }
+      Unary()   { |u|    u }
+      Binary()  { |a, b| a + b }
+    }
+  end
+
+  def +(other)
+    match {
+      Nullary() {        other.sum }
+      Unary()   { |a|    self.sum + other.sum }
+      Binary()  { |a, b| self.sum + other.sum }
+    }
+  end
+}
+
+Threenum.Nullary + Threenum.Unary(1)   # => Unary(1)
+```
+
+All matches must be exhaustive, i.e. cover all variants
+
+### Maybe <a name="functional-usage-maybe"></a>
+The simplest NullObject wrapper there can be. It adds `#some?` and `#null?` to `Object` though.
+
+```ruby
+require 'functional-light-service/functional/maybe' # you need to do this explicitly
+Maybe(nil).foo        # => Null
+Maybe(nil).foo.bar    # => Null
+Maybe({a: 1})[:a]     # => 1
+
+Maybe(nil).null?      # => true
+Maybe({}).null?       # => false
+
+Maybe(nil).some?      # => false
+Maybe({}).some?       # => true
+```
+
+## Usage <a name="usage"></a>
 Based on the refactoring example above, just create an organizer object that calls the
 actions in order and write code for the actions. That's it.
 
-For further examples, please visit the project's [Wiki](https://github.com/adomokos/light-service/wiki).
+For further examples, please visit the project's [Wiki](https://github.com/sphynx79/functional-light-service/wiki).
 
 ## Contributing
 1. Fork it
@@ -850,10 +1407,18 @@ For further examples, please visit the project's [Wiki](https://github.com/adomo
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-Huge thanks to the [contributors](https://github.com/adomokos/light-service/graphs/contributors)!
+Huge thanks to the [contributors](https://github.com/sphynx79/functional-light-service/graphs/contributors)!
 
-## Release Notes
-Follow the release notes in this [document](https://github.com/adomokos/light-service/blob/master/RELEASES.md).
+## Changelog
+Follow the changelog in this [document](https://github.com/sphynx79/functional-light-service/blob/master/CHANGELOG.md).
+
+## Thank You
+
+A very special thank you to [Attila Domokos](https://github.com/adomokos) for
+his fantastic work on [LightService](https://github.com/adomokos/light-service).
+A very special thank you to [Piotr Zolnierek](https://github.com/pzol) for
+his fantastic work on [Deterministic](https://github.com/pzol/deterministic).
+FunctionalLightService is inspired heavily by the concepts put to code by Attila and add some functionality taken from the excellent work of mario Piotr.
 
 ## License
 FunctionalLightService is released under the [MIT License](http://www.opensource.org/licenses/MIT).
