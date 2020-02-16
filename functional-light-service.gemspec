@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
 
   # gem.add_dependency("activesupport", ">= 5.2.2")
   
-  gem.add_development_dependency("activesupport", "~> 5.2.0")
+  gem.add_development_dependency("activesupport", "~> 6.0")
   gem.add_development_dependency("rspec", "~> 3.0")
   gem.add_development_dependency("simplecov", "~> 0.16.1")
   gem.add_development_dependency("rubocop", "~> 0.63.1")
