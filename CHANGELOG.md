@@ -1,3 +1,9 @@
+## 0.2.9 (2020-02-16)
+### Fixed
+-  Travis va in errore aggiunt activesupport al mio gemfile  ( 2020-02-16 ) [ sphynx79]
+
+
+
 ## 0.2.8 (2020-02-16)
 ### Removed
 -  rimosso supporto a activesupport 5  ( 2020-02-16 ) [ sphynx79]
