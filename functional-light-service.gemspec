@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = FunctionalLightService::VERSION
 
-  # gem.add_dependency("activesupport", ">= 5.2.2")
+  gem.add_dependency("activesupport", ">= 6.0")
   
   gem.add_development_dependency("activesupport", "~> 6.0")
   gem.add_development_dependency("rspec", "~> 3.0")
