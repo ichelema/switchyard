@@ -1,3 +1,9 @@
+## 0.2.8 (2020-02-16)
+### Removed
+-  rimosso supporto a activesupport 5  ( 2020-02-16 ) [ sphynx79]
+
+
+
 ## 0.2.7 (2020-02-16)
 ### Fix
 -  Risolto problema travis bundle update  ( 2020-02-16 ) [ sphynx79]
