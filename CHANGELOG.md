@@ -1,3 +1,9 @@
+## 0.2.9.1 (2020-02-16)
+### Fixed
+-  Sto cercando di sistemate il problema di travis che da errore per activesupport  ( 2020-02-16 ) [ sphynx79]
+
+
+
 ## 0.2.9 (2020-02-16)
 ### Fixed
 -  Travis va in errore aggiunt activesupport al mio gemfile  ( 2020-02-16 ) [ sphynx79]
