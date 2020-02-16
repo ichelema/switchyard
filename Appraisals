@@ -1,3 +1,3 @@
-appraise "activesupport-6" do
-  gem "activesupport", "~> 6.0"
+appraise "dry-inflector-0.2.0" do
+  gem "dry-inflector", "~> 0.2.0"
 end

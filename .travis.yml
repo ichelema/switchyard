@@ -20,4 +20,4 @@ script:
   - bundle exec rubocop
 
 gemfile:
-  - gemfiles/activesupport_6.gemfile
+  - gemfiles/dry-inflector_0_2.gemfile

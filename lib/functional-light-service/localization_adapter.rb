@@ -1,3 +1,5 @@
+require 'i18n'
+
 module FunctionalLightService
   class LocalizationAdapter
     def failure(message_or_key, action_class, i18n_options = {})
@@ -38,7 +40,8 @@ module FunctionalLightService
     end
 
     def i18n_scope_from_class(action_class, type)
-      "#{action_class.name.underscore}.light_service.#{type.to_s.pluralize}"
+      inflector = Dry::Inflector.new
+      "#{inflector.underscore(action_class.name)}.light_service.#{inflector.pluralize(type)}"
     end
   end
 end

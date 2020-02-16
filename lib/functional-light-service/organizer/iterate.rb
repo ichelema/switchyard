@@ -1,3 +1,5 @@
+require "dry/inflector"
+
 module FunctionalLightService
   module Organizer
     class Iterate
@@ -8,7 +10,8 @@ module FunctionalLightService
           return ctx if ctx.stop_processing?
 
           collection = ctx[collection_key]
-          item_key = collection_key.to_s.singularize.to_sym
+          inflector = Dry::Inflector.new
+          item_key = inflector.singularize(collection_key).to_sym
           collection.each do |item|
             ctx[item_key] = item
             ctx = scoped_reduce(organizer, ctx, steps)

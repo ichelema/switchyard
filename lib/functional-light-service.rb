@@ -1,5 +1,4 @@
 require 'logger'
-require 'active_support/core_ext/string'
 
 require 'functional-light-service/version'
 

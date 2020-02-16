@@ -16,9 +16,11 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = FunctionalLightService::VERSION
 
-  gem.add_dependency("activesupport", ">= 6.0")
+  gem.add_dependency("dry-inflector", ">= 0.2.0")
+  gem.add_dependency("i18n", ">= 1.8.2")
   
-  gem.add_development_dependency("activesupport", "~> 6.0")
+  gem.add_development_dependency("i18n", ">= 1.8.2")
+  gem.add_development_dependency("dry-inflector", ">= 0.2.0")
   gem.add_development_dependency("rspec", "~> 3.0")
   gem.add_development_dependency("simplecov", "~> 0.16.1")
   gem.add_development_dependency("rubocop", "~> 0.63.1")

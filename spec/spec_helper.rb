@@ -15,10 +15,6 @@ end
 require 'functional-light-service'
 require 'functional-light-service/testing'
 require "functional-light-service/functional/null"
-require 'ostruct'
-require 'pry'
 require 'support'
 require 'test_doubles'
 require 'stringio'
-
-I18n.enforce_available_locales = true
