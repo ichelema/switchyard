@@ -1,3 +1,9 @@
+## 0.2.6 (2020-02-16)
+### Fixed
+-  FiFix problem /dev/null windows, e corretto il bug sul metodo failure?  ( 2020-02-16 ) [ sphynx79]
+
+
+
 ## 0.2.5 (2019-02-24)
 
 
