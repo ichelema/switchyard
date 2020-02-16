@@ -35,7 +35,7 @@ module FunctionalLightService
     end
 
     def failure?
-      success? == false
+      @outcome.failure?
     end
 
     def skip_remaining?
@@ -43,7 +43,7 @@ module FunctionalLightService
     end
 
     def reset_skip_remaining!
-      @outcome = Success(nil)
+      @outcome = Success(:message => '', :error => nil)
       @skip_remaining = false
     end
 

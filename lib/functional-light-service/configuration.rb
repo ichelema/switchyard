@@ -15,7 +15,7 @@ module FunctionalLightService
       private
 
       def _default_logger
-        logger = Logger.new("/dev/null")
+        logger = Logger.new(nil)
         logger.level = Logger::WARN
         logger
       end

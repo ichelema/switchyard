@@ -10,8 +10,8 @@ rvm:
 before_install:
   - 'echo ''gem: --no-ri --no-rdoc'' > ~/.gemrc'
   - gem install bundler
-  - bundle update simplecov
-  - bundle install --path vendor/bundle
+  - bundle update
+  - bundle install --clean --path vendor/bundle
 
 # uncomment this line if your project needs to run something other than `rake`:
 script:
@@ -20,3 +20,4 @@ script:
 
 gemfile:
   - gemfiles/activesupport_5.gemfile
+  - gemfiles/activesupport_6.gemfile
