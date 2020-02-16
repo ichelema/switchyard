@@ -1,3 +1,9 @@
+## 0.3.0 (2020-02-16)
+### Removed
+-  Rimosso completamente activesupport  ( 2020-02-16 ) [ sphynx79]
+
+
+
 ## 0.2.9.2 (2020-02-16)
 ### Removed
 -  Rimosso ActiveSupport::Deprecation per i warning di deprecation  ( 2020-02-16 ) [ sphynx79]
