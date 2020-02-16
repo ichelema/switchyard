@@ -10,8 +10,9 @@ rvm:
 
 before_install:
   - 'echo ''gem: --no-ri --no-rdoc'' > ~/.gemrc'
+  - yes | gem update --system --force
   - gem install bundler
-  - bundle install --clean --path vendor/bundle
+  - bundle install --gemfile=Gemfile --clean --path vendor/bundle
 
 # uncomment this line if your project needs to run something other than `rake`:
 script:
