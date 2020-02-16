@@ -1,5 +1,3 @@
-require 'active_support/deprecation'
-
 module FunctionalLightService
   module Action
     def self.extended(base_class)
@@ -8,9 +6,10 @@ module FunctionalLightService
     end
 
     def self.included(base_class)
-      msg = "including FunctionalLightService::Action is deprecated. " \
+      msg = "DEPRECATION WARNING:\n" \
+            "Including FunctionalLightService::Action is deprecated\n" \
             "Please use `extend FunctionalLightService::Action` instead"
-      ActiveSupport::Deprecation.warn(msg)
+      print msg
       base_class.extend Macros
     end
 

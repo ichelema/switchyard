@@ -11,11 +11,12 @@ module FunctionalLightService
         call_method_exists = klass.methods.include?(:call)
         return if call_method_exists
 
-        warning_msg = "The <#{klass.name}> class is an organizer, " \
+        warning_msg = "DEPRECATION WARNING:" \
+                      "The <#{klass.name}> class is an organizer, " \
                       "its entry method (the one that calls with & reduce) " \
                       "should be named `call`. " \
                       "Please use #{klass}.call going forward."
-        ActiveSupport::Deprecation.warn(warning_msg)
+        print warning_msg
       end
 
       def self.caller_method(first_caller)

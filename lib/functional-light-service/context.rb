@@ -1,5 +1,3 @@
-require 'active_support/deprecation'
-
 module FunctionalLightService
   # rubocop:disable ClassLength
   class Context < Hash
@@ -88,14 +86,6 @@ module FunctionalLightService
     def fail_with_rollback!(message = nil, error_code = nil)
       fail!(message, error_code)
       raise FailWithRollbackError
-    end
-
-    def skip_all!(message = nil)
-      warning_msg = "Using skip_all! has been deprecated, " \
-                    "please use `skip_remaining!` instead."
-      ActiveSupport::Deprecation.warn(warning_msg)
-
-      skip_remaining!(message)
     end
 
     def skip_remaining!(message = nil)
