@@ -1,3 +1,9 @@
+## 0.3.2 (2020-07-17)
+### Changed
+-  Ottimizzato performance di Deterministic [enum,result]  ( 2020-07-17 ) [ sphynx79]
+
+
+
 ## 0.3.1 (2020-02-16)
 
 
