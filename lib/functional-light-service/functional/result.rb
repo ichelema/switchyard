@@ -17,20 +17,14 @@ module FunctionalLightService
   # rubocop:disable Metrics/BlockLength
   FunctionalLightService.impl(Result) do
     def map(proc = nil, &block)
-      match do
-        Success() { |_| bind(proc || block) }
-        Failure() { |_| self }
-      end
+      success? ? bind(proc || block) : self
     end
 
     alias :>> :map
     alias :and_then :map
 
     def map_err(proc = nil, &block)
-      match do
-        Success() { |_| self }
-        Failure() { |_| bind(proc || block) }
-      end
+      failure? ? bind(proc || block) : self
     end
 
     alias :or_else :map_err

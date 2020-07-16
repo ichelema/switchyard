@@ -219,7 +219,7 @@ module FunctionalLightService
 
           args = params_spec.map { |spec| spec[1] }
 
-          type = Kernel.eval("#{mod.name}::#{m}")
+          type = mod.const_get(m)
 
           guard = nil if guard && !guard.is_a?(Proc)
 
