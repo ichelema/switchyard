@@ -1,3 +1,9 @@
+## 0.3.3 (2021-12-15)
+### Fixed
+-  Corretto il problema di passare un hash per avere il dettaglio dell'errore quando fallisce  ( 2021-12-15 ) [ sphynx]
+
+
+
 ## 0.3.2 (2020-07-17)
 ### Changed
 -  Ottimizzato performance di Deterministic [enum,result]  ( 2020-07-17 ) [ sphynx79]
