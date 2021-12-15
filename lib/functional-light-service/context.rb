@@ -5,8 +5,7 @@ module FunctionalLightService
     include FunctionalLightService::Prelude::Result
     attr_accessor :outcome, :current_action
 
-    def initialize(context = {},
-                   outcome = Success(:message => '', :error => nil))
+    def initialize(context = {}, outcome = Success(:message => '', :error => nil))
       @outcome = outcome
       @skip_remaining = false
       context.to_hash.each { |k, v| self[k] = v }
@@ -80,7 +79,7 @@ module FunctionalLightService
 
     def fail_and_return!(*args)
       fail!(*args)
-      throw(:jump_when_failed, *args)
+      throw(:jump_when_failed)
     end
 
     def fail_with_rollback!(message = nil, error_code = nil)
