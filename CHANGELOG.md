@@ -1,3 +1,6 @@
+## 0.3.4 (2021-12-15)
+
+
 ## 0.3.3 (2021-12-15)
 ### Fixed
 -  Corretto il problema di passare un hash per avere il dettaglio dell'errore quando fallisce  ( 2021-12-15 ) [ sphynx]
