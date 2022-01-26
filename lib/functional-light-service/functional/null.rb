@@ -58,7 +58,7 @@ class Null
     false
   end
 
-  def respond_to?(m, include_private = false)
+  def respond_to?(m)
     return true if @methods.empty? || @methods.include?(m)
 
     super

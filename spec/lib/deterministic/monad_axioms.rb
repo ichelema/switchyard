@@ -34,7 +34,9 @@ shared_examples 'a Monad' do
 
     it '#bind must return a monad' do
       expect(monad.new(1).bind { |v| monad.new(v) }).to eq monad.new(1)
+      # rubocop:disable Lint/EmptyBlock
       expect { monad.new(1).bind {} }.to raise_error(FunctionalLightService::Monad::NotMonadError)
+      # rubocop:enable Lint/EmptyBlock
     end
 
     it '#new must return a monad' do

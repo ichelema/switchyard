@@ -8,8 +8,8 @@ module FunctionalLightService
     class << self
       def try!
         Success.new(yield)
-      rescue StandardError => err
-        Failure.new(err)
+      rescue StandardError => e
+        Failure.new(e)
       end
     end
   end

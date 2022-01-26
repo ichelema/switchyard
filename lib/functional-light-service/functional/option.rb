@@ -28,8 +28,6 @@ module FunctionalLightService
 
   # rubocop:disable Metrics/BlockLength
   impl(Option) do
-    class NoneValueError < StandardError; end
-
     def fmap
       match do
         Some() { |s| self.class.new(yield(s)) }

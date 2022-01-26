@@ -5,7 +5,7 @@ module FunctionalLightService
 
       alias logged? logged
 
-      def initialize(organizer, decorated: WithReducer.new, logger:)
+      def initialize(organizer, logger:, decorated: WithReducer.new)
         @decorated = decorated
         @organizer = organizer
         @logger = logger
@@ -19,7 +19,7 @@ module FunctionalLightService
 
         logger.info do
           "[FunctionalLightService] -     keys in context: " \
-          "#{extract_keys(decorated.context.keys)}"
+            "#{extract_keys(decorated.context.keys)}"
         end
         self
       end

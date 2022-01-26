@@ -8,7 +8,7 @@ describe FunctionalLightService::Enum do
       InvalidEnum = FunctionalLightService.enum do
         Unary(:value)
       end
-    end .to raise_error ArgumentError
+    end.to raise_error ArgumentError
   end
 
   context "Nullary, Unary, Binary" do
@@ -32,7 +32,9 @@ describe FunctionalLightService::Enum do
       expect { n.value }.to raise_error NoMethodError
       expect(n.inspect).to eq "Nullary"
       expect(n.to_s).to eq ""
+      # rubocop:disable Lint/EmptyBlock
       expect(n.fmap {}).to eq n
+      # rubocop:enable Lint/EmptyBlock
     end
 
     it "Unary" do

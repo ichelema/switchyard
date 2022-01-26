@@ -7,6 +7,7 @@ class Object
     true
   end
 end
+
 # rubocop:disable Naming/MethodName
 def Maybe(obj)
   obj.nil? ? Null.instance : obj

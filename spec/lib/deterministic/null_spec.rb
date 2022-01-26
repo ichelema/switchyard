@@ -38,7 +38,9 @@ describe Null do
     null = Null.instance
     expect(null.to_str).to eq ""
     expect(null.to_ary).to eq []
+    # rubocop:disable Style/StringConcatenation
     expect("" + null).to eq ""
+    # rubocop:enable Style/StringConcatenation
 
     a, b, c = null
     expect(a).to be_nil

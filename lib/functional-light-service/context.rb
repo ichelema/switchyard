@@ -5,11 +5,14 @@ module FunctionalLightService
     include FunctionalLightService::Prelude::Result
     attr_accessor :outcome, :current_action
 
-    def initialize(context = {}, outcome = Success(:message => '', :error => nil))
+    # rubocop:disable Lint/MissingSuper
+    def initialize(context = {},
+                   outcome = Success(:message => '', :error => nil))
       @outcome = outcome
       @skip_remaining = false
       context.to_hash.each { |k, v| self[k] = v }
     end
+    # rubocop:enable Lint/MissingSuper
 
     def self.make(context = {})
       unless context.is_a?(Hash) || context.is_a?(FunctionalLightService::Context)
@@ -45,11 +48,11 @@ module FunctionalLightService
     end
 
     def message
-      @outcome.value.dig(:message)
+      @outcome.value[:message]
     end
 
     def error_code
-      @outcome.value.dig(:error)
+      @outcome.value[:error]
     end
 
     def succeed!(message = nil, options = {})
@@ -133,13 +136,8 @@ module FunctionalLightService
     end
 
     def inspect
-      "#{self.class}(#{self}, " \
-      + "success: #{success?}, " \
-      + "message: #{check_nil(message)}, " \
-      + "error_code: #{check_nil(error_code)}, " \
-      + "skip_remaining: #{@skip_remaining}, " \
-      + "aliases: #{@aliases}" \
-      + ")"
+      "#{self.class}(#{self}, success: #{success?}, message: #{check_nil(message)}, error_code: " \
+        "#{check_nil(error_code)}, skip_remaining: #{@skip_remaining}, aliases: #{@aliases})"
     end
 
     private

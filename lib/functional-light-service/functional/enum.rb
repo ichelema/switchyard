@@ -53,9 +53,9 @@ module FunctionalLightService
           end
 
           @value = if init.count == 1 && init[0].is_a?(Hash)
-                     Hash[args.zip(init[0].values)]
+                     args.zip(init[0].values).to_h
                    else
-                     Hash[args.zip(init)]
+                     args.zip(init).to_h
                    end
         end
 
@@ -67,7 +67,6 @@ module FunctionalLightService
 
       # rubocop:disable Metrics/MethodLength
       def self.create(parent, args)
-        # rubocop:disable Style/AccessModifierDeclarations
         if args.include? :value
           raise ArgumentError, "#{args} may not contain the reserved name :value"
         end
@@ -106,14 +105,11 @@ module FunctionalLightService
         end
 
         dt
-        # rubocop:enable Style/AccessModifierDeclarations
       end
       # rubocop:enable Metrics/MethodLength
 
       class << self
-        # rubocop:disable Style/AccessModifierDeclarations
         public :new
-        # rubocop:enable Style/AccessModifierDeclarations
       end
     end
 

@@ -1,7 +1,9 @@
 require 'spec_helper'
 require_relative 'tax/looks_up_tax_percentage_action'
 
-class TaxRange; end
+class TaxRange
+  extend FunctionalLightService::Action
+end
 
 describe LooksUpTaxPercentageAction do
   let(:region) { double('region') }
