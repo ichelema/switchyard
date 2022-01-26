@@ -1,3 +1,9 @@
+## 0.3.8 (2022-01-26)
+### Added
+-  Aggiunto actions per fare i test in github  ( 2022-01-26 ) [ sphynx79]
+
+
+
 ## 0.3.7 (2022-01-26)
 
 
