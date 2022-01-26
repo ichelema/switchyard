@@ -1,0 +1,11 @@
+---
+include:
+- "**/*.rb"
+exclude:
+- resources/**/*
+- coverage/**/*
+- spec/**/*
+domains: []
+reporters:
+- rubocop
+max_files: 5000

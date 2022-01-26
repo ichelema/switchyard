@@ -45,6 +45,7 @@ module TestDoubles
 
   class TestLogger
     attr_accessor :logs
+
     def initialize
       @logs = []
     end
@@ -83,8 +84,13 @@ module TestDoubles
     end
   end
 
-  class AnAction; end
-  class AnotherAction; end
+  class AnAction
+    extend FunctionalLightService::Action
+  end
+
+  class AnotherAction
+    extend FunctionalLightService::Action
+  end
 
   class AnOrganizer
     extend FunctionalLightService::Organizer
@@ -166,14 +172,18 @@ module TestDoubles
     promises :latte
 
     executed do |context|
+      context.fail!("Can't make a latte from a milk that's very hot!") if context.milk == :very_hot
+
+      if context.milk == :super_hot
+        error_message = "Can't make a latte from a milk that's super hot!"
+        context.fail_with_rollback!(error_message)
+      end
+
       context[:latte] = "#{context.coffee} - with lots of #{context.milk}"
-      case context.milk
-      when :very_hot then
-        context.fail!("Can't make a latte from a milk that's very hot!")
-      when :super_hot then
-        context.fail_with_rollback!("Can't make a latte from a milk that's super hot!")
-      when "5%" then
-        context.skip_remaining!("Can't make a latte with a fatty milk like that!")
+
+      if context.milk == "5%"
+        msg = "Can't make a latte with a fatty milk like that!"
+        context.skip_remaining!(msg)
         next context
       end
     end
@@ -472,7 +482,9 @@ module TestDoubles
   class NullAction
     extend FunctionalLightService::Action
 
+    # rubocop:disable Lint/EmptyBlock
     executed { |_ctx| }
+    # rubocop:enable Lint/EmptyBlock
   end
 
   class TestIterate

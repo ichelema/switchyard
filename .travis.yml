@@ -4,9 +4,9 @@ env:
   - RUN_COVERAGE_REPORT=true
 
 rvm:
-  - 2.5.3
   - 2.6.0
   - 2.7.0
+  - 3.0.0
 
 before_install:
   - 'echo ''gem: --no-ri --no-rdoc'' > ~/.gemrc'
@@ -20,5 +20,5 @@ script:
   - bundle exec rubocop
 
 gemfile:
-  - gemfiles/dry_inflector_0_2.gemfile
-  - gemfiles/i18n_1_8.gemfile
+  - gemfiles/dry_inflector_0_2_1.gemfile
+  - gemfiles/i18n_1_8_11.gemfile

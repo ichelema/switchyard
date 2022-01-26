@@ -1,5 +1,5 @@
 module FunctionalLightService
-  # rubocop:disable ClassLength
+  # rubocop:disable Metrics/ClassLength
   class Context < Hash
     include FunctionalLightService::Prelude::Option
     include FunctionalLightService::Prelude::Result
@@ -150,5 +150,5 @@ module FunctionalLightService
       "'#{value}'"
     end
   end
-  # rubocop:enable ClassLength
+  # rubocop:enable Metrics/ClassLength
 end

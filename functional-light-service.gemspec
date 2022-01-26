@@ -16,13 +16,17 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = FunctionalLightService::VERSION
 
-  gem.add_dependency("dry-inflector", ">= 0.2.0")
-  gem.add_dependency("i18n", ">= 1.8.2")
+  gem.add_dependency("dry-inflector", ">= 0.2.1")
+  gem.add_dependency("i18n", ">= 1.8.11")
   
-  gem.add_development_dependency("i18n", ">= 1.8.2")
-  gem.add_development_dependency("dry-inflector", ">= 0.2.0")
-  gem.add_development_dependency("rspec", "~> 3.0")
+
+  gem.add_development_dependency("i18n", ">= 1.8.11")
+  gem.add_development_dependency("dry-inflector", ">= 0.2.1")
+  gem.add_development_dependency("rspec", "~> 3.10.0")
   gem.add_development_dependency("simplecov", "~> 0.16.1")
-  gem.add_development_dependency("rubocop", "~> 0.63.1")
-  gem.add_development_dependency("pry", "~> 0.12.2")
+  gem.add_development_dependency("rubocop", "~> 1.25.0")
+  gem.add_development_dependency("rubocop-performance", "~> 1.13.2")
+  gem.add_development_dependency("pry", "~> 0.14.1")
+  gem.add_development_dependency("solargraph", "~> 0.44.2")
+  gem.add_development_dependency("nokogiri", "~> 1.12.5")
 end
