@@ -1,3 +1,9 @@
+## 0.4.0 (2022-01-27)
+### Aupdated
+-  Aggioranto il readme, invece di travis uso il simbolo di github actions per vedere se tutti i test hanno dato esito positivo (rubocop,rspec)  ( 2022-01-27 ) [ sphynx79]
+
+
+
 ## 0.3.9 (2022-01-26)
 
 
