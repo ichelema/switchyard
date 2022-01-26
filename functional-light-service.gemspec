@@ -17,12 +17,12 @@ Gem::Specification.new do |gem|
   gem.version       = FunctionalLightService::VERSION
   gem.required_ruby_version = '>= 2.6.0'
 
-  gem.add_dependency("dry-inflector", ">= 0.2.1")
-  gem.add_dependency("i18n", ">= 1.8.11")
+  gem.add_runtime_dependency("dry-inflector", "~> 0.2", ">= 0.2.1")
+  gem.add_runtime_dependency("i18n", "~> 1.8", ">= 1.8.11")
   
 
-  gem.add_development_dependency("i18n", ">= 1.8.11")
-  gem.add_development_dependency("dry-inflector", ">= 0.2.1")
+  gem.add_development_dependency("i18n", "~> 1.8", ">= 1.8.11")
+  gem.add_development_dependency("dry-inflector", "~> 0.2", ">= 0.2.1")
   gem.add_development_dependency("rspec", "~> 3.10.0")
   gem.add_development_dependency("simplecov", "~> 0.16.1")
   gem.add_development_dependency("rubocop", "~> 1.25.0")
