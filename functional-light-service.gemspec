@@ -15,6 +15,7 @@ Gem::Specification.new do |gem|
   gem.name          = "functional-light-service"
   gem.require_paths = ["lib"]
   gem.version       = FunctionalLightService::VERSION
+  gem.required_ruby_version = '>= 2.6.0'
 
   gem.add_dependency("dry-inflector", ">= 0.2.1")
   gem.add_dependency("i18n", ">= 1.8.11")
