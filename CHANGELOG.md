@@ -1,3 +1,9 @@
+## 0.4.4 (2022-01-27)
+### Updated
+-  Aggiornato la versione è sistemato problema upload codeconv  ( 2022-01-27 ) [ sphynx79]
+
+
+
 ## 0.4.3 (2022-01-27)
 ### Added
 -  Aggiunto lo stato di codecov nel file readme  ( 2022-01-27 ) [ sphynx79]
