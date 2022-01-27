@@ -1,16 +1,17 @@
 $LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'lib')
 $LOAD_PATH << File.join(File.dirname(__FILE__))
 
-if ENV['RUN_COVERAGE_REPORT']
-  require 'simplecov'
+require 'simplecov'
 
-  SimpleCov.start do
-    add_filter 'vendor/'
-    add_filter %r{^/spec/}
-  end
-
-  SimpleCov.minimum_coverage_by_file 90
+SimpleCov.start do
+  add_filter 'vendor/'
+  add_filter %r{^/spec/}
 end
+
+SimpleCov.minimum_coverage_by_file 90
+
+require 'simplecov-cobertura'
+SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 
 require 'functional-light-service'
 require 'functional-light-service/testing'
