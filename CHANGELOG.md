@@ -1,3 +1,9 @@
+## 0.4.3 (2022-01-27)
+### Added
+-  Aggiunto lo stato di codecov nel file readme  ( 2022-01-27 ) [ sphynx79]
+
+
+
 ## 0.4.2 (2022-01-27)
 ### Fixed
 -  sistemato il path dove codeconv cerca il file del coverage  ( 2022-01-27 ) [ sphynx79]
