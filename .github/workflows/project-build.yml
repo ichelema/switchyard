@@ -23,10 +23,13 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-      - run: bundle install
+      - run: bundle config set without 'development'
+      - run: bundle install --jobs 4 --retry 3
       - run: bundle exec rspec spec
       - run: bundle exec rubocop
+  codecov:
     steps:
+      - uses: actions/checkout@v2
       - uses: codecov/codecov-action@v2
         with:
           files: ./coverage/coverage.xml # optional
