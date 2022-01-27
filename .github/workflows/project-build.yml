@@ -28,7 +28,7 @@ jobs:
       - run: bundle exec rubocop
       - uses: codecov/codecov-action@v2
         with:
-          files: ./coverage/coverage1.xml # optional
+          files: ./coverage/coverage.xml # optional
           flags: unittests # optional
           name: codecov-simplecov # optional
           verbose: true # optional (default = false)
