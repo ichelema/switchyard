@@ -26,6 +26,7 @@ jobs:
       - run: bundle install
       - run: bundle exec rspec spec
       - run: bundle exec rubocop
+    steps:
       - uses: codecov/codecov-action@v2
         with:
           files: ./coverage/coverage.xml # optional

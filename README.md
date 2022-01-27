@@ -1,6 +1,7 @@
 # FunctionalLightService
 [![Gem Version](https://img.shields.io/gem/v/functional-light-service.svg)](https://rubygems.org/gems/functional-light-service)
 [![CI Tests](https://github.com/sphynx79/functional-light-service/actions/workflows/project-build.yml/badge.svg)](https://github.com/sphynx79/functional-light-service/actions/workflows/project-build.yml)
+[![Codecov](https://codecov.io/gh/sphynx79/functional-light-service/branch/master/graph/badge.svg)](https://app.codecov.io/gh/sphynx79/functional-light-service)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](http://opensource.org/licenses/MIT)
 [![Download Count](https://ruby-gem-downloads-badge.herokuapp.com/functional-light-service?type=total)](https://rubygems.org/gems/functional-light-service)
 
