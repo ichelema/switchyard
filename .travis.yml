@@ -20,5 +20,5 @@ script:
   - bundle exec rubocop
 
 gemfile:
-  - gemfiles/dry_inflector_0_2_1.gemfile
-  - gemfiles/i18n_1_8_11.gemfile
+  - gemfiles/dry_inflector_0.2.1.gemfile
+  - gemfiles/i18n_1.8.11.gemfile
