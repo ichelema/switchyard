@@ -1,3 +1,11 @@
+## 0.4.5 (2022-01-29)
+### Fixed
+-  corretto il problema di spec che non passava i test option_spec match  ( 2022-01-29 ) [ sphynx79]
+-   Aggiornato Appraisals per eseguire i test rspec e rubocop con diverse versione di i18n e dry_inflector  ( 2022-01-28 ) [ sphynx79]
+-  Fix the spec description, order <=200 should not have free shipping  ( 2022-01-27 ) [ sphynx79]
+
+
+
 ## 0.4.4 (2022-01-27)
 ### Updated
 -  Aggiornato la versione è sistemato problema upload codeconv  ( 2022-01-27 ) [ sphynx79]
