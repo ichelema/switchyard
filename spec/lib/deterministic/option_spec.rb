@@ -1,10 +1,13 @@
 require 'spec_helper'
 
 # rubocop:disable Style/MixinUsage
-include FunctionalLightService::Prelude::Option
+include FunctionalLightService
 # rubocop:enable Style/MixinUsage
 
 describe FunctionalLightService::Option do
+  include FunctionalLightService::Prelude::Option
+  None = FunctionalLightService::Prelude::Option::None
+
   specify { expect(described_class::Some.new(0)).to be_a described_class::Some }
   specify { expect(described_class::Some.new(0)).to be_a described_class }
   specify { expect(described_class::Some.new(0)).to eq Some(0) }
@@ -72,27 +75,31 @@ describe FunctionalLightService::Option do
   end
 
   it "match" do
-    # expect(
-    #   Some(0).match do
-    #     Some(where { s == 1 }) { |_s| 99 }
-    #     Some(where { s == 0 }) { |s| s + 1 }
-    #     None() {}
-    #   end
-    # ).to eq 1
+    expect(
+      # rubocop:disable Lint/UnusedBlockArgument
+      # rubocop:disable Lint/EmptyBlock
+      Some(0).match do
+        Some(where { s == 1 }) { |s| 99 }
+        Some(where { s == 0 }) { |s| s + 1 }
+        None() {}
+      end
+    ).to eq 1
 
     expect(
       Some(1).match do
         None() { 0 }
-        Some() { |_s| 1 }
+        Some() { |s| 1 }
       end
     ).to eq 1
 
-    # expect(
-    #   Some(1).match do
-    #     None() { 0 }
-    #     Some(where { s.is_a? Integer }) { |_s| 1 }
-    #   end
-    # ).to eq 1
+    expect(
+      Some(1).match do
+        None() { 0 }
+        Some(where { s.is_a? Integer }) { |s| 1 }
+      end
+      # rubocop:enable Lint/UnusedBlockArgument
+      # rubocop:enable Lint/EmptyBlock
+    ).to eq 1
 
     expect(
       None.match do
