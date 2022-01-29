@@ -1,3 +1,9 @@
+## 0.4.6 (2022-01-29)
+### Fixed
+-  sistemato problema github action non trovava i gemfile rinominati  ( 2022-01-29 ) [ sphynx79]
+
+
+
 ## 0.4.5 (2022-01-29)
 ### Fixed
 -  corretto il problema di spec che non passava i test option_spec match  ( 2022-01-29 ) [ sphynx79]
