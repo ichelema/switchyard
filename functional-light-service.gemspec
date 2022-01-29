@@ -21,9 +21,11 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency("i18n", "~> 1.8", ">= 1.8.11")
   
 
+  gem.add_development_dependency("rake", "~> 13.0.6", ">= 13.0.6")
   gem.add_development_dependency("i18n", "~> 1.8", ">= 1.8.11")
   gem.add_development_dependency("dry-inflector", "~> 0.2", ">= 0.2.1")
   gem.add_development_dependency("rspec", "~> 3.10.0")
+  gem.add_development_dependency("rspec-mocks", "= 3.10.2")
   gem.add_development_dependency("simplecov", "~> 0.21.2")
   gem.add_development_dependency("simplecov-cobertura", "~> 2.1.0")
   gem.add_development_dependency("rubocop", "~> 1.25.0")
