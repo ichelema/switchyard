@@ -1,13 +1,10 @@
 require 'spec_helper'
 
 # rubocop:disable Style/MixinUsage
-include FunctionalLightService
+include FunctionalLightService::Prelude::Option
 # rubocop:enable Style/MixinUsage
 
 describe FunctionalLightService::Option do
-  include FunctionalLightService::Prelude::Option
-  None = FunctionalLightService::Prelude::Option::None
-
   specify { expect(described_class::Some.new(0)).to be_a described_class::Some }
   specify { expect(described_class::Some.new(0)).to be_a described_class }
   specify { expect(described_class::Some.new(0)).to eq Some(0) }

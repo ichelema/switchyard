@@ -23,7 +23,6 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency("i18n", "~> 1.8", ">= 1.8.11")
   gem.add_development_dependency("dry-inflector", "~> 0.2", ">= 0.2.1")
-  gem.add_development_dependency("appraisal", "~> 2.4.1")
   gem.add_development_dependency("rspec", "~> 3.10.0")
   gem.add_development_dependency("simplecov", "~> 0.21.2")
   gem.add_development_dependency("simplecov-cobertura", "~> 2.1.0")
