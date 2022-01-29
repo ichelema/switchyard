@@ -14,7 +14,7 @@ jobs:
       matrix:
         os: [ubuntu, macos, windows]
         ruby: [2.6.8, 2.7.4, 3.0.2]
-        gemfile: [dry_inflector_0.2.1, i18n_1.8.11]
+        gemfile: [dry_inflector_0_2_1, i18n_1_8_11]
     continue-on-error: ${{ endsWith(matrix.ruby, 'head') || matrix.ruby == 'debug' }}
     env: # $BUNDLE_GEMFILE must be set at the job level, so it is set for all steps
       BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
