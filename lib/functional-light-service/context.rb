@@ -3,7 +3,7 @@ module FunctionalLightService
   class Context < Hash
     include FunctionalLightService::Prelude::Option
     include FunctionalLightService::Prelude::Result
-    attr_accessor :outcome, :current_action
+    attr_accessor :outcome, :current_action, :organized_by
 
     # rubocop:disable Lint/MissingSuper
     def initialize(context = {},
