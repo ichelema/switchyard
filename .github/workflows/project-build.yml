@@ -29,8 +29,15 @@ jobs:
   codecov:
     name: Codecov
     runs-on: ubuntu-latest
+    env:
+      RUN_COVERAGE_REPORT: true
     steps:
       - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.0.2
+      - run: bundle install --jobs 4 --retry 3
+      - run: bundle exec rspec spec
       - uses: codecov/codecov-action@v2
         with:
           files: ./coverage/coverage.xml # optional
