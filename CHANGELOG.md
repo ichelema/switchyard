@@ -1,3 +1,27 @@
+## 0.5.0 (2022-01-30)
+### GitHub
+-  Aggiunto variabile RUN_COVERAGE_REPORT per eseguire il coverage solo nelle azioni di github  ( 2022-01-30 ) [ sphynx79]
+
+### Github
+-  Aggiornato il sistema per fare l'upload del coverage in https://docs.codecov.com/ nelle action di github  ( 2022-01-30 ) [ sphynx79]
+
+### Test
+-  organized_by with TestReduceIf organizer  ( 2022-01-30 ) [ sphynx79]
+-  amend expectation titles to be clearer  ( 2022-01-30 ) [ sphynx79]
+-  ensure that ctx.organized_by returns correct values  ( 2022-01-30 ) [ sphynx79]
+
+### Style
+-  sistemato per rubocop 2 allinemaenti parametri keyword  ( 2022-01-30 ) [ sphynx79]
+
+### Doc
+-  update README with notes about organized_by re: rollback  ( 2022-01-30 ) [ sphynx79]
+
+### Added
+-  ensure organized_by attr is set on context when Organizer is used  ( 2022-01-30 ) [ sphynx79]
+-  add `Context#organized_by` attr  ( 2022-01-30 ) [ sphynx79]
+
+
+
 ## 0.4.9 (2022-01-30)
 ### Added
 -  Agginyo altri test per #add_to_context e #add_aliases e inserito nel README l'utilizzo di add_to_context  ( 2022-01-30 ) [ sphynx79]
