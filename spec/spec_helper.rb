@@ -11,13 +11,13 @@ if ENV['RUN_COVERAGE_REPORT']
 
   SimpleCov.minimum_coverage_by_file 90
 
-  require 'simplecov-cobertura'
+  require "simplecov-cobertura"
   SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 end
 
-require 'functional-light-service'
-require 'functional-light-service/testing'
+require "functional-light-service"
+require "functional-light-service/testing"
 require "functional-light-service/functional/null"
-require 'support'
-require 'test_doubles'
-require 'stringio'
+require "support"
+require "test_doubles"
+require "stringio"
