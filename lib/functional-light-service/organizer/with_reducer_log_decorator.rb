@@ -8,6 +8,9 @@ module FunctionalLightService
       def initialize(organizer, logger:, decorated: WithReducer.new)
         @decorated = decorated
         @organizer = organizer
+
+        decorated.organizer = organizer
+
         @logger = logger
         @logged = false
       end

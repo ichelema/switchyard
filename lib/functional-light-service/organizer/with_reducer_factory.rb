@@ -3,7 +3,7 @@ module FunctionalLightService
     class WithReducerFactory
       def self.make(monitored_organizer)
         logger = monitored_organizer.logger || FunctionalLightService::Configuration.logger
-        decorated = WithReducer.new
+        decorated = WithReducer.new(monitored_organizer)
 
         return decorated if logger.nil?
 
