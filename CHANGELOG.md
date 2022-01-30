@@ -1,3 +1,9 @@
+## 0.4.8 (2022-01-30)
+### Added
+-  Aggiuhnto il supporto per add_to_context and add_aliases organizer methods  ( 2022-01-30 ) [ sphynx79]
+
+
+
 ## 0.4.7 (2022-01-29)
 ### Fixed
 -  sistemato il problema di rspec che mi dava un errore su un test ho dovuto fissare rspec-mocks alla versione 3.10.2 la 3.10.3 mi dava problemi  ( 2022-01-29 ) [ sphynx79]
