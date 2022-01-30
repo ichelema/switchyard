@@ -91,10 +91,11 @@ describe FunctionalLightService::Organizer do
     end
   end
 
-  context "#add_to_context" do
-    it 'should add to the context' do
+  context "can add items to the context" do
+    specify 'with #add_to_context' do
       result = TestDoubles::AnOrganizerThatAddsToContext.call
       expect(result[:strongest_avenger]).to eq :thor
+      expect(result[:last_jedi]).to eq "Rey"
     end
   end
 
