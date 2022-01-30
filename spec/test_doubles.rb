@@ -561,4 +561,30 @@ module TestDoubles
       ctx.total += ctx.number
     end
   end
+
+  class AnOrganizerThatAddsToContext
+    extend FunctionalLightService::Organizer
+    def self.call
+      with.reduce(actions)
+    end
+
+    def self.actions
+      [
+        add_to_context(:strongest_avenger => :thor)
+      ]
+    end
+  end
+
+  class AnOrganizerThatAddsAliases
+    extend FunctionalLightService::Organizer
+    def self.call
+      with(:foo => :bar).reduce(actions)
+    end
+
+    def self.actions
+      [
+        add_aliases(:foo => :baz)
+      ]
+    end
+  end
 end

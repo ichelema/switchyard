@@ -63,6 +63,16 @@ module FunctionalLightService
       def logger
         @logger
       end
+
+      def add_to_context(**args)
+        args.map do |key, value|
+          execute(->(ctx) { ctx[key.to_sym] = value })
+        end
+      end
+
+      def add_aliases(args)
+        execute(->(ctx) { ctx.assign_aliases(ctx.aliases.merge(args)) })
+      end
     end
 
     module Macros
