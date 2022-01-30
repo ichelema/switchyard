@@ -562,6 +562,16 @@ module TestDoubles
     end
   end
 
+  class CapitalizeMessage
+    extend FunctionalLightService::Action
+    expects :a_message
+    promises :final_message
+
+    executed do |ctx|
+      ctx.final_message = ctx.a_message.upcase
+    end
+  end
+
   class AnOrganizerThatAddsToContext
     extend FunctionalLightService::Organizer
     def self.call
