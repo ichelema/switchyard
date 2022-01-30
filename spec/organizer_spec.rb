@@ -99,9 +99,10 @@ describe FunctionalLightService::Organizer do
     end
   end
 
-  context "#add_aliases" do
-    it 'should add to the aliases' do
+  context "can assign key aliaeses" do
+    it 'with #add_aliases' do
       result = TestDoubles::AnOrganizerThatAddsAliases.call
+      expect(result[:foo]).to eq :bar
       expect(result[:baz]).to eq :bar
     end
   end
