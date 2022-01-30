@@ -1,3 +1,13 @@
+## 0.4.9 (2022-01-30)
+### Added
+-  Agginyo altri test per #add_to_context e #add_aliases e inserito nel README l'utilizzo di add_to_context  ( 2022-01-30 ) [ sphynx79]
+
+### Changed
+-  migliorato spec per #add_aliases method  ( 2022-01-30 ) [ sphynx79]
+-  migliorato la descrizione per spec add add_to_context method  ( 2022-01-30 ) [ sphynx79]
+
+
+
 ## 0.4.8 (2022-01-30)
 ### Added
 -  Aggiuhnto il supporto per add_to_context and add_aliases organizer methods  ( 2022-01-30 ) [ sphynx79]
