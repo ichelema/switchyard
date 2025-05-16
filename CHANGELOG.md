@@ -1,3 +1,8 @@
+## 0.5.2 (2022-01-30)
+### Fixed
+-  Risoltro problema codecov upload perche non avevo settato il token ( 2025-05-16 ) [ sphynx79]
+
+
 ## 0.5.1 (2022-01-30)
 ### Removed
 -  Rimuove supporto Travis CI, migrazione completa a GitHub Actions ( 2025-05-16 ) [ sphynx79]
