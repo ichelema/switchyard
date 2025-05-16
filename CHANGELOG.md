@@ -1,3 +1,7 @@
+## 0.5.1 (2022-01-30)
+### Removed
+-  Rimuove supporto Travis CI, migrazione completa a GitHub Actions ( 2025-05-16 ) [ sphynx79]
+
 ## 0.5.0 (2022-01-30)
 ### GitHub
 -  Aggiunto variabile RUN_COVERAGE_REPORT per eseguire il coverage solo nelle azioni di github  ( 2022-01-30 ) [ sphynx79]
