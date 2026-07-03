@@ -38,12 +38,13 @@ RSpec.describe 'Action before_actions' do
     module BeforeActions
       class AdditionOrganizer
         extend FunctionalLightService::Organizer
-        before_actions (->(ctx) do
-                          ctx.number -= 2 if ctx.current_action == TestDoubles::AddsOneAction
-                        end),
-                       (->(ctx) do
+
+        before_actions ->(ctx) do
+          ctx.number -= 2 if ctx.current_action == TestDoubles::AddsOneAction
+        end,
+                       ->(ctx) do
                          ctx.number -= 3 if ctx.current_action == TestDoubles::AddsThreeAction
-                       end)
+                       end
 
         def self.call(number)
           with(:number => number).reduce(actions)

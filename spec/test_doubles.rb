@@ -3,11 +3,13 @@
 module TestDoubles
   class RollbackAction
     extend FunctionalLightService::Action
+
     executed(&:fail_with_rollback!)
   end
 
   class RaiseErrorAction
     extend FunctionalLightService::Action
+
     executed do |_ctx|
       raise 'A problem has occured.'
     end
@@ -15,6 +17,7 @@ module TestDoubles
 
   class RaiseAnotherErrorAction
     extend FunctionalLightService::Action
+
     executed do |_ctx|
       raise 'More problems'
     end
@@ -22,16 +25,19 @@ module TestDoubles
 
   class SkipAllAction
     extend FunctionalLightService::Action
+
     executed(&:skip_remaining!)
   end
 
   class FailureAction
     extend FunctionalLightService::Action
+
     executed(&:fail!)
   end
 
   class AddTwoOrganizer
     extend FunctionalLightService::Organizer
+
     def self.call(context)
       with(context).reduce([AddsOneAction, AddsOneAction])
     end
@@ -68,6 +74,7 @@ module TestDoubles
 
   class AroundEachOrganizer
     extend FunctionalLightService::Organizer
+
     def self.call(action_arguments)
       with(action_arguments)
         .around_each(AroundEachLoggerHandler)
@@ -140,6 +147,7 @@ module TestDoubles
 
   class MakesTeaWithMilkAction
     extend FunctionalLightService::Action
+
     expects :tea, :milk
     promises :milk_tea
 
@@ -150,24 +158,27 @@ module TestDoubles
 
   class MultipleExpectsAction
     extend FunctionalLightService::Action
+
     expects :tea
     expects :milk, :chocolate
     promises :milk_tea
 
     executed do |context|
-      context.milk_tea = "#{context.tea} - #{context.milk}"\
-                         " - with #{context.chocolate}"
+      context.milk_tea = "#{context.tea} - #{context.milk} " \
+                         "- with #{context.chocolate}"
     end
   end
 
   class MakesCappuccinoAction
     extend FunctionalLightService::Action
+
     expects :coffee, :milk
     promises :cappuccino
   end
 
   class MakesLatteAction
     extend FunctionalLightService::Action
+
     expects :coffee, :milk
     promises :latte
 
@@ -191,6 +202,7 @@ module TestDoubles
 
   class MultiplePromisesAction
     extend FunctionalLightService::Action
+
     expects :coffee, :milk
     promises :cappuccino
     promises :latte
@@ -287,6 +299,7 @@ module TestDoubles
 
   class AddsOneAction
     extend FunctionalLightService::Action
+
     expects :number
     promises :number
 
@@ -297,6 +310,7 @@ module TestDoubles
 
   class AddsTwoAction
     extend FunctionalLightService::Action
+
     expects :number
 
     executed do |context|
@@ -306,6 +320,7 @@ module TestDoubles
 
   class AddsThreeAction
     extend FunctionalLightService::Action
+
     expects :number
 
     executed do |context|
@@ -333,6 +348,7 @@ module TestDoubles
 
   class AddsOneIteratesAction
     extend FunctionalLightService::Action
+
     expects :numbers
     promises :numbers
 
@@ -361,6 +377,7 @@ module TestDoubles
 
   class AddTenCallbackAction
     extend FunctionalLightService::Action
+
     expects :number, :callback
 
     executed do |context|
@@ -408,6 +425,7 @@ module TestDoubles
 
   class MakesTeaExpectingReservedKey
     extend FunctionalLightService::Action
+
     expects :tea, :message
 
     executed do |context|
@@ -417,6 +435,7 @@ module TestDoubles
 
   class MakesTeaExpectingMultipleReservedKeys
     extend FunctionalLightService::Action
+
     expects :tea, :message, :error_code, :current_action
 
     executed do |context|
@@ -426,6 +445,7 @@ module TestDoubles
 
   class MakesTeaPromisingReservedKey
     extend FunctionalLightService::Action
+
     expects :tea
     promises :product, :message
 
@@ -436,6 +456,7 @@ module TestDoubles
 
   class MakesTeaPromisingMultipleReservedKeys
     extend FunctionalLightService::Action
+
     expects :tea
     promises :product, :message, :error_code, :current_action
 
@@ -446,6 +467,7 @@ module TestDoubles
 
   class MakesTeaPromisingKeyButRaisesException
     extend FunctionalLightService::Action
+
     promises :product
 
     executed do |context|
@@ -522,6 +544,7 @@ module TestDoubles
 
   class SetUpContextAction
     extend FunctionalLightService::Action
+
     promises :numbers, :counter, :total
 
     executed do |ctx|
@@ -533,6 +556,7 @@ module TestDoubles
 
   class IterateCollectionAction
     extend FunctionalLightService::Action
+
     expects :numbers, :callback
     promises :number
 
@@ -546,6 +570,7 @@ module TestDoubles
 
   class IncrementCountAction
     extend FunctionalLightService::Action
+
     expects :counter
 
     executed do |ctx|
@@ -555,6 +580,7 @@ module TestDoubles
 
   class AddToTotalAction
     extend FunctionalLightService::Action
+
     expects :number, :total
 
     executed do |ctx|
@@ -564,6 +590,7 @@ module TestDoubles
 
   class CapitalizeMessage
     extend FunctionalLightService::Action
+
     expects :a_message
     promises :final_message
 
@@ -574,6 +601,7 @@ module TestDoubles
 
   class AnOrganizerThatAddsToContext
     extend FunctionalLightService::Organizer
+
     def self.call
       with.reduce(actions)
     end
@@ -588,6 +616,7 @@ module TestDoubles
 
   class AnOrganizerThatAddsAliases
     extend FunctionalLightService::Organizer
+
     def self.call
       with(:foo => :bar).reduce(actions)
     end

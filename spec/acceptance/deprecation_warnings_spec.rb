@@ -36,7 +36,7 @@ describe "deprecation warnings" do
   context "when using Maybe/Null" do
     it "warns once per process" do
       expect { Maybe(nil) }
-        .to output(/Maybe\(\)\/Null are deprecated/).to_stderr
+        .to output(%r{Maybe\(\)/Null are deprecated}).to_stderr
       # warn-once: la seconda invocazione non emette nulla
       expect { Maybe(nil) }.not_to output.to_stderr
     end

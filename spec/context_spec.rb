@@ -167,7 +167,8 @@ RSpec.describe FunctionalLightService::Context do
   end
 
   it "allows a default block value for #fetch" do
-    expect(context.fetch(:madeup) { :default }).to eq(:default)
+    # la forma a blocco e' esattamente cio' che il test verifica
+    expect(context.fetch(:madeup) { :default }).to eq(:default) # rubocop:disable Style/RedundantFetchBlock
   end
 
   describe "#define_accessor_methods_for_keys" do
@@ -189,8 +190,9 @@ RSpec.describe FunctionalLightService::Context do
     it "rejects infrastructure keys in expects/promises" do
       action = Class.new do
         extend FunctionalLightService::Action
+
         expects :_before_actions
-        executed { |_ctx| }
+        executed { |_ctx| } # rubocop:disable Lint/EmptyBlock
       end
 
       expect { action.execute(:_before_actions => []) }
@@ -226,7 +228,7 @@ RSpec.describe FunctionalLightService::Context do
 
     it "does not write to the context when a default is used" do
       context.fetch(:madeup, :default)
-      context.fetch(:another_madeup) { :default }
+      context.fetch(:another_madeup) { :default } # rubocop:disable Style/RedundantFetchBlock
 
       expect(context.to_h).not_to have_key(:madeup)
       expect(context.to_h).not_to have_key(:another_madeup)
@@ -274,7 +276,7 @@ RSpec.describe FunctionalLightService::Context do
 
     it "resolves aliases in #key? and friends" do
       expect(context.key?(:bar)).to be(true)
-      expect(context.has_key?(:bar)).to be(true)
+      expect(context.has_key?(:bar)).to be(true) # rubocop:disable Style/PreferredHashMethods
       expect(context.member?(:bar)).to be(true)
       expect(context.include?(:bar)).to be(true)
       expect(context.key?(:madeup)).to be(false)

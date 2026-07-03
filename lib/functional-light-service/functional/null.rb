@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # The simplest NullObject there can be
 class Null
   class << self

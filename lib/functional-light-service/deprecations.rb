@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   # Deprecation warnings non fatali: ogni messaggio viene emesso una sola
   # volta per processo (su stderr) e puo' essere silenziato globalmente,

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   module Action
     def self.extended(base_class)

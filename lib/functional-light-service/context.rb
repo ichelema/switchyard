@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   # rubocop:disable Metrics/ClassLength
   class Context < Hash
     include FunctionalLightService::Prelude::Option
     include FunctionalLightService::Prelude::Result
+
     attr_reader :outcome
     attr_accessor :current_action, :organized_by
 
@@ -157,8 +160,8 @@ module FunctionalLightService
       super(resolve_key(key), value)
     end
 
-    def fetch(key, *args, &blk)
-      super(resolve_key(key), *args, &blk)
+    def fetch(key, ...)
+      super(resolve_key(key), ...)
     end
 
     def key?(key)

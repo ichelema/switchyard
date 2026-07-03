@@ -1,8 +1,6 @@
 require 'spec_helper'
 
-# rubocop:disable Style/MixinUsage
 include FunctionalLightService::Prelude::Option
-# rubocop:enable Style/MixinUsage
 
 describe FunctionalLightService::Option do
   it "Some cannot wrap nil" do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   module Enum
     class MatchError < StandardError; end
@@ -12,8 +14,8 @@ module FunctionalLightService
       module AnyEnum
         include FunctionalLightService::Monad
 
-        def match(&block)
-          parent.match(self, &block)
+        def match(&)
+          parent.match(self, &)
         end
 
         def to_s
@@ -67,11 +69,11 @@ module FunctionalLightService
       # TODO: this should probably be named Multary
       module Binary
         def initialize(*init)
-          unless (init.count == 1 && init[0].is_a?(Hash)) || init.count == args.count
+          unless (init.one? && init[0].is_a?(Hash)) || init.count == args.count
             raise ArgumentError, "Expected arguments for #{args}, got #{init}"
           end
 
-          @value = if init.count == 1 && init[0].is_a?(Hash)
+          @value = if init.one? && init[0].is_a?(Hash)
                      args.zip(init[0].values).to_h
                    else
                      args.zip(init).to_h
@@ -95,6 +97,7 @@ module FunctionalLightService
         dt.instance_eval do
           public_class_method :new
           include AnyEnum
+
           define_method(:args) { args }
 
           define_method(:parent) { parent }
@@ -105,6 +108,7 @@ module FunctionalLightService
         when 0
           dt.instance_eval do
             include Nullary
+
             private :value
           end
         when 1
@@ -176,7 +180,7 @@ module FunctionalLightService
         type_matches.each do |match|
           obj, _type, block, args, guard = match
 
-          return caller_ctx.instance_eval(&block) if args.count.zero?
+          return caller_ctx.instance_eval(&block) if args.empty?
 
           if args.count != obj.args.count
             msg = "Pattern (#{args.join(', ')}) must match (#{obj.args.join(', ')})"
@@ -276,9 +280,7 @@ module FunctionalLightService
 
   def impl(enum_type, &block)
     enum_type.variants.each do |v|
-      name = "#{enum_type.name}::#{v}"
-      type = Kernel.eval(name)
-      type.class_eval(&block)
+      enum_type.const_get(v).class_eval(&block)
     end
   end
 end
