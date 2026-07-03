@@ -94,6 +94,44 @@ class AddsTwoActionWithRollback
   end
 end
 
+class RollbackOrganizerWithDuplicatedAction
+  extend FunctionalLightService::Organizer
+
+  def self.call(ctx)
+    with(ctx).reduce(
+      TracksRollbackAction,
+      FailsOnSecondRunWithRollbackAction,
+      TracksRollbackAction,
+      FailsOnSecondRunWithRollbackAction
+    )
+  end
+end
+
+class TracksRollbackAction
+  extend FunctionalLightService::Action
+
+  executed do |context|
+    (context[:executed] ||= []) << :tracks
+  end
+
+  rolled_back do |context|
+    (context[:rolled_back] ||= []) << :tracks
+  end
+end
+
+class FailsOnSecondRunWithRollbackAction
+  extend FunctionalLightService::Action
+
+  executed do |context|
+    (context[:executed] ||= []) << :fails
+    context.fail_with_rollback!("boom") if context[:executed].count(:fails) == 2
+  end
+
+  rolled_back do |context|
+    (context[:rolled_back] ||= []) << :fails
+  end
+end
+
 describe "Rolling back actions when there is a failure" do
   it "Adds 1, 2, 3 to 1 and rolls back " do
     result = RollbackOrganizer.call 1
@@ -128,5 +166,14 @@ describe "Rolling back actions when there is a failure" do
 
     expect(result).to be_failure
     expect(number).to eq(-1)
+  end
+
+  it "rolls back every executed action when the same action appears twice" do
+    result = RollbackOrganizerWithDuplicatedAction.call({})
+
+    expect(result).to be_failure
+    expect(result[:executed]).to eq(%i[tracks fails tracks fails])
+    # tutte e 4 le azioni eseguite vengono compensate, in ordine inverso
+    expect(result[:rolled_back]).to eq(%i[fails tracks fails tracks])
   end
 end
