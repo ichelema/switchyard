@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 require 'logger'
 
 require 'functional-light-service/version'
 
 module FunctionalLightService; end
 
+require 'functional-light-service/deprecations'
 require 'functional-light-service/functional/monad'
 require 'functional-light-service/functional/enum'
 require 'functional-light-service/functional/result'
@@ -23,6 +26,5 @@ require 'functional-light-service/organizer/reduce_until'
 require 'functional-light-service/organizer/iterate'
 require 'functional-light-service/organizer/execute'
 require 'functional-light-service/organizer/with_callback'
-require 'functional-light-service/organizer/verify_call_method_exists'
 require 'functional-light-service/action'
 require 'functional-light-service/organizer'

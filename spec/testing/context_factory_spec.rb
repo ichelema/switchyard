@@ -4,6 +4,10 @@ require "test_doubles"
 describe "ContextFactory - used with AdditionOrganizer" do
   let(:organizer) { TestDoubles::AdditionOrganizer }
 
+  after do
+    TestDoubles::AdditionOrganizer.before_actions = nil
+  end
+
   context "when called with the first action" do
     it "does not alter the context" do
       ctx = FunctionalLightService::Testing::ContextFactory
@@ -50,6 +54,23 @@ describe "ContextFactory - used with AdditionOrganizer" do
 
       expect(context.number).to eq(8)
       expect(context[:_before_actions].length).to eq(1)
+    end
+  end
+
+  context "when used repeatedly" do
+    it "does not leave its temporary hook on the organizer class" do
+      2.times do
+        FunctionalLightService::Testing::ContextFactory
+          .make_from(organizer)
+          .for(TestDoubles::AddsTwoAction)
+          .with(1)
+      end
+
+      hooks = organizer.instance_variable_get(:@before_actions)
+      expect(hooks.nil? || hooks.empty?).to be(true)
+
+      # e l'organizer continua a funzionare normalmente
+      expect(organizer.call(1).fetch(:number)).to eq(7)
     end
   end
 end

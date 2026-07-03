@@ -33,6 +33,7 @@ RSpec.describe FunctionalLightService::Organizer do
 
     class SetUpNestedContextAction
       extend FunctionalLightService::Action
+
       promises :outer_numbers, :outer_counter,
                :numbers, :counter, :total
 
@@ -47,6 +48,7 @@ RSpec.describe FunctionalLightService::Organizer do
 
     class IterateOuterCollectionAction
       extend FunctionalLightService::Action
+
       expects :outer_numbers, :callback
       promises :outer_number
 
@@ -60,6 +62,7 @@ RSpec.describe FunctionalLightService::Organizer do
 
     class IncrementOuterCountAction
       extend FunctionalLightService::Action
+
       expects :outer_counter
 
       executed do |ctx|

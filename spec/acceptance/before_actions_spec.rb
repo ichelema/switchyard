@@ -2,6 +2,14 @@ require 'spec_helper'
 require 'test_doubles'
 
 RSpec.describe 'Action before_actions' do
+  # Gli hook restano sulla classe (non vengono piu consumati da #with):
+  # i test double sono condivisi, quindi vanno ripuliti dopo ogni esempio
+  after do
+    TestDoubles::AdditionOrganizer.before_actions = nil
+    TestDoubles::TestIterate.before_actions = nil
+    TestDoubles::TestWithCallback.before_actions = nil
+  end
+
   describe 'works with simple organizers - from outside' do
     it 'can be used to inject code block before each action' do
       TestDoubles::AdditionOrganizer.before_actions = ->(ctx) do
@@ -30,12 +38,13 @@ RSpec.describe 'Action before_actions' do
     module BeforeActions
       class AdditionOrganizer
         extend FunctionalLightService::Organizer
-        before_actions (->(ctx) do
-                          ctx.number -= 2 if ctx.current_action == TestDoubles::AddsOneAction
-                        end),
-                       (->(ctx) do
+
+        before_actions ->(ctx) do
+          ctx.number -= 2 if ctx.current_action == TestDoubles::AddsOneAction
+        end,
+                       ->(ctx) do
                          ctx.number -= 3 if ctx.current_action == TestDoubles::AddsThreeAction
-                       end)
+                       end
 
         def self.call(number)
           with(:number => number).reduce(actions)
@@ -55,6 +64,14 @@ RSpec.describe 'Action before_actions' do
       result = BeforeActions::AdditionOrganizer.call(0)
 
       expect(result.fetch(:number)).to eq(1)
+    end
+
+    it 'keeps the declarative hooks on every subsequent call' do
+      first = BeforeActions::AdditionOrganizer.call(0)
+      second = BeforeActions::AdditionOrganizer.call(0)
+
+      expect(first.fetch(:number)).to eq(1)
+      expect(second.fetch(:number)).to eq(1)
     end
   end
 
