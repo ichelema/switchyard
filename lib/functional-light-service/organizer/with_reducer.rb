@@ -14,17 +14,17 @@ module FunctionalLightService
         self
       end
 
+      # Handler di default condiviso: prima veniva creata una classe anonima
+      # per ogni WithReducer senza around_each
+      NOOP_AROUND_EACH_HANDLER = ->(_context, &block) { block.call }
+
       def around_each(handler)
         @around_each_handler = handler
         self
       end
 
       def around_each_handler
-        @around_each_handler ||= Class.new do
-          def self.call(_context)
-            yield
-          end
-        end
+        @around_each_handler || NOOP_AROUND_EACH_HANDLER
       end
 
       def reduce(*actions)
