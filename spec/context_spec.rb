@@ -170,6 +170,27 @@ RSpec.describe FunctionalLightService::Context do
     expect(context.fetch(:madeup) { :default }).to eq(:default)
   end
 
+  describe "#fail! does not mutate the caller's options hash" do
+    it "leaves :error_code in the original hash" do
+      options = { :error_code => 500 }
+      context.fail!("boom", options)
+
+      expect(options).to eq(:error_code => 500)
+      expect(context.error_code).to eq(500)
+    end
+  end
+
+  describe "#reset_skip_remaining!" do
+    it "clears the flag but keeps the outcome and its message" do
+      context.skip_remaining!("No need to process")
+      context.reset_skip_remaining!
+
+      expect(context.skip_remaining?).to be(false)
+      expect(context).to be_success
+      expect(context.message).to eq("No need to process")
+    end
+  end
+
   describe "#fetch honours the Hash#fetch contract" do
     it "raises KeyError for a missing key without default" do
       expect { context.fetch(:madeup) }.to raise_error(KeyError)

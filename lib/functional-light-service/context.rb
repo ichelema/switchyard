@@ -43,7 +43,7 @@ module FunctionalLightService
     end
 
     def reset_skip_remaining!
-      @outcome = Success(:message => '', :error => nil)
+      # Resetta soltanto il flag: l'esito (e il suo messaggio) non vanno persi
       @skip_remaining = false
     end
 
@@ -66,8 +66,9 @@ module FunctionalLightService
       options_or_error_code ||= {}
 
       if options_or_error_code.is_a?(Hash)
-        error_code = options_or_error_code.delete(:error_code)
-        options = options_or_error_code
+        # dup: l'hash di opzioni appartiene al chiamante e non va mutato
+        options = options_or_error_code.dup
+        error_code = options.delete(:error_code)
       else
         error_code = options_or_error_code
         options = {}
