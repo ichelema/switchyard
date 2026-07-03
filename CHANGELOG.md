@@ -1,3 +1,8 @@
+## 0.5.4 (2026-07-03)
+### Fixed
+-  Blocca rexml < 3.3 per compatibilita con simplecov-cobertura 2.1.0 (fix CI Codecov: Malformed XML No root element) ( 2026-07-03 ) [ sphynx79]
+
+
 ## 0.5.3 (2026-07-03)
 ### Changed
 -  Aggiornato il badge Download Count da herokuapp (dismesso) a shields.io ( 2026-07-03 ) [ sphynx79]
