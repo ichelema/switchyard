@@ -19,15 +19,10 @@ module FunctionalLightService
         VerifyCallMethodExists.run(self, caller(1..1).first)
         data[:_aliases] = @aliases if @aliases
 
-        if @before_actions
-          data[:_before_actions] = @before_actions.dup
-          @before_actions = nil
-        end
-
-        if @after_actions
-          data[:_after_actions] = @after_actions.dup
-          @after_actions = nil
-        end
+        # Gli hook di classe vengono solo letti (mai azzerati): devono valere
+        # per ogni chiamata, anche concorrente
+        data[:_before_actions] = @before_actions.dup if @before_actions
+        data[:_after_actions] = @after_actions.dup if @after_actions
 
         WithReducerFactory.make(self).with(data)
       end
@@ -87,12 +82,16 @@ module FunctionalLightService
       end
 
       def before_actions=(logic)
-        @before_actions = [logic].flatten
+        @before_actions = logic.nil? ? nil : [logic].flatten
       end
 
       def append_before_actions(action)
         @before_actions ||= []
         @before_actions.push(action)
+      end
+
+      def remove_before_actions(action)
+        @before_actions&.delete(action)
       end
 
       # This looks like an accessor,
@@ -102,7 +101,7 @@ module FunctionalLightService
       end
 
       def after_actions=(logic)
-        @after_actions = [logic].flatten
+        @after_actions = logic.nil? ? nil : [logic].flatten
       end
 
       def append_after_actions(action)
