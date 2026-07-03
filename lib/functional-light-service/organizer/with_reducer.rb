@@ -32,18 +32,18 @@ module FunctionalLightService
 
         actions.flatten!
 
-        actions.each_with_object(context) do |action, current_context|
+        actions.each_with_index.each_with_object(context) do |(action, index), current_context|
           invoke_action(current_context, action)
         rescue FailWithRollbackError
-          reduce_rollback(actions)
+          reduce_rollback(actions, index)
         ensure
           # For logging
           yield(current_context, action) if block_given?
         end
       end
 
-      def reduce_rollback(actions)
-        reversable_actions(actions)
+      def reduce_rollback(actions, index_of_failed_action = nil)
+        reversable_actions(actions, index_of_failed_action)
           .reverse
           .reduce(context) do |context, action|
             if action.respond_to?(:rollback)
@@ -66,11 +66,13 @@ module FunctionalLightService
         end
       end
 
-      def reversable_actions(actions)
-        index_of_current_action = actions.index(@context.current_action) || 0
+      def reversable_actions(actions, index_of_failed_action = nil)
+        # L'indice viene tracciato nel reduce: actions.index troverebbe la prima
+        # occorrenza e con azioni duplicate il rollback sarebbe parziale
+        index_of_failed_action ||= actions.index(@context.current_action) || 0
 
         # Reverse from the point where the fail was triggered
-        actions.take(index_of_current_action + 1)
+        actions.take(index_of_failed_action + 1)
       end
     end
   end
