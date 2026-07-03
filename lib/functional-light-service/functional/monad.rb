@@ -54,7 +54,13 @@ module FunctionalLightService
     def ==(other)
       return false unless other.is_a? self.class
 
-      @value == other.instance_variable_get(:@value)
+      @value == other.monad_value
+    end
+
+    # Reader protetto: #value e' privato nelle varianti Nullary (es. None),
+    # ma il confronto tra monadi dello stesso tipo deve poter leggere il valore
+    protected def monad_value
+      @value
     end
 
     # Return the string representation of the Monad

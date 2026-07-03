@@ -5,6 +5,11 @@ include FunctionalLightService::Prelude::Option
 # rubocop:enable Style/MixinUsage
 
 describe FunctionalLightService::Option do
+  it "Some cannot wrap nil" do
+    expect { described_class::Some.new(nil) }
+      .to raise_error(ArgumentError, /use None instead/)
+  end
+
   specify { expect(described_class::Some.new(0)).to be_a described_class::Some }
   specify { expect(described_class::Some.new(0)).to be_a described_class }
   specify { expect(described_class::Some.new(0)).to eq Some(0) }
