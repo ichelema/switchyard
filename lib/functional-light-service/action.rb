@@ -30,16 +30,10 @@ module FunctionalLightService
         @promised_keys ||= []
       end
 
-      def ctx(*args)
-        @ctx ||= args
-      end
-
       def executed
         define_singleton_method :execute do |context = {}|
           action_context = create_action_context(context)
           return action_context if action_context.stop_processing?
-
-          @ctx = action_context
 
           # Store the action within the context
           action_context.current_action = self
