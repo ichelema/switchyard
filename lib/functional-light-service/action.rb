@@ -6,10 +6,10 @@ module FunctionalLightService
     end
 
     def self.included(base_class)
-      msg = "DEPRECATION WARNING:\n" \
-            "Including FunctionalLightService::Action is deprecated\n" \
-            "Please use `extend FunctionalLightService::Action` instead"
-      print msg
+      FunctionalLightService::Deprecations.warn(
+        "Including FunctionalLightService::Action is deprecated; " \
+        "use `extend FunctionalLightService::Action` instead"
+      )
       base_class.extend Macros
     end
 

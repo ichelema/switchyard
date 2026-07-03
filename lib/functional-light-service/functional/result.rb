@@ -34,7 +34,12 @@ module FunctionalLightService
       self
     end
 
-    alias :<< :pipe
+    def <<(proc = nil, &block)
+      FunctionalLightService::Deprecations.warn(
+        "Result#<< is deprecated; use #pipe instead"
+      )
+      pipe(proc, &block)
+    end
 
     def success?
       is_a? Result::Success
@@ -65,6 +70,10 @@ module FunctionalLightService
     end
 
     def +(other)
+      FunctionalLightService::Deprecations.warn(
+        "Result#+ is deprecated and will be removed in a future release; " \
+        "combine the two results explicitly"
+      )
       unless other.is_a? Result
         msg = "Expected #{other.inspect} to be a Result"
         raise FunctionalLightService::Monad::NotMonadError, msg
@@ -85,7 +94,12 @@ module FunctionalLightService
       Result::Failure.new(e)
     end
 
-    alias :>= :try
+    def >=(proc = nil, &block)
+      FunctionalLightService::Deprecations.warn(
+        "Result#>= is deprecated; use #try instead"
+      )
+      try(proc, &block)
+    end
   end
   # rubocop:enable Metrics/BlockLength
 end
