@@ -14,6 +14,10 @@ class Null
     end
 
     def instance
+      FunctionalLightService::Deprecations.warn(
+        "Maybe()/Null are deprecated and will be removed in a future release; " \
+        "use FunctionalLightService::Option (Some/None) instead"
+      )
       @instance ||= new([])
     end
 
@@ -26,6 +30,10 @@ class Null
     end
 
     def mimic(klas)
+      FunctionalLightService::Deprecations.warn(
+        "Maybe()/Null are deprecated and will be removed in a future release; " \
+        "use FunctionalLightService::Option (Some/None) instead"
+      )
       new(klas.instance_methods(false))
     end
 

@@ -4,6 +4,7 @@ require 'functional-light-service/version'
 
 module FunctionalLightService; end
 
+require 'functional-light-service/deprecations'
 require 'functional-light-service/functional/monad'
 require 'functional-light-service/functional/enum'
 require 'functional-light-service/functional/result'

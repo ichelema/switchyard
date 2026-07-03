@@ -64,6 +64,10 @@ module FunctionalLightService
     end
 
     def +(other)
+      FunctionalLightService::Deprecations.warn(
+        "Option#+ is deprecated and will be removed in a future release; " \
+        "combine the two options explicitly"
+      )
       return other if none?
       raise TypeError, "Other must be an #{Option}" unless other.is_a?(Option)
 

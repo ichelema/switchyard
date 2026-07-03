@@ -21,3 +21,8 @@ require "functional-light-service/functional/null"
 require "support"
 require "test_doubles"
 require "stringio"
+
+# Le API deprecate (Maybe/Null, operatori esotici) restano testate:
+# i warning vengono silenziati globalmente e riattivati solo nelle
+# spec che li verificano
+FunctionalLightService::Deprecations.silenced = true
