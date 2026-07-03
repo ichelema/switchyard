@@ -17,6 +17,9 @@ Gem::Specification.new do |gem|
 
   gem.add_runtime_dependency("dry-inflector", ">= 0.2.1", "< 2")
   gem.add_runtime_dependency("i18n", "~> 1.8", ">= 1.8.11")
+  # logger non e' piu una default gem da Ruby 3.5/4.0: senza questa
+  # dichiarazione `require 'logger'` fallisce sotto Bundler
+  gem.add_runtime_dependency("logger", ">= 1.5")
 
   gem.add_development_dependency("rake", "~> 13.0")
   gem.add_development_dependency("rspec", "~> 3.13")
