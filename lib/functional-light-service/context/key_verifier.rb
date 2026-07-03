@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   class Context
     class KeyVerifier
@@ -15,7 +17,8 @@ module FunctionalLightService
 
       def keys_not_found(keys)
         keys ||= context.keys
-        keys - context.keys
+        # context.key? risolve anche gli alias
+        keys.reject { |key| context.key?(key) }
       end
 
       def format_keys(keys)
@@ -111,7 +114,10 @@ module FunctionalLightService
       end
 
       def reserved_keys
-        %i[message error_code current_action].freeze
+        # _aliases/_before_actions/_after_actions sono chiavi infrastrutturali
+        # scritte da Organizer.with nel context
+        %i[message error_code current_action
+           _aliases _before_actions _after_actions].freeze
       end
     end
   end

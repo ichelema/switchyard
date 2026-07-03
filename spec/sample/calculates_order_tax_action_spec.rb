@@ -5,7 +5,7 @@ describe CalculatesOrderTaxAction do
   let(:order) { double('order') }
   let(:context) do
     data = { :order => order, :tax_percentage => 7.2 }
-    ::FunctionalLightService::Context.make(data)
+    FunctionalLightService::Context.make(data)
   end
 
   it "calculates the tax based on the tax percentage" do

@@ -4,8 +4,8 @@ describe FunctionalLightService::Result do
   include FunctionalLightService::Prelude::Result
 
   it "can't call Result#new directly" do
-    msg = "private method `new' called for FunctionalLightService::Result:Class"
-    expect { described_class.new(1) }.to raise_error(NoMethodError, msg)
+    # il formato del messaggio NoMethodError cambia tra le versioni di Ruby
+    expect { described_class.new(1) }.to raise_error(NoMethodError, /private method [`']new'/)
   end
 
   it "fmap" do

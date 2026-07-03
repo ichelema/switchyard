@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   Result = FunctionalLightService.enum do
     Success(:s)
@@ -34,7 +36,12 @@ module FunctionalLightService
       self
     end
 
-    alias :<< :pipe
+    def <<(proc = nil, &block)
+      FunctionalLightService::Deprecations.warn(
+        "Result#<< is deprecated; use #pipe instead"
+      )
+      pipe(proc, &block)
+    end
 
     def success?
       is_a? Result::Success
@@ -44,16 +51,15 @@ module FunctionalLightService
       is_a? Result::Failure
     end
 
+    # Le operazioni usano il dispatch diretto invece del motore match:
+    # stessa semantica, ~2 ordini di grandezza piu veloce (audit, finding 3.1)
     def or(other)
       unless other.is_a? Result
         msg = "Expected #{other.inspect} to be a Result"
         raise FunctionalLightService::Monad::NotMonadError, msg
       end
 
-      match do
-        Success() { |_| self }
-        Failure() { |_| other }
-      end
+      success? ? self : other
     end
 
     def and(other)
@@ -62,23 +68,25 @@ module FunctionalLightService
         raise FunctionalLightService::Monad::NotMonadError, msg
       end
 
-      match do
-        Success() { |_| other }
-        Failure() { |_| self }
-      end
+      success? ? other : self
     end
 
     def +(other)
+      FunctionalLightService::Deprecations.warn(
+        "Result#+ is deprecated and will be removed in a future release; " \
+        "combine the two results explicitly"
+      )
       unless other.is_a? Result
         msg = "Expected #{other.inspect} to be a Result"
         raise FunctionalLightService::Monad::NotMonadError, msg
       end
 
-      match do
-        Success(where { other.success? }) { |s| Result::Success.new(s + other.value) }
-        Failure(where { other.failure? }) { |f| Result::Failure.new(f + other.value) }
-        Success() { |_| other } # implied other.failure?
-        Failure() { |_| self } # implied other.success?
+      if success? == other.success?
+        self.class.new(value + other.value)
+      elsif success?
+        other # other is the failure
+      else
+        self # self is the failure
       end
     end
 
@@ -88,7 +96,12 @@ module FunctionalLightService
       Result::Failure.new(e)
     end
 
-    alias :>= :try
+    def >=(proc = nil, &block)
+      FunctionalLightService::Deprecations.warn(
+        "Result#>= is deprecated; use #try instead"
+      )
+      try(proc, &block)
+    end
   end
   # rubocop:enable Metrics/BlockLength
 end
@@ -97,8 +110,8 @@ module FunctionalLightService
   module Prelude
     module Result
       # rubocop:disable Naming/MethodName
-      def try!(&block)
-        FunctionalLightService::Result.try!(&block)
+      def try!(&)
+        FunctionalLightService::Result.try!(&)
       end
 
       def Success(s)

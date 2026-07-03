@@ -15,6 +15,7 @@ end
 
 class TestsLocalizationInvocationOptionsAction
   extend FunctionalLightService::Action
+
   expects :pass_or_fail, :message_or_key, :i18n_options
 
   executed do |context|

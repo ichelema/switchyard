@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'i18n'
 
 module FunctionalLightService
@@ -23,8 +25,7 @@ module FunctionalLightService
                                 i18n_options,
                                 type)
       if message_or_key.is_a?(Symbol)
-        i18n_options.merge!(type)
-        translate(message_or_key, action_class, i18n_options)
+        translate(message_or_key, action_class, i18n_options.merge(type))
       else
         message_or_key
       end

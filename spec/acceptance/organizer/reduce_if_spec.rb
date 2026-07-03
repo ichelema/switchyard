@@ -69,7 +69,7 @@ RSpec.describe FunctionalLightService::Organizer do
             ->(c) { !c.nil? },
             [
               execute(->(c) { c[:first_reduce_if] = true }),
-              execute(->(c) { c.skip_remaining! }),
+              execute(->(c) { c.skip_remaining! }), # rubocop:disable Style/SymbolProc
               execute(->(c) { c[:second_reduce_if] = true })
             ]
           ),

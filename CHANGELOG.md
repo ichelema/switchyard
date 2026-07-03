@@ -1,3 +1,41 @@
+## 6.0.0 (2026-07-03)
+
+Release maggiore guidata da un audit tecnico completo (vedi `AUDIT-functional-light-service.md`
+e la sezione "Upgrading to 6.0" del README). Richiede **Ruby >= 3.1** (testato fino a Ruby 4.0).
+
+### Fixed
+-  Gli hook before_actions/after_actions dichiarativi non vengono piu consumati dalla prima chiamata dell'organizer (bug critico + race condition in multi-thread) ( 2026-07-03 ) [ sphynx79]
+-  La classe Action non trattiene piu l'ultimo context in una variabile di classe (race + memory retention) ( 2026-07-03 ) [ sphynx79]
+-  Context#fetch rispetta il contratto di Hash#fetch: KeyError su chiave mancante, nessuna scrittura durante la lettura (BREAKING) ( 2026-07-03 ) [ sphynx79]
+-  Alias simmetrici: lettura e scrittura risolvono entrambe verso la chiave originale; niente piu copie fisiche divergenti (BREAKING) ( 2026-07-03 ) [ sphynx79]
+-  Rollback completo anche con la stessa action presente piu volte nella pipeline ( 2026-07-03 ) [ sphynx79]
+-  fail! non muta piu l'hash di opzioni del chiamante ( 2026-07-03 ) [ sphynx79]
+-  reset_skip_remaining! preserva l'outcome e il suo messaggio ( 2026-07-03 ) [ sphynx79]
+-  Errore esplicito (ReservedKeysInContextError) quando una chiave expects/promises collide con un metodo esistente del Context (BREAKING) ( 2026-07-03 ) [ sphynx79]
+-  Null: respond_to_missing? con la firma corretta; Some(nil) vietato (BREAKING); Context#outcome in sola lettura (BREAKING) ( 2026-07-03 ) [ sphynx79]
+-  Spec compatibili con Ruby 3.1-3.4+ (formato Hash#inspect, messaggi NoMethodError, kwargs rspec-mocks) ( 2026-07-03 ) [ sphynx79]
+
+### Added
+-  Supporto al pattern matching nativo di Ruby (case/in) per Result/Option e tutti gli enum (deconstruct/deconstruct_keys) ( 2026-07-03 ) [ sphynx79]
+-  Modulo Deprecations: warning non fatali, una volta per processo, silenziabili ( 2026-07-03 ) [ sphynx79]
+-  Deprecati (funzionanti con warning): Maybe()/Null, Result#>=, Result#<<, Result#+, Option#+ ( 2026-07-03 ) [ sphynx79]
+-  Audit tecnico completo con script di verifica e benchmark riproducibili in audit/ ( 2026-07-03 ) [ sphynx79]
+
+### Performance
+-  Operazioni Option/Result con dispatch diretto: value_or da ~29k a ~7,1M i/s (~245x) ( 2026-07-03 ) [ sphynx79]
+-  Motore match 3x piu veloce (Binding#receiver, exhaustiveness memoizzata, cache degli Struct dei guard) ( 2026-07-03 ) [ sphynx79]
+-  Rimosso il deprecation shim VerifyCallMethodExists (~17us per ogni with, pagato anche per item in iterate) ( 2026-07-03 ) [ sphynx79]
+-  Accessor del context via method_missing con whitelist (niente singleton class per istanza); iterate senza inflection per chiamata; handler around_each di default costante. Overhead end-to-end per call: da ~55us a ~21us ( 2026-07-03 ) [ sphynx79]
+-  frozen_string_literal: true in tutta la lib ( 2026-07-03 ) [ sphynx79]
+
+### Changed
+-  required_ruby_version >= 3.1; dev dependencies modernizzate (rspec 3.13, rubocop 1.75+, simplecov 0.22, solargraph 0.60); CI matrix Ruby 3.1/3.2/3.3/3.4/4.0 ( 2026-07-03 ) [ sphynx79]
+-  README: sezione "Upgrading to 6.0", contratto di threading documentato, fix esempio fail_with_rollback! (residuo LightService::) ( 2026-07-03 ) [ sphynx79]
+
+### Removed
+-  Kernel.eval in impl (sostituito da const_get); dead code (macro ctx di Action) ( 2026-07-03 ) [ sphynx79]
+
+
 ## 0.5.4 (2026-07-03)
 ### Fixed
 -  Blocca rexml < 3.3 per compatibilita con simplecov-cobertura 2.1.0 (fix CI Codecov: Malformed XML No root element) ( 2026-07-03 ) [ sphynx79]

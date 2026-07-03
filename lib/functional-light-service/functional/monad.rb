@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   module Monad
     class NotMonadError < StandardError; end
@@ -38,7 +40,9 @@ module FunctionalLightService
         end
       end
     end
+    # rubocop:disable Naming/MethodName
     alias :'>>=' :bind
+    # rubocop:enable Naming/MethodName
 
     # Get the underlying value, return in Haskell
     # return :: M a -> a
@@ -54,8 +58,15 @@ module FunctionalLightService
     def ==(other)
       return false unless other.is_a? self.class
 
-      @value == other.instance_variable_get(:@value)
+      @value == other.monad_value
     end
+
+    # Reader protetto: #value e' privato nelle varianti Nullary (es. None),
+    # ma il confronto tra monadi dello stesso tipo deve poter leggere il valore
+    def monad_value
+      @value
+    end
+    protected :monad_value
 
     # Return the string representation of the Monad
     def inspect
