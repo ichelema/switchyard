@@ -8,31 +8,35 @@ module FunctionalLightService
       end
 
       def for(action)
-        @organizer.append_before_actions(
-          ->(ctx) do
-            if ctx.current_action == action
-              # The last `:_before_actions` hook is for
-              # ContextFactory, remove it, so it won't
-              # be invoked again
-              ctx[:_before_actions].pop
-
-              throw(:return_ctx_from_execution, ctx)
-            end
-          end
-        )
-
+        @target_action = action
         self
       end
 
       # More than one arguments can be passed to the
       # Organizer's #call method
-      # rubocop:disable Style/ArgumentsForwarding
       def with(*args, &block)
-        catch(:return_ctx_from_execution) do
-          @organizer.call(*args, &block)
+        hook = nil
+        hook = ->(ctx) do
+          if ctx.current_action == @target_action
+            # L'hook non deve essere re-invocato quando il context
+            # verra' usato con Action#execute nel test
+            ctx[:_before_actions].delete(hook)
+
+            throw(:return_ctx_from_execution, ctx)
+          end
+        end
+
+        @organizer.append_before_actions(hook)
+
+        begin
+          catch(:return_ctx_from_execution) do
+            @organizer.call(*args, &block)
+          end
+        ensure
+          # L'hook e' per-chiamata: la classe organizer non deve conservarlo
+          @organizer.remove_before_actions(hook)
         end
       end
-      # rubocop:enable Style/ArgumentsForwarding
 
       def initialize(organizer)
         @organizer = organizer
