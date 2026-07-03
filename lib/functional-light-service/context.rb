@@ -101,13 +101,16 @@ module FunctionalLightService
       failure? || skip_remaining?
     end
 
+    # Registra le chiavi come accessor consentiti: la lettura/scrittura passa
+    # da method_missing con whitelist. Rispetto a define_singleton_method non
+    # materializza una singleton class per ogni context (audit, finding 3.3)
     def define_accessor_methods_for_keys(keys)
       return if keys.nil?
 
-      @defined_accessor_keys ||= {}
+      @accessor_methods ||= {}
       keys.each do |key|
         key = key.to_sym
-        next if @defined_accessor_keys.key?(key)
+        next if @accessor_methods.key?(key)
 
         # Prima il conflitto veniva saltato in silenzio e ctx.size (o :count,
         # :message, ...) ritornava il metodo di Hash invece del valore
@@ -117,10 +120,20 @@ module FunctionalLightService
                 "#{self.class.name} method: rename the key or access it via ctx[:#{key}]"
         end
 
-        @defined_accessor_keys[key] = true
-        define_singleton_method(key.to_s) { fetch(key) }
-        define_singleton_method("#{key}=") { |value| self[key] = value }
+        @accessor_methods[key] = [:reader, key]
+        @accessor_methods[:"#{key}="] = [:writer, key]
       end
+    end
+
+    def method_missing(name, *args)
+      accessor = @accessor_methods && @accessor_methods[name]
+      return super unless accessor
+
+      accessor[0] == :reader ? fetch(accessor[1]) : self[accessor[1]] = args.first
+    end
+
+    def respond_to_missing?(name, _include_all = false)
+      (!@accessor_methods.nil? && @accessor_methods.key?(name)) || super
     end
 
     def assign_aliases(aliases)
