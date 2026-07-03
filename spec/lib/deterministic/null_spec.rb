@@ -3,7 +3,7 @@ require "spec_helper"
 describe Null do
   it "Null is a Singleton" do
     expect(Null.instance).to be_a Null
-    expect { Null.new }.to raise_error(NoMethodError, "private method `new' called for Null:Class")
+    expect { Null.new }.to raise_error(NoMethodError, /private method [`']new'/)
   end
 
   it "explicit conversions" do

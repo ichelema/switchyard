@@ -82,7 +82,8 @@ describe "Pref" do
     b = Booking.new(1)
     actual = b.validate(1) >> b.req(2) >> b.find >> b.render(:html)
 
-    expected = FunctionalLightService::Result::Success.new("rendered in html: {:id=>3}")
+    # il formato di Hash#to_s cambia tra Ruby 3.3 e 3.4: costruiamo l'atteso dinamicamente
+    expected = FunctionalLightService::Result::Success.new("rendered in html: #{{ :id => 3 }}")
     expect(actual).to eq expected
   end
 end
