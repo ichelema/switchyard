@@ -115,10 +115,14 @@ module FunctionalLightService
 
     def method_missing(m, *args)
       if @parent.const_defined?(m)
-        super
-      else
-        @parent.const_set(m, DataType.create(@parent, args))
+        raise ArgumentError, "variant #{m} is already defined for this enum"
       end
+
+      @parent.const_set(m, DataType.create(@parent, args))
+    end
+
+    def respond_to_missing?(_m, _include_all = false)
+      true
     end
   end
 

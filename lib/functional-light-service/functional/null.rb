@@ -9,6 +9,10 @@ class Null
       end
     end
 
+    def respond_to_missing?(m, _include_all = false)
+      m != :new || super
+    end
+
     def instance
       @instance ||= new([])
     end
@@ -45,7 +49,7 @@ class Null
   end
 
   def method_missing(m, *args)
-    return self if respond_to?(m)
+    return self if respond_to_missing?(m)
 
     super
   end
@@ -58,10 +62,10 @@ class Null
     false
   end
 
-  def respond_to?(m)
-    return true if @methods.empty? || @methods.include?(m)
-
-    super
+  # Convenzione Ruby: si estende respond_to_missing?, mai respond_to?
+  # (il vecchio override aveva anche la firma sbagliata: mancava include_all)
+  def respond_to_missing?(m, _include_all = false)
+    @methods.empty? || @methods.include?(m) || super
   end
 
   def inspect

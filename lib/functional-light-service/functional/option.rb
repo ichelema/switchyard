@@ -5,6 +5,14 @@ module FunctionalLightService
   end
 
   class Option
+    class Some
+      def initialize(init)
+        raise ArgumentError, "Some cannot wrap nil: use None instead" if init.nil?
+
+        super
+      end
+    end
+
     class << self
       def some?(expr)
         to_option(expr) { expr.nil? }

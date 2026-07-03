@@ -6,6 +6,11 @@ describe Null do
     expect { Null.new }.to raise_error(NoMethodError, /private method [`']new'/)
   end
 
+  it "respond_to? accepts the standard two-argument form" do
+    expect(Null.instance.respond_to?(:anything, true)).to be(true)
+    expect(Null.instance.respond_to?(:anything)).to be(true)
+  end
+
   it "explicit conversions" do
     expect(Null.to_s).to eq 'Null'
     expect(Null.inspect).to eq 'Null'
