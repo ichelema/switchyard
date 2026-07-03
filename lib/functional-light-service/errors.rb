@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   class FailWithRollbackError < StandardError; end
   class ExpectedKeysNotInContextError < StandardError; end

@@ -14,7 +14,7 @@ describe LooksUpTaxPercentageAction do
     order
   end
   let(:context) do
-    ::FunctionalLightService::Context.make(:order => order)
+    FunctionalLightService::Context.make(:order => order)
   end
   let(:tax_percentage) { double('tax_percentage') }
   let(:tax_ranges) { double('tax_ranges') }

@@ -38,7 +38,7 @@
 
 ## Requirements
 
-This gem requires ruby >= 2.5.0
+This gem requires ruby >= 3.1 (tested up to ruby 4.0)
 
 ## Installation
 
@@ -811,7 +811,7 @@ action is running inside an organizer:
 
 ```ruby
 class FooAction
-  extend LightService::Action
+  extend FunctionalLightService::Action
 
   executed do |context|
     # context.organized_by will be nil if run from an action,
@@ -1464,6 +1464,58 @@ Based on the refactoring example above, just create an organizer object that cal
 actions in order and write code for the actions. That's it.
 
 For further examples, please visit the project's [Wiki](https://github.com/sphynx79/functional-light-service/wiki).
+
+## Upgrading to 6.0
+
+Version 6.0 requires **Ruby >= 3.1** and ships a few breaking changes plus new guarantees.
+They come from a full technical audit (see `AUDIT-functional-light-service.md`).
+
+### Breaking changes
+
+- **`Context#fetch` now honours the `Hash#fetch` contract**: `fetch(:missing)` without a
+  default raises `KeyError` (it used to return `nil`) and fetch never writes to the
+  context anymore.
+- **Aliases are pure alternative names**: reads *and* writes on an alias resolve to the
+  original key. `assign_aliases` no longer copies values, so `to_h` contains only the
+  original keys.
+- **Key collisions raise**: declaring `expects :size` (or any key that clashes with an
+  existing `Hash`/`Context` method) raises `ReservedKeysInContextError` instead of
+  silently returning the wrong value. Access such data via `ctx[:size]` instead.
+- **`Some(nil)` raises `ArgumentError`**: absence is expressed with `None`.
+- **`Context#outcome` is read-only**: use `succeed!`/`fail!` to change the outcome.
+- The infrastructure keys `:_aliases`, `:_before_actions` and `:_after_actions` are
+  reserved and cannot be used in `expects`/`promises`.
+
+### New guarantees and features
+
+- **Declarative hooks are stable**: `before_actions`/`after_actions` declared on an
+  organizer now apply to *every* call (they used to disappear after the first one).
+- **Rollback is complete** even when the same action class appears more than once in
+  the pipeline.
+- **Native pattern matching**: every enum variant supports `case/in`:
+
+  ```ruby
+  case result
+  in FunctionalLightService::Result::Success[value] then value
+  in FunctionalLightService::Result::Failure[error] then handle(error)
+  end
+  ```
+
+  For hot paths prefer `case/in` (or `success?`/`value`) over the `match` DSL: it is
+  roughly two orders of magnitude faster.
+- **`skip_remaining!` is scoped**: inside `iterate`/`reduce_if`/`reduce_until` it skips
+  the remaining *steps of the current sub-pipeline* (for `iterate`: of the current item),
+  then the outer flow continues. The outcome message set by `skip_remaining!` is preserved.
+- **Deprecations** (still working, warn once on stderr): `Maybe()`/`Null` (use
+  `Option`), `Result#>=` (use `try`), `Result#<<` (use `pipe`), `Result#+`/`Option#+`.
+  Silence them with `FunctionalLightService::Deprecations.silenced = true`.
+
+### Threading contract
+
+A `Context` is a per-call object: create it inside each organizer call (which is what
+`with` does) and do not share a live context between threads. Class-level state
+(hooks, aliases, logger) is read-only at call time, so calling the same organizer from
+multiple threads (Puma, Sidekiq) is safe.
 
 ## Contributing
 

@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'test_doubles'
 
-describe "Organizer should invoke with/reduce from a call method" do
-  context "when the organizer does not have a `call` method" do
-    it "gives warning" do
+describe "Organizer entry point" do
+  context "when the organizer entry method is not named `call`" do
+    it "works without emitting any warning" do
       class OrganizerWithoutCallMethod
         extend FunctionalLightService::Organizer
 
@@ -11,14 +11,16 @@ describe "Organizer should invoke with/reduce from a call method" do
           reduce([])
         end
       end
-      expect do
-        OrganizerWithoutCallMethod.do_something
-      end.to output(/The <OrganizerWithoutCallMethod> class is an organizer/).to_stdout
+
+      result = nil
+      expect { result = OrganizerWithoutCallMethod.do_something }
+        .not_to output.to_stdout
+      expect(result).to be_a_kind_of(FunctionalLightService::Context)
     end
   end
 
   context "when the organizer has the `call` method" do
-    it "does not issue a warning" do
+    it "works without emitting any warning" do
       class OrganizerWithCallMethod
         extend FunctionalLightService::Organizer
 
@@ -26,6 +28,7 @@ describe "Organizer should invoke with/reduce from a call method" do
           reduce([])
         end
       end
+
       expect(OrganizerWithCallMethod.call).to be_a_kind_of(FunctionalLightService::Context)
     end
   end

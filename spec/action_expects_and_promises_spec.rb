@@ -22,6 +22,7 @@ describe ":expects and :promises macros" do
   context "when expected keys are not in context" do
     class FooNoExpectedKeyAction
       extend FunctionalLightService::Action
+
       expects :baz
 
       executed do |context|
@@ -41,6 +42,7 @@ describe ":expects and :promises macros" do
   describe "expected keys" do
     class FooWithReaderAction
       extend FunctionalLightService::Action
+
       expects :baz
 
       executed do |context|
@@ -59,6 +61,7 @@ describe ":expects and :promises macros" do
   context "when promised keys are not in context" do
     class FooNoPromisedKeyAction
       extend FunctionalLightService::Action
+
       expects :baz
       promises :bar
 
@@ -76,6 +79,7 @@ describe ":expects and :promises macros" do
   describe "promised keys" do
     class FooWithExpectsAndPromisesAction
       extend FunctionalLightService::Action
+
       expects :baz
       promises :bar
 

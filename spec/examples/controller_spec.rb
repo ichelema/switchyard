@@ -3,7 +3,7 @@ require 'spec_helper'
 module FunctionalLightService
   module Procify
     def py(m, *args)
-      args.count > 0 ? method(m).to_proc.curry[*args] : method(m)
+      args.any? ? method(m).to_proc.curry[*args] : method(m)
     end
   end
 end

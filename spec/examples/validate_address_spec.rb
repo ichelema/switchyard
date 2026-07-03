@@ -16,6 +16,7 @@ end
 
 describe ValidateAddress do
   include FunctionalLightService
+
   subject { ValidateAddress.call(candidate) }
   context 'sunny day' do
     let(:candidate) do

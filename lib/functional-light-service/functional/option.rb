@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   Option = FunctionalLightService.enum do
     Some(:s)
@@ -5,6 +7,14 @@ module FunctionalLightService
   end
 
   class Option
+    class Some
+      def initialize(init)
+        raise ArgumentError, "Some cannot wrap nil: use None instead" if init.nil?
+
+        super
+      end
+    end
+
     class << self
       def some?(expr)
         to_option(expr) { expr.nil? }
@@ -26,20 +36,15 @@ module FunctionalLightService
     end
   end
 
-  # rubocop:disable Metrics/BlockLength
+  # Le operazioni usano il dispatch diretto invece del motore match:
+  # stessa semantica, ~2 ordini di grandezza piu veloce (audit, finding 3.1)
   impl(Option) do
     def fmap
-      match do
-        Some() { |s| self.class.new(yield(s)) }
-        None() { self }
-      end
+      some? ? self.class.new(yield(@value)) : self
     end
 
     def map(&fn)
-      match do
-        Some() { |_s| bind(&fn) }
-        None() { self }
-      end
+      some? ? bind(&fn) : self
     end
 
     def some?
@@ -53,10 +58,7 @@ module FunctionalLightService
     alias :empty? :none?
 
     def value_or(n)
-      match do
-        Some() { |s| s }
-        None() { n }
-      end
+      some? ? @value : n
     end
 
     def value_to_a
@@ -64,15 +66,16 @@ module FunctionalLightService
     end
 
     def +(other)
-      match do
-        None() { other }
-        Some(where { !other.is_a?(Option) }) { |_| raise TypeError, "Other must be an #{Option}" }
-        Some(where { other.some? }) { |s| Option::Some.new(s + other.value) }
-        Some() { |_| self }
-      end
+      FunctionalLightService::Deprecations.warn(
+        "Option#+ is deprecated and will be removed in a future release; " \
+        "combine the two options explicitly"
+      )
+      return other if none?
+      raise TypeError, "Other must be an #{Option}" unless other.is_a?(Option)
+
+      other.some? ? Option::Some.new(@value + other.value) : self
     end
   end
-  # rubocop:enable Metrics/BlockLength
 
   module Prelude
     module Option
