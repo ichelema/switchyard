@@ -1,17 +1,19 @@
 # FunctionalLightService
+
 [![Gem Version](https://img.shields.io/gem/v/functional-light-service.svg)](https://rubygems.org/gems/functional-light-service)
 [![CI Tests](https://github.com/sphynx79/functional-light-service/actions/workflows/project-build.yml/badge.svg)](https://github.com/sphynx79/functional-light-service/actions/workflows/project-build.yml)
 [![Codecov](https://codecov.io/gh/sphynx79/functional-light-service/branch/master/graph/badge.svg)](https://app.codecov.io/gh/sphynx79/functional-light-service)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](http://opensource.org/licenses/MIT)
-[![Download Count](https://ruby-gem-downloads-badge.herokuapp.com/functional-light-service?type=total)](https://rubygems.org/gems/functional-light-service)
+[![Download Count](https://img.shields.io/gem/dt/functional-light-service)](https://rubygems.org/gems/functional-light-service)
 
 ## Table of Content
+
 * [Requirements](#requirements)
 * [Installation](#installation)
 * [Why FunctionalLightService?](#why-functionallightservice?)
 * [Stopping the Series of Actions](#stopping-the-series-of-actions)
-    * [Failing the Context](#failing-the-context)
-    * [Skipping the Rest of the Actions](#skipping-the-rest-of-the-actions)
+  * [Failing the Context](#failing-the-context)
+  * [Skipping the Rest of the Actions](#skipping-the-rest-of-the-actions)
 * [Benchmarking Actions with Around Advice](#benchmarking-actions-with-around-advice)
 * [Before and After Action Hooks](#before-and-after-action-hooks)
 * [Key Aliases](#key-aliases)
@@ -22,24 +24,24 @@
 * [Logic in Organizers](#logic-in-organizers)
 * [ContextFactory for Faster Action Testing](#contextfactory-for-faster-action-testing)
 * [Functional programming](#functional-programming)
-	* [Pattern](#pattern)
-	* [Usage](#functional-usage)
-		* [Result: Success & Failure](#functional-usage-success-failure)
-		* [Result Chaining](#functional-usage-chaining)
-		* [Complex Example in a Builder Action](#functional-usage-complex-action)
-		* [Pattern matching](#functional-usage-pattern-matching)
-		* [Option](#functional-usage-option)
-		* [Coercion](#functional-usage-coercion)
-		* [Enum](#functional-usage-enum)
-		* [Maybe](#functional-usage-maybe)
+  * [Pattern](#pattern)
+  * [Usage](#functional-usage)
+    * [Result: Success & Failure](#functional-usage-success-failure)
+    * [Result Chaining](#functional-usage-chaining)
+    * [Complex Example in a Builder Action](#functional-usage-complex-action)
+    * [Pattern matching](#functional-usage-pattern-matching)
+    * [Option](#functional-usage-option)
+    * [Coercion](#functional-usage-coercion)
+    * [Enum](#functional-usage-enum)
+    * [Maybe](#functional-usage-maybe)
 * [Usage](#usage)
-
 
 ## Requirements
 
 This gem requires ruby >= 2.5.0
 
 ## Installation
+
 Add this line to your application's Gemfile:
 
 ```bash
@@ -47,19 +49,24 @@ Add this line to your application's Gemfile:
 ```
 
 And then execute:
+
 ```bash
     $ bundle
 ```
 
 Or install it yourself as:
+
 ```bash
     $ gem install functional-light-service
 ```
 
 ## Why FunctionalLightService?
 
-While i was studying the functional programming in Ruby, i came across this fantastic gem Deterministic, that  it simplified my the writing of my Ruby code with a functional approach.
-I used deterministic making extensive use of the in_sequence method, that allowed me to concatenate a series of actions in sequence, if all method that i call work nice without exception, it returned me a modad with the status Success (), in case of failure the rest of the actions was not executed, and return a monad with the status Failure ().
+While studying functional programming in Ruby, I discovered the fantastic gem **Deterministic**, which made it much easier to write Ruby code in a functional style.  
+By leveraging its `in_sequence` method, I can chain a series of actions:
+
+- If every step completes without raising an exception, the call returns a `Success()` monad.
+- If any step fails, the remaining actions are skipped and a `Failure()` monad is returned.
 
 I writing this code:
 
@@ -115,9 +122,12 @@ end
 Foo.new.call(:name => "foo", :password => "bar")
 ```
 
-At a certain point I felt the need to better structure my code and every action had its context.
-accidentally I came across  in this fantastic gem light-service, that did just what I wanted, it allows me to separate the business and logic, organize the actions in sequence, and write my actions in separate classes with each its context
+While refactoring my codebase, I needed each action to live in a well‑defined context.  
+That’s when I discovered the excellent gem **LightService**. It gives me exactly what I was looking for:
 
+- a clean separation between business concerns and orchestration logic
+- a simple way to arrange actions in a pipeline
+- the freedom to place every action in its own class, each with its own contextual data
 
 ```ruby
 class Foo
@@ -199,7 +209,10 @@ end
 
 Foo.call(:name => "foo", :password => "bar")
 ```
-But in this case I lost the power of functional programming that deterministic gave me, why not take the best of two world, this is the reason that brought me make this gem. Now I can use same same feature that light-service give me with the power functional programming.
+
+The switch to **LightService** came at a price: I missed the functional‑programming super‑powers that **Deterministic** had given me.  
+So I asked myself, *why not enjoy the best of both worlds?*  
+That question led me to create **this gem**. Now I can keep all the conveniences LightService offers—action pipelines, clear contexts—while still coding in a fully functional style with expressive monads.
 
 ```ruby
 class Foo
@@ -314,11 +327,13 @@ class PrintResponse
 end
 
 Foo.call(:name => "foo", :password => "bar")
-
 ```
 
 ## Stopping the Series of Actions
-When nothing unexpected happens during the organizer's call, the returned `context` will be successful. Here is how you can check for this:
+
+When everything goes smoothly, the organizer returns a **successful** context.  
+You can check it like this:
+
 ```ruby
 class SomeController < ApplicationController
   def index
@@ -333,21 +348,29 @@ class SomeController < ApplicationController
   end
 end
 ```
-However, sometimes not everything will play out as you expect it. An external API call might not be available or some complex business logic will need to stop the processing of the Series of Actions.
-You have two options to stop the call chain:
 
-1. Failing the context
-2. Skipping the rest of the actions
+Sometimes, though, things don’t go as planned — an external API is down or a business rule fails.  
+In those cases, you can short‑circuit the pipeline in two ways:
+
+1. **Fail the context** – aborts execution and returns a `Failure()` monad with an error message.
+2. **Skip the remaining actions** – stops further actions but keeps the context successful, allowing graceful exits without raising an error.
 
 ### Failing the Context
-When something goes wrong in an action and you want to halt the chain, you need to call `fail!` on the context object. This will push the context in a failure state (`context.failure? # will evalute to true`).
-The context's `fail!` method can take an optional message argument, this message might help describing what went wrong.
-In case you need to return immediately from the point of failure, you have to do that by calling `next context`.
 
-In case you want to fail the context and stop the execution of the executed block, use the `fail_and_return!('something went wrong')` method.
-This will immediately leave the block, you don't need to call `next context` to return from the block.
+When an action hits an unrecoverable error, call `context.fail!` to mark the context as failed (`context.failure? #=> true`) and abort the pipeline.  
+You can pass an optional message to describe what went wrong:
+
+```ruby
+context.fail!("Validation failed")
+```
+
+If you also need to leave the executed block immediately, you have two options:
+
+- next context – after fail!, simply return the context.
+- context.fail_and_return!(msg) – a one‑liner that sets the failure state and exits the block.
 
 Here is an example:
+
 ```ruby
 class SubmitsOrderAction
   extend FunctionalLightService::Action
@@ -363,14 +386,20 @@ class SubmitsOrderAction
   end
 end
 ```
+
 ![fail-actions](https://raw.githubusercontent.com/sphynx79/functional-light-service/master/resources/fail_actions.png)
 
 In the example above the organizer called 4 actions. The first 2 actions got executed successfully. The 3rd had a failure, that pushed the context into a failure state and the 4th action was skipped.
 
 ### Skipping the rest of the actions
-You can skip the rest of the actions by calling `context.skip_remaining!`. This behaves very similarly to the above-mentioned `fail!` mechanism, except this will not push the context into a failure state.
-A good use case for this is executing the first couple of action and based on a check you might not need to execute the rest.
-Here is an example of how you do it:
+
+To short‑circuit the pipeline without marking the context as failed, call
+`context.skip_remaining!`. It behaves like `fail!`, but the context
+remains **successful**, so downstream code can still treat the result as OK.
+
+Typical use case: you run the first few actions, perform a check, and if everything
+is already fine you can avoid processing the rest.
+
 ```ruby
 class ChecksOrderStatusAction
   extend FunctionalLightService::Action
@@ -383,23 +412,24 @@ class ChecksOrderStatusAction
   end
 end
 ```
+
 ![skip-actions](https://raw.githubusercontent.com/sphynx79/functional-light-service/master/resources/skip_actions.png)
 
-In the example above the organizer called 4 actions. The first 2 actions got executed successfully. The 3rd decided to skip the rest, the 4th action was not invoked. The context was successful.
-
+In the example above, the organizer invokes four actions.
+The first two run successfully; the third calls skip_remaining!, so the fourth is never executed, yet the overall context stays successful.
 
 ## Benchmarking Actions with Around Advice
-Benchmarking your action is needed when you profile the series of actions. You could add benchmarking logic to each and every action, however, that would blur the business logic you have in your actions.
 
-Take advantage of the organizer's `around_each` method, which wraps the action calls as its reducing them in order.
-
-Check out this example:
+When you need to profile a pipeline, adding timing code inside every single
+action clutters your business logic.  
+Instead, use the organizer’s `around_each` hook, which wraps each action call
+as it is reduced in order.
 
 ```ruby
 class LogDuration
   def self.call(context)
     start_time = Time.now
-    result = yield
+    result = yield           # run the wrapped action
     duration = Time.now - start_time
     FunctionalLightService::Configuration.logger.info(
       :action   => context.current_action,
@@ -423,13 +453,28 @@ class CalculatesTax
 end
 ```
 
-Any object passed into `around_each` must respond to #call with two arguments: the action name and the context it will execute with. It is also passed a block, where FunctionalLightService's action execution will be done in, so the result must be returned. While this is a little work, it also gives you before and after state access to the data for any auditing and/or checks you may need to accomplish.
+Any object you pass to around_each must implement:
+
+```ruby
+def self.call(context, &block)
+  # …before logic…
+  result = yield   # executes the action
+  # …after logic…
+  result
+end
+```
+
+This design lets you measure—or audit—every action without polluting
+the actions themselves.
 
 ## Before and After Action Hooks
 
-In case you need to inject code right before and after the actions are executed, you can use the `before_actions` and `after_actions` hooks. It accepts one or multiple lambdas that the Action implementation will invoke. This addition to FunctionalLightService is a great way to decouple instrumentation from business logic.
+Sometimes you need to run code **right before** or **right after** each action.  
+FunctionalLightService lets you do that with the `before_actions` and `after_actions` hooks.  
+Each hook accepts one (or many) lambdas that will be invoked by the organizer, keeping
+instrumentation neatly separated from business logic.
 
-Consider this code:
+### Example without hooks
 
 ```ruby
 class SomeOrganizer
@@ -463,14 +508,10 @@ class TwoAction
 end
 ```
 
-The logging logic makes `TwoAction` more complex, there is more code for logging than for business logic.
+Logging overwhelms the real work in TwoAction.
+Let’s move that concern into hooks.
 
-You have two options to decouple instrumentation from real logic with `before_actions` and `after_actions` hooks:
-
-1. Declare your hooks in the Organizer
-2. Attach hooks to the Organizer from the outside
-
-This is how you can declaratively add before and after hooks to the Organizer:
+### Option 1 — declare hooks inside the organizer
 
 ```ruby
 class SomeOrganizer
@@ -511,9 +552,11 @@ class TwoAction
 end
 ```
 
-Note how the action has no logging logic after this change. Also, you can target before and after action logic for specific actions, as the `ctx.current_action` will have the class name of the currently processed action. In the example above, logging will occur only for `TwoAction` and not for `OneAction` or `ThreeAction`.
+Now TwoAction is pure business logic.
+Because ctx.current_action holds the class of the action being run, the hooks fire
+only for TwoAction, not OneAction or ThreeAction.
 
-Here is how you can declaratively add `before_hooks` or `after_hooks` to your Organizer from the outside:
+### Option 2 — attach hooks from the outside
 
 ```ruby
 SomeOrganizer.before_actions =
@@ -528,50 +571,45 @@ SomeOrganizer.before_actions =
 These ideas are originally from Aspect Oriented Programming, read more about them [here](https://en.wikipedia.org/wiki/Aspect-oriented_programming).
 
 ## Expects and Promises
-The `expects` and `promises` macros are rules for the inputs/outputs of an action.
-`expects` describes what keys it needs to execute, and `promises` makes sure the keys are in the context after the
-action is reduced. If either of them are violated, a custom exception is thrown.
 
-This is how it's used:
+Two handy macros define the contract of every action:
+
+| Macro      | Purpose                                                         |
+| ---------- | --------------------------------------------------------------- |
+| `expects`  | Declares which keys **must** be present before the action runs. |
+| `promises` | Declares which keys **must** exist after the action finishes.   |
+
+If either rule is violated, FunctionalLightService raises a dedicated exception.
+
+### Basic usage
+
 ```ruby
 class FooAction
   extend FunctionalLightService::Action
-  expects :baz
-  promises :bar
+
+  expects   :baz
+  promises  :bar
 
   executed do |context|
-    baz = context.fetch :baz
-
-    bar = baz + 2
-    context[:bar] = bar
+    baz = context.fetch(:baz)   # guaranteed to be present
+    context[:bar] = baz + 2     # fulfils the promise
   end
 end
 ```
 
-The `expects` macro does a bit more for you: it pulls the value with the expected key from the context, and
-makes it available to you through a reader. You can refactor the action like this:
+### Built‑in readers and writers
+
+The macros do more than validation:
+expects adds an accessor reader, so you can reference keys directly.
+promises adds an accessor writer, so you can assign without touching the hash.
+Refactored, the action is cleaner:
 
 ```ruby
 class FooAction
   extend FunctionalLightService::Action
-  expects :baz
-  promises :bar
 
-  executed do |context|
-    bar = context.baz + 2
-    context[:bar] = bar
-  end
-end
-```
-
-The `promises` macro will not only check if the context has the promised keys, it also sets it for you in the context if
-you use the accessor with the same name. The code above can be further simplified:
-
-```ruby
-class FooAction
-  extend FunctionalLightService::Action
-  expects :baz
-  promises :bar
+  expects   :baz
+  promises  :bar
 
   executed do |context|
     context.bar = context.baz + 2
@@ -579,14 +617,13 @@ class FooAction
 end
 ```
 
-Take a look at [this spec](spec/action_expects_and_promises_spec.rb) to see the refactoring in action.
+Want to see it in practice? Check out [this spec](spec/action_expects_and_promises_spec.rb) test file.
 
 ## Key Aliases
-The `aliases` macro sets up pairs of keys and aliases in an organizer. Actions can access the context using the aliases.
 
-This allows you to put together existing actions from different sources and have them work together without having to modify their code. Aliases will work with or without action `expects`.
-
-Say for example you have actions `AnAction` and `AnotherAction` that you've used in previous projects.  `AnAction` provides `:my_key` but `AnotherAction` needs to use that value but expects `:key_alias`.  You can use them together in an organizer like so:
+Need to wire together actions that use different key names?  
+Declare key mappings once in the organizer with the `aliases` macro and every
+action can read or write the value under its preferred name.
 
 ```ruby
 class AnOrganizer
@@ -622,23 +659,23 @@ end
 ```
 
 ## Logging
-Enable FunctionalLightService's logging to better understand what goes on within the series of actions,
-what's in the context or when an action fails.
 
-Logging in FunctionalLightService is turned off by default. However, turning it on is simple. Add this line to your
-project's config file:
+Turning on logging is the easiest way to see what happens inside a pipeline:  
+which organizer is called, which actions run, which keys appear in the context, and when something goes wrong.
+
+Logging is **disabled by default**. Enable it in your app’s configuration:
 
 ```ruby
 FunctionalLightService::Configuration.logger = Logger.new(STDOUT)
 ```
 
-You can turn off the logger by setting it to nil or `/dev/null`.
+To silence it, point the logger at nil or /dev/null:
 
 ```ruby
 FunctionalLightService::Configuration.logger = Logger.new('/dev/null')
 ```
 
-Watch the console while you are executing the workflow through the organizer. You should see something like this:
+Run an organizer and you’ll see output like:
 
 ```bash
 I, [DATE]  INFO -- : [FunctionalLightService] - calling organizer <TestDoubles::MakesTeaAndCappuccino>
@@ -657,20 +694,14 @@ The log provides a blueprint of the series of actions. You can see what organize
 are called in what order, what do the expect and promise and most importantly what keys you have in the context
 after each action is executed.
 
-The logger logs its messages with "INFO" level. The exception to this is the event when an action fails the context.
-That message is logged with "WARN" level:
+Failures are logged at WARN level:
 
 ```bash
-I, [DATE]  INFO -- : [FunctionalLightService] - calling organizer <TestDoubles::MakesCappuccinoAddsTwoAndFails>
-I, [DATE]  INFO -- : [FunctionalLightService] -     keys in context: :milk, :coffee
 W, [DATE]  WARN -- : [FunctionalLightService] - :-((( <TestDoubles::MakesLatteAction> has failed...
 W, [DATE]  WARN -- : [FunctionalLightService] - context message: Can't make a latte from a milk that's too hot!
 ```
 
-The log message will show you what message was added to the context when the action pushed the
-context into a failure state.
-
-The event of skipping the rest of the actions is also captured by its logs:
+Skipping the remaining actions is also reported:
 
 ```bash
 I, [DATE]  INFO -- : [FunctionalLightService] - calling organizer <TestDoubles::MakesCappuccinoSkipsAddsTwo>
@@ -679,7 +710,7 @@ I, [DATE]  INFO -- : [FunctionalLightService] - ;-) <TestDoubles::MakesLatteActi
 I, [DATE]  INFO -- : [FunctionalLightService] - context message: Can't make a latte with a fatty milk like that!
 ```
 
-You can specify the logger on the organizer level, so the organizer does not use the global logger.
+Need different log destinations per organizer? Override the global logger:
 
 ```ruby
 class FooOrganizer
@@ -689,46 +720,51 @@ end
 ```
 
 ## Error Codes
-You can add some more structure to your error handling by taking advantage of error codes in the context.
-Normally, when something goes wrong in your actions, you fail the process by setting the context to failure:
+
+Sometimes you need more structure than a free‑text error message.
+fail! and fail_and_return! accept an error_code: keyword so you can branch on well‑defined codes later.
 
 ```ruby
 class FooAction
   extend FunctionalLightService::Action
 
   executed do |context|
-    context.fail!("I don't like what happened here.")
+    result = external_service.call
+
+    unless result.success?
+      context.fail!(
+        "Service call failed",
+        error_code: 1001
+      )
+    end
+
+    unless entity.save
+      context.fail!(
+        "Saving the entity failed",
+        error_code: 2001
+      )
+    end
   end
 end
 ```
 
-However, you might need to handle the errors coming from your action pipeline differently.
-Using an error code can help you check what type of expected error occurred in the organizer
-or in the actions.
+Organizers or downstream actions can then react to specific codes:
 
 ```ruby
-class FooAction
-  extend FunctionalLightService::Action
+result = FooOrganizer.call
 
-  executed do |context|
-    unless (service_call.success?)
-      context.fail!("Service call failed", error_code: 1001)
-    end
-
-    # Do something else
-
-    unless (entity.save)
-      context.fail!("Saving the entity failed", error_code: 2001)
-    end
-  end
+case result.error_code
+when 1001 then retry_later
+when 2001 then alert_ops_team
 end
 ```
 
 ## Action Rollback
-Sometimes your action has to undo what it did when an error occurs. Think about a chain of actions where you need
-to persist records in your data store in one action and you have to call an external service in the next. What happens if there
-is an error when you call the external service? You want to remove the records you previously saved. You can do it now with
-the `rolled_back` macro.
+
+Sometimes an action must **undo** its work if a later step fails.  
+Example: one action saves records to the database, the next calls an external
+API. If the API call blows up, you want to delete the records you just saved.
+That’s exactly what the `rolled_back` macro is for.
 
 ```ruby
 class SaveEntities
@@ -745,8 +781,9 @@ class SaveEntities
 end
 ```
 
-You need to call the `fail_with_rollback!` method to initiate a rollback for actions starting with the action where the failure
-was triggered.
+Trigger a rollback by calling context.fail_with_rollback!.
+Rollback begins with the failing action and walks back through the already
+executed actions in reverse order.
 
 ```ruby
 class CallExternalApi
@@ -760,16 +797,17 @@ class CallExternalApi
 end
 ```
 
-Using the `rolled_back` macro is optional for the actions in the chain. You shouldn't care about undoing non-persisted changes.
+Declaring rolled_back is optional. If an action makes no persistent changes,
+there’s nothing to undo—skip it.
 
-The actions are rolled back in reversed order from the point of failure starting with the action that triggered it.
+### Using rollbackable actions standalone
 
-See [this acceptance test](spec/acceptance/rollback_spec.rb) to learn more about this functionality.
+When an action is executed outside an organizer via .execute, any
+fail_with_rollback! will raise a FailWithRollbackError (an organizer needs
+the exception to traverse the chain).
 
-You may find yourself directly using an action that can roll back by calling `.execute` instead of using it from within an Organizer.
-If this action fails and attempts a rollback, a `FailWithRollbackError` exception will be raised. This is so that the organizer can
-rollback the actions one by one. If you don't want to wrap your call to the action with a `begin, rescue FailWithRollbackError`
-block, you can introspect the context like so, and keep your usage of the action clean:
+If you don’t want to wrap the call in begin … rescue, check whether the
+action is running inside an organizer:
 
 ```ruby
 class FooAction
@@ -787,8 +825,14 @@ class FooAction
 end
 ```
 
+For a full example, see [this acceptance test](spec/acceptance/rollback_spec.rb) 
+
 ## Localizing Messages
-By default FunctionalLightService provides a mechanism for easily translating your error or success messages via I18n.  You can also provide your own custom localization adapter if your application's logic is more complex than what is shown here.
+
+FunctionalLightService integrates with **I18n** out of the box, so you can translate
+success or failure messages without extra plumbing.  
+If your app needs something more advanced, you can swap in a custom localization
+adapter.
 
 ```ruby
 class FooAction
@@ -805,7 +849,9 @@ class FooAction
 end
 ```
 
-This also works with nested classes via the ActiveSupport `#underscore` method, just as ActiveRecord performs localization lookups on models placed inside a module.
+### Nested classes
+
+Look‑ups follow ActiveSupport’s underscore, just like Rails models inside modules:
 
 ```ruby
 module PaymentGateway
@@ -813,18 +859,18 @@ module PaymentGateway
     extend FunctionalLightService::Action
 
     executed do |context|
-      if api_service.failed?
-        context.fail!(:funds_not_available)
-      end
-
-      # this failure message equates to:
-      # I18n.t(:funds_not_available, scope: "payment_gateway/capture_funds.light_service.failures")
+      context.fail!(:funds_not_available) if api_service.failed?
+      # resolves to:
+      # I18n.t(:funds_not_available,
+      #        scope: "payment_gateway/capture_funds.light_service.failures")
     end
   end
 end
 ```
 
-If you need to provide custom variables for interpolation during localization, pass that along in a hash.
+### Interpolation variables
+
+Pass a hash for dynamic values:
 
 ```ruby
 module PaymentGateway
@@ -835,34 +881,46 @@ module PaymentGateway
       if api_service.failed?
         context.fail!(:funds_not_available, last_four: "1234")
       end
-
-      # this failure message equates to:
-      # I18n.t(:funds_not_available, last_four: "1234", scope: "payment_gateway/capture_funds.light_service.failures")
-
-      # the translation string itself being:
-      # => "Unable to process your payment for account ending in %{last_four}"
     end
   end
 end
 ```
 
-To provide your own custom adapter, use the configuration setting and subclass the default adapter FunctionalLightService provides.
+```yaml
+# en.yml
+payment_gateway:
+  capture_funds:
+    light_service:
+      failures:
+        funds_not_available: "Unable to process your payment for account ending in %{last_four}"
+```
+
+### Custom adapter
+
+Need a different lookup scheme? Subclass the built‑in adapter and set it in the
+configuration:
 
 ```ruby
+# config/initializers/light_service.rb
 FunctionalLightService::Configuration.localization_adapter = MyLocalizer.new
 
 # lib/my_localizer.rb
 class MyLocalizer < FunctionalLightService::LocalizationAdapter
-
-  # I just want to change the default lookup path
-  # => "light_service.failures.payment_gateway/capture_funds"
+  # change default scope to: "light_service.failures.<class_path>"
   def i18n_scope_from_class(action_class, type)
     "light_service.#{type.pluralize}.#{action_class.name.underscore}"
   end
 end
 ```
 
-To get the value of a `fail!` or `succeed!` message, simply call `#message` on the returned context.
+### Retrieving the message
+
+After an action halts with fail! or succeed!, read the translated text via:
+
+```ruby
+result = FooAction.execute(baz: 1)
+puts result.message   # ⇒ "Exceeded API limit" (or localized equivalent)
+```
 
 ## Logic in Organizers
 
@@ -891,7 +949,7 @@ class ExtractsTransformsLoadsData
 end
 ```
 
-The `FunctionalLightService::Context` is initialized with the first action, that context is passed around among organizers and actions. This code is still simpler than many out there, but it feels very imperative: it has conditionals, iterators in it. Let's see how we could make it a bit more simpler with a declarative style:
+### Declarative version
 
 ```ruby
 class ExtractsTransformsLoadsData
@@ -918,37 +976,47 @@ class ExtractsTransformsLoadsData
 end
 ```
 
-This code is much easier to reason about, it's less noisy and it captures the goal of FunctionalLightService well: simple, declarative code that's easy to understand.
+The declarative style is shorter, easier to scan, and keeps flow control out of
+your actions.
 
-The 7 different constructs an organizer can have:
+### Organizer constructs
 
-1. `reduce_until`
-2. `reduce_if`
-3. `iterate`
-4. `execute`
-5. `with_callback`
-6. `add_to_context`
-7. `add_aliases`
+| Construct                                                          | Declarative “equivalent” | What it does (in one line)                                                                  |
+| ------------------------------------------------------------------ | ------------------------ | ------------------------------------------------------------------------------------------- |
+| [reduce_until](spec/acceptance/organizer/reduce_until_spec.rb)     | `while` loop             | Keeps reducing the listed steps **until** the lambda returns `true`.                        |
+| [reduce_if](spec/acceptance/organizer/reduce_if_spec.rb)           | `if/else`                | Reduces its sub‑steps **only if** the lambda returns `true`.                                |
+| [iterate](spec/acceptance/organizer/iterate_spec.rb)               | `each` loop              | Loops over a collection key; each element is exposed under the **singular** name.           |
+| [execute](spec/acceptance/organizer/execute_spec.rb)               | one‑off lambda           | Runs an inline lambda for quick context tweaks (add keys, transform values, etc.).          |
+| [with_callback](spec/acceptance/organizer/with_callback_spec.rb)   | streaming callback       | Defers execution like a SAX parser—great for huge inputs without loading everything in RAM. |
+| [add_to_context](spec/acceptance/organizer/add_to_context_spec.rb) | N/A (context inject)     | Injects key–value pairs into the context just before the following steps run.               |
+| [add_aliases](spec/acceptance/organizer/add_aliases_spec.rb)       | key aliasing             | Creates an alias so actions can read/write the same value under different names.            |
 
-`reduce_until` behaves like a while loop in imperative languages, it iterates until the provided predicate in the lambda evaluates to true. Take a look at [this acceptance test](spec/acceptance/organizer/reduce_until_spec.rb) to see how it's used.
+All seven are covered by acceptance tests in spec/acceptance/organizer/*_spec.rb.
 
-`reduce_if` will reduce the included organizers and/or actions if the predicate in the lambda evaluates to true. [This acceptance test](spec/acceptance/organizer/reduce_if_spec.rb) describes this functionality.
+**Tip**: When iterating, the collection must already be in the context.
+iterate(:items) expects context[:items]; it then places each element under
+context.item for the inner actions.
 
-`iterate` gives your iteration logic, the symbol you define there has to be in the context as a key. For example, to iterate over items you will use `iterate(:items)` in your steps, the context needs to have `items` as a key, otherwise it will fail. The organizer will singularize the collection name and will put the actual item into the context under that name. Remaining with the example above, each element will be accessible by the name `item` for the actions in the `iterate` steps. [This acceptance test](spec/acceptance/organizer/iterate_spec.rb) should provide you with an example.
+```ruby
+iterate(:items, [ProcessItem])
+# Inside ProcessItem → context.item
+```
 
-To take advantage of another organizer or action, you might need to tweak the context a bit. Let's say you have a hash, and you need to iterate over its values in a series of action. To alter the context and have the values assigned into a variable, you need to create a new action with 1 line of code in it. That seems a lot of ceremony for a simple change. You can do that in a `execute` method like this `execute(->(ctx) { ctx[:some_values] = ctx.some_hash.values })`. [This test](spec/acceptance/organizer/execute_spec.rb) describes how you can use it.
+Need a quick context mutation? Use execute:
 
-Use `with_callback` when you want to execute actions with a deferred and controlled callback. It works similar to a Sax parser, I've used it for processing large files. The advantage of it is not having to keep large amount of data in memory. See [this acceptance test](spec/acceptance/organizer/with_callback_spec.rb) as a working example.
-
-`add_to_context` can add key-value pairs on the fly to the context. This functionality is useful when you need a value injected into the context under a specific key right before the subsequent actions are executed. [This test](spec/acceptance/organizer/add_to_context_spec.rb) describes its functionality.
-
-Your action needs a certain key in the context but it's under a different one? Use the function `add_aliases` to alias an existing key in the context under the desired key. Take a look at [this test](spec/acceptance/organizer/add_aliases_spec.rb) to see an example.
+```ruby
+execute(->(c) { c[:some_values] = c.some_hash.values })
+```
 
 ## ContextFactory for Faster Action Testing
 
-As the complexity of your workflow increases, you will find yourself spending more and more time creating a context (FunctionalLightService::Context it is) for your action tests. Some of this code can be reused by clever factories, but still, you are using a context that is artificial, and can be different from what the previous actions produced. This is especially true, when you use FunctionalLightService in ETLs, where you start out with initial data and your actions are mutating its state.
+As workflows grow more complex, building a realistic
+`FunctionalLightService::Context` for unit tests can become painful.
+Factory objects help, but the data you assemble by hand may still differ
+from what earlier actions really produce—especially in ETL pipelines where
+each step mutates the context.
 
-Here is an example:
+### Example pipeline:
 
 ```ruby
 class SomeOrganizer
@@ -972,58 +1040,55 @@ end
 
 You should test your workflow from the outside, invoking the organizer’s `call` method and verify that the data was properly created or updated in your data store. However, sometimes you need to zoom into one action, and setting up the context to test it is tedious work. This is where `ContextFactory` can be helpful.
 
-In order to test the third action `ETL::SetsUpMappingAction`, you have to have several entities in the context. Depending on the logic you need to write code for, this could be a lot of work. However, by using the `ContextFactory` in your spec, you could easily have a prepared context that’s ready for testing:
+### Enter ContextFactory
+
+FunctionalLightService::Testing::ContextFactory can generate a
+pre-populated context that mirrors real runtime data, letting you focus on
+the behaviour you want to test.
 
 ```ruby
-require 'spec_helper'
-require 'light-service/testing'
+require "spec_helper"
+require "light-service/testing"
 
 RSpec.describe ETL::SetsUpMappingsAction do
   let(:context) do
     FunctionalLightService::Testing::ContextFactory
-      .make_from(SomeOrganizer)
-      .for(described_class)
-      .with(:payload => File.read(‘spec/data/payload.json’)
+      .make_from(SomeOrganizer)          # build the full pipeline
+      .for(described_class)              # stop right before our action
+      .with(payload: File.read("spec/data/payload.json"))
   end
 
-  it ‘works like it should’ do
+  it "sets up mappings correctly" do
     result = described_class.execute(context)
     expect(result).to be_success
   end
 end
 ```
 
-This context then can be passed to the action under test, freeing you up from the 20 lines of factory or fixture calls to create a context for your specs.
+No more 20-line fixture setup—just a realistic context ready to go.
 
-In case your organizer has more logic in its `call` method, you could create your own test organizer in your specs like you can see it in this [acceptance test](spec/acceptance/testing/context_factory_spec.rb#L4-L11). This is reusable in all your action tests.
+If your organizer contains additional logic in its own call method,
+create a test-only organizer inside your specs. 
+See [acceptance test](spec/acceptance/testing/context_factory_spec.rb#L4-L11) for a full example.
 
-## Functional programming
-FunctionalLightService is to help your code to be more confident, by utilizing functional programming patterns.
+## Functional Programming
 
-## Patterns
-FunctionalLightService provides different monads, here is a short guide, when to use which
+FunctionalLightService lets you write **confident**, side-effect-aware Ruby by
+offering monads and algebraic data types (ADTs) you can compose and pattern-match
+without boilerplate.
 
-#### Result: Success & Failure
-- an operation which can succeed or fail
-- the result (content) of of the success or failure is important
-- you are building one thing
-- chaining: if one fails (Failure), don't execute the rest
+### Pattern Overview
 
-#### Option: Some & None
-- an operation which returns either some result or nothing
-- in case it returns nothing it is not important to know why
-- you are working rather with a collection of things
-- chaining: execute all and then select the successful ones (Some)
+| Monad / ADT                      | When to use it                                                                                                          | Typical flow control                            |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| **Result** (`Success / Failure`) | An operation can **succeed or fail** and the *value matters* either way.                                                | Short-circuit on the first `Failure`.           |
+| **Option** (`Some / None`)       | An operation may return **a value or nothing**, and *why it’s missing doesn’t matter*. Think collections or cache hits. | Run every step, keep only the `Some` results.   |
+| **Maybe**                        | Wrap any object that *might be `nil`* to avoid endless `nil?` checks.                                                   | Chain safe calls; `Null` swallows method calls. |
+| **Enums** (custom ADTs)          | Define your own tagged unions when the built-ins don’t fit.                                                             | Full pattern-matching support.                  |
 
+### Usage
 
-#### Maybe
-- an object may be nil, you want to avoid endless nil? checks
-
-#### Enums (Algebraic Data Types)
-- roll your own pattern
-
-## Usage <a name="functional-usage"></a>
-### Result: Success & Failure <a name="functional-usage-success-failure"></a>
+### Result – `Success / Failure` <a name="functional-usage-success-failure"></a>
 
 ```ruby
 Success(1).to_s                        # => "1"
@@ -1033,77 +1098,38 @@ Failure(1).to_s                        # => "1"
 Failure(Failure(1))                    # => Failure(1)
 ```
 
-Maps a `Result` with the value `a` to the same `Result` with the value `b`.
+#### Mapping and binding
 
 ```ruby
-Success(1).fmap { |v| v + 1}           # => Success(2)
-Failure(1).fmap { |v| v - 1}           # => Failure(0)
+Success(1).fmap { |v| v + 1 }                     # => Success(2)
+Failure(1).bind { |v| Success(v - 1) }            # => Success(0)
+
+Success(1).map     { |n| Success(n + 1) }         # => Success(2)
+Failure(1).map_err { |n| Success(n + 1) }         # => Success(2)
 ```
 
-Maps a `Result` with the value `a` to another `Result` with the value `b`.
+#### Flow helpers
 
 ```ruby
-Success(1).bind { |v| Failure(v + 1) } # => Failure(2)
-Failure(1).bind { |v| Success(v - 1) } # => Success(0)
+Success(1).and Success(2)                         # => Success(2)
+Success(1).and_then { Success(2) }                # => Success(2)
+
+Failure(1).or Success(99)                         # => Success(99)
+Failure(1).or_else { |n| Success(n + 1) }         # => Success(2)
 ```
 
-Maps a `Success` with the value `a` to another `Result` with the value `b`. It works like `#bind` but only on `Success`.
-
-```ruby
-Success(1).map { |n| Success(n + 1) }  # => Success(2)
-Failure(0).map { |n| Success(n + 1) }  # => Failure(0)
-```
-Maps a `Failure` with the value `a` to another `Result` with the value `b`. It works like `#bind` but only on `Failure`.
-
-```ruby
-Failure(1).map_err { |n| Success(n + 1) } # => Success(2)
-Success(0).map_err { |n| Success(n + 1) } # => Success(0)
-```
-
-```ruby
-Success(0).try { |n| raise "Error" }   # => Failure(Error)
-```
-
-Replaces `Success a` with `Result b`. If a `Failure` is passed as argument, it is ignored.
-
-```ruby
-Success(1).and Success(2)              # => Success(2)
-Failure(1).and Success(2)              # => Failure(1)
-```
-
-Replaces `Success a` with the result of the block. If a `Failure` is passed as argument, it is ignored.
-
-```ruby
-Success(1).and_then { Success(2) }     # => Success(2)
-Failure(1).and_then { Success(2) }     # => Failure(1)
-```
-
-Replaces `Failure a` with `Result`. If a `Failure` is passed as argument, it is ignored.
-
-```ruby
-Success(1).or Success(2)               # => Success(1)
-Failure(1).or Success(1)               # => Success(1)
-```
-
-Replaces `Failure a` with the result of the block. If a `Success` is passed as argument, it is ignored.
-
-```ruby
-Success(1).or_else { Success(2) }      # => Success(1)
-Failure(1).or_else { |n| Success(n)}   # => Success(1)
-```
-
-Executes the block passed, but completely ignores its result. If an error is raised within the block it will **NOT** be catched.
-
-Try failable operations to return `Success` or `Failure`
+#### Exception capturing
 
 ```ruby
 include FunctionalLightService::Prelude::Result
 
 try! { 1 }                             # => Success(1)
 try! { raise "hell" }                  # => Failure(#<RuntimeError: hell>)
+try! { risky_call }                    # => Success(result) or Failure(err)
 ```
 
 ### Result Chaining <a name="functional-usage-chaining"></a>
+
 You can easily chain the execution of several operations. Here we got some nice function composition.
 The method must be a unary function, i.e. it always takes one parameter - the context, which is passed from call to call.
 
@@ -1165,6 +1191,7 @@ Success(1).map {|ctx| Success(ctx + 1)}
 ```
 
 it also works with lambdas
+
 ```ruby
 Success(1) >> ->(ctx) { Success(ctx + 1) } >> ->(ctx) { Success(ctx + 1) }
 ```
@@ -1196,14 +1223,16 @@ end
 
 Success(1) >= method(:error) # Failure(RuntimeError(error 1))
 ```
+
 ### Pattern matching <a name="functional-usage-pattern-matching"></a>
+
 Now that you have some result, you want to control flow by providing patterns.
 `#match` can match by
 
- * success, failure, result or any
- * values
- * lambdas
- * classes
+* success, failure, result or any
+* values
+* lambdas
+* classes
 
 ```ruby
 Success(1).match do
@@ -1211,6 +1240,7 @@ Success(1).match do
   Failure() { |f| "failure #{f}"}
 end # => "success 1"
 ```
+
 Note1: the variant's inner value(s) have been unwrapped, and passed to the block.
 
 Note2: only the __first__ matching pattern block will be executed, so order __can__ be important.
@@ -1293,6 +1323,7 @@ Some([1]) + None + Some([2])           # => Some([1, 2])
 ```
 
 ### Coercion <a name="functional-usage-coercion"></a>
+
 ```ruby
 Option.any?(nil)                       # => None
 Option.any?([])                        # => None
@@ -1314,7 +1345,25 @@ Some(1).match {
 }                                      # => 2
 ```
 
-### Enums <a name="functional-usage-enum"></a>
+### Maybe <a name="functional-usage-maybe"></a>
+
+The simplest NullObject wrapper there can be. It adds `#some?` and `#null?` to `Object` though.
+
+```ruby
+require 'functional-light-service/functional/maybe' # you need to do this explicitly
+Maybe(nil).foo        # => Null
+Maybe(nil).foo.bar    # => Null
+Maybe({a: 1})[:a]     # => 1
+
+Maybe(nil).null?      # => true
+Maybe({}).null?       # => false
+
+Maybe(nil).some?      # => false
+Maybe({}).some?       # => true
+```
+
+### Enums (custom ADTs) <a name="functional-usage-enum"></a>
+
 All the above are implemented using enums, see their definition, for more details.
 
 ```ruby
@@ -1326,6 +1375,7 @@ Threenum = FunctionalLightService::enum {
 
 Threenum.variants                      # => [:Nullary, :Unary, :Binary]
 ```
+
 Initialize
 
 ```ruby
@@ -1338,6 +1388,7 @@ u.value                                # => 1
 b = Threenum::Binary(2, 3)             # => Threenum::Binary(2, 3)
 b.value                                # => { a:2, b: 3 }
 ```
+
 Pattern matching
 
 ```ruby
@@ -1381,7 +1432,7 @@ Threenum::Unary(5).match {
 }                                      # => 5
 ```
 
-Implementing methods for enums
+#### Add methods with impl
 
 ```ruby
 FunctionalLightService::impl(Threenum) {
@@ -1405,31 +1456,17 @@ FunctionalLightService::impl(Threenum) {
 Threenum.Nullary + Threenum.Unary(1)   # => Unary(1)
 ```
 
-All matches must be exhaustive, i.e. cover all variants
-
-### Maybe <a name="functional-usage-maybe"></a>
-The simplest NullObject wrapper there can be. It adds `#some?` and `#null?` to `Object` though.
-
-```ruby
-require 'functional-light-service/functional/maybe' # you need to do this explicitly
-Maybe(nil).foo        # => Null
-Maybe(nil).foo.bar    # => Null
-Maybe({a: 1})[:a]     # => 1
-
-Maybe(nil).null?      # => true
-Maybe({}).null?       # => false
-
-Maybe(nil).some?      # => false
-Maybe({}).some?       # => true
-```
+All matches must be exhaustive; otherwise NoMatchError is raised.
 
 ## Usage <a name="usage"></a>
+
 Based on the refactoring example above, just create an organizer object that calls the
 actions in order and write code for the actions. That's it.
 
 For further examples, please visit the project's [Wiki](https://github.com/sphynx79/functional-light-service/wiki).
 
 ## Contributing
+
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Added some feature'`)
@@ -1439,6 +1476,7 @@ For further examples, please visit the project's [Wiki](https://github.com/sphyn
 Huge thanks to the [contributors](https://github.com/sphynx79/functional-light-service/graphs/contributors)!
 
 ## Changelog
+
 Follow the changelog in this [document](https://github.com/sphynx79/functional-light-service/blob/master/CHANGELOG.md).
 
 ## Thank You
@@ -1450,4 +1488,5 @@ his fantastic work on [Deterministic](https://github.com/pzol/deterministic).
 FunctionalLightService is inspired heavily by the concepts put to code by Attila and add some functionality taken from the excellent work of mario Piotr.
 
 ## License
+
 FunctionalLightService is released under the [MIT License](http://www.opensource.org/licenses/MIT).

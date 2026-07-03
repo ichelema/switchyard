@@ -1,3 +1,9 @@
+## 0.5.3 (2026-07-03)
+### Changed
+-  Aggiornato il badge Download Count da herokuapp (dismesso) a shields.io ( 2026-07-03 ) [ sphynx79]
+-  Riformattato il README: normalizzazione markdown e line-ending ( 2026-07-03 ) [ sphynx79]
+
+
 ## 0.5.2 (2022-01-30)
 ### Fixed
 -  Risoltro problema codecov upload perche non avevo settato il token ( 2025-05-16 ) [ sphynx79]
