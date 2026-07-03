@@ -112,10 +112,11 @@ module FunctionalLightService
 
     def assign_aliases(aliases)
       @aliases = aliases
+      # Hash inverso precomputato: la risoluzione in lettura/scrittura
+      # resta O(1) invece del reverse-scan di Hash#key
+      @inverse_aliases = aliases.invert
 
-      aliases.each_pair do |key, key_alias|
-        self[key_alias] = self[key]
-      end
+      self
     end
 
     def aliases
@@ -123,24 +124,37 @@ module FunctionalLightService
     end
 
     def [](key)
-      key = aliases.key(key) || key
-      return super(key)
+      super(resolve_key(key))
     end
 
-    def fetch(key, default = nil, &blk)
-      self[key] ||= if block_given?
-                      super(key, &blk)
-                    else
-                      super
-                    end
+    def []=(key, value)
+      super(resolve_key(key), value)
     end
+
+    def fetch(key, *args, &blk)
+      super(resolve_key(key), *args, &blk)
+    end
+
+    def key?(key)
+      super(resolve_key(key))
+    end
+
+    alias has_key? key?
+    alias member? key?
+    alias include? key?
 
     def inspect
       "#{self.class}(#{self}, success: #{success?}, message: #{check_nil(message)}, error_code: " \
-        "#{check_nil(error_code)}, skip_remaining: #{@skip_remaining}, aliases: #{@aliases})"
+        "#{check_nil(error_code)}, skip_remaining: #{@skip_remaining}, aliases: #{aliases})"
     end
 
     private
+
+    def resolve_key(key)
+      return key unless @inverse_aliases
+
+      @inverse_aliases[key] || key
+    end
 
     def check_nil(value)
       return 'nil' unless value

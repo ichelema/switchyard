@@ -15,7 +15,8 @@ module FunctionalLightService
 
       def keys_not_found(keys)
         keys ||= context.keys
-        keys - context.keys
+        # context.key? risolve anche gli alias
+        keys.reject { |key| context.key?(key) }
       end
 
       def format_keys(keys)

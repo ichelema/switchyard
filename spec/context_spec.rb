@@ -167,7 +167,27 @@ RSpec.describe FunctionalLightService::Context do
   end
 
   it "allows a default block value for #fetch" do
-    expect(context.fetch(:madeup, :default)).to eq(:default)
+    expect(context.fetch(:madeup) { :default }).to eq(:default)
+  end
+
+  describe "#fetch honours the Hash#fetch contract" do
+    it "raises KeyError for a missing key without default" do
+      expect { context.fetch(:madeup) }.to raise_error(KeyError)
+    end
+
+    it "does not write to the context when a default is used" do
+      context.fetch(:madeup, :default)
+      context.fetch(:another_madeup) { :default }
+
+      expect(context.to_h).not_to have_key(:madeup)
+      expect(context.to_h).not_to have_key(:another_madeup)
+    end
+
+    it "returns existing falsy values instead of the default" do
+      context = FunctionalLightService::Context.make(:flag => false)
+
+      expect(context.fetch(:flag, true)).to eq(false)
+    end
   end
 
   context "when aliases are included via .make" do
@@ -192,6 +212,27 @@ RSpec.describe FunctionalLightService::Context do
 
     it "can contain false values" do
       expect(context[:bar2]).to eq false
+    end
+
+    it "resolves aliases on writes too, symmetrically with reads" do
+      context[:bar] = "updated"
+
+      expect(context[:bar]).to eq("updated")
+      expect(context[:foo]).to eq("updated")
+      # nessuna chiave duplicata: l'alias e' un nome alternativo, non una copia
+      expect(context.to_h).not_to have_key(:bar)
+    end
+
+    it "resolves aliases in #key? and friends" do
+      expect(context.key?(:bar)).to be(true)
+      expect(context.has_key?(:bar)).to be(true)
+      expect(context.member?(:bar)).to be(true)
+      expect(context.include?(:bar)).to be(true)
+      expect(context.key?(:madeup)).to be(false)
+    end
+
+    it "resolves aliases in #fetch with defaults" do
+      expect(context.fetch(:bar, :default)).to eq("foobar")
     end
   end
 end
