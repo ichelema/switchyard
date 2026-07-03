@@ -103,9 +103,20 @@ module FunctionalLightService
     def define_accessor_methods_for_keys(keys)
       return if keys.nil?
 
+      @defined_accessor_keys ||= {}
       keys.each do |key|
-        next if respond_to?(key.to_sym)
+        key = key.to_sym
+        next if @defined_accessor_keys.key?(key)
 
+        # Prima il conflitto veniva saltato in silenzio e ctx.size (o :count,
+        # :message, ...) ritornava il metodo di Hash invece del valore
+        if respond_to?(key) || respond_to?("#{key}=")
+          raise ReservedKeysInContextError,
+                "expected or promised key :#{key} conflicts with an existing " \
+                "#{self.class.name} method: rename the key or access it via ctx[:#{key}]"
+        end
+
+        @defined_accessor_keys[key] = true
         define_singleton_method(key.to_s) { fetch(key) }
         define_singleton_method("#{key}=") { |value| self[key] = value }
       end

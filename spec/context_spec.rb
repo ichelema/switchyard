@@ -170,6 +170,34 @@ RSpec.describe FunctionalLightService::Context do
     expect(context.fetch(:madeup) { :default }).to eq(:default)
   end
 
+  describe "#define_accessor_methods_for_keys" do
+    it "raises when a key conflicts with an existing Hash/Context method" do
+      expect { context.define_accessor_methods_for_keys([:size]) }
+        .to raise_error(FunctionalLightService::ReservedKeysInContextError, /:size conflicts/)
+    end
+
+    it "does not raise when re-defining accessors for the same key" do
+      ctx = FunctionalLightService::Context.make(:number => 1)
+      ctx.define_accessor_methods_for_keys([:number])
+
+      expect { ctx.define_accessor_methods_for_keys([:number]) }.not_to raise_error
+      expect(ctx.number).to eq(1)
+    end
+  end
+
+  describe "reserved keys" do
+    it "rejects infrastructure keys in expects/promises" do
+      action = Class.new do
+        extend FunctionalLightService::Action
+        expects :_before_actions
+        executed { |_ctx| }
+      end
+
+      expect { action.execute(:_before_actions => []) }
+        .to raise_error(FunctionalLightService::ReservedKeysInContextError)
+    end
+  end
+
   describe "#fail! does not mutate the caller's options hash" do
     it "leaves :error_code in the original hash" do
       options = { :error_code => 500 }
