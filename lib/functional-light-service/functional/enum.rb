@@ -137,17 +137,19 @@ module FunctionalLightService
       private_class_method :new
 
       def self.match(obj, &block)
-        caller_ctx = block.binding.eval 'self'
+        # Binding#receiver: stesso risultato di binding.eval('self') senza eval
+        caller_ctx = block.binding.receiver
 
         matcher = self::Matcher.new(obj)
         matcher.instance_eval(&block)
 
-        variants_in_match = matcher.matches.collect do |e|
-          e[1].name.split('::')[-1].to_sym
-        end.uniq.sort
-        variants_not_covered = variants - variants_in_match
-        unless variants_not_covered.empty?
-          raise Enum::MatchError, "Match is non-exhaustive, #{variants_not_covered} not covered"
+        # exhaustiveness check su classi memoizzate: niente split/sort di
+        # stringhe per chiamata
+        covered = matcher.matches.map { |e| e[1] }
+        missing = variant_classes.reject { |klass| covered.include?(klass) }
+        unless missing.empty?
+          missing_names = missing.map { |klass| klass.name.split('::')[-1].to_sym }
+          raise Enum::MatchError, "Match is non-exhaustive, #{missing_names} not covered"
         end
 
         type_matches = matcher.matches.select { |r| r[0].is_a?(r[1]) }
@@ -177,11 +179,20 @@ module FunctionalLightService
         constants - %i[Matcher MatchError]
       end
 
+      def self.variant_classes
+        @variant_classes ||= variants.map { |v| const_get(v) }.freeze
+      end
+
       def self.guard_context(obj, args)
+        # Struct.new definisce una classe: va fatto una volta per firma,
+        # non a ogni match con guard
+        @guard_structs ||= {}
+        struct = @guard_structs[args] ||= Struct.new(*args)
+
         if obj.is_a?(FunctionalLightService::EnumBuilder::DataType::Binary)
-          Struct.new(*args).new(*obj.value.values)
+          struct.new(*obj.value.values)
         else
-          Struct.new(*args).new(obj.value)
+          struct.new(obj.value)
         end
       end
     end
