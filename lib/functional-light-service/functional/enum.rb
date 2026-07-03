@@ -33,6 +33,25 @@ module FunctionalLightService
             [value]
           end
         end
+
+        # Supporto al pattern matching nativo di Ruby (case/in):
+        #   case result
+        #   in FunctionalLightService::Result::Success(s) then ...
+        #   in FunctionalLightService::Result::Failure(f) then ...
+        #   end
+        def deconstruct
+          is_a?(FunctionalLightService::EnumBuilder::DataType::Nullary) ? [] : wrapped_values
+        end
+
+        def deconstruct_keys(_keys)
+          if is_a?(FunctionalLightService::EnumBuilder::DataType::Binary)
+            value.dup
+          elsif is_a?(FunctionalLightService::EnumBuilder::DataType::Nullary)
+            {}
+          else
+            { args[0] => value }
+          end
+        end
       end
 
       module Nullary
