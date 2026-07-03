@@ -37,12 +37,13 @@ RSpec.describe 'Action after_actions' do
     module AfterActions
       class AdditionOrganizer
         extend FunctionalLightService::Organizer
-        after_actions (->(ctx) do
-                         ctx.number -= 2 if ctx.current_action == TestDoubles::AddsOneAction
-                       end),
-                      (->(ctx) do
+
+        after_actions ->(ctx) do
+          ctx.number -= 2 if ctx.current_action == TestDoubles::AddsOneAction
+        end,
+                      ->(ctx) do
                         ctx.number -= 3 if ctx.current_action == TestDoubles::AddsThreeAction
-                      end)
+                      end
 
         def self.call(number)
           with(:number => number).reduce(actions)

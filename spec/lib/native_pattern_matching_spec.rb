@@ -68,7 +68,7 @@ describe "native Ruby pattern matching (case/in) support" do
     expect(matched).to eq([1, 2])
   end
 
-  def None
+  def None # rubocop:disable Naming/MethodName
     FunctionalLightService::Option::None.new
   end
 end

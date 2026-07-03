@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   Result = FunctionalLightService.enum do
     Success(:s)
@@ -108,8 +110,8 @@ module FunctionalLightService
   module Prelude
     module Result
       # rubocop:disable Naming/MethodName
-      def try!(&block)
-        FunctionalLightService::Result.try!(&block)
+      def try!(&)
+        FunctionalLightService::Result.try!(&)
       end
 
       def Success(s)

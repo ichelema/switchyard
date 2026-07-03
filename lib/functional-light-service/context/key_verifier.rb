@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   class Context
     class KeyVerifier

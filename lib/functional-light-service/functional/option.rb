@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   Option = FunctionalLightService.enum do
     Some(:s)

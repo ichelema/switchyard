@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   module Testing
     class ContextFactory
@@ -14,7 +16,7 @@ module FunctionalLightService
 
       # More than one arguments can be passed to the
       # Organizer's #call method
-      def with(*args, &block)
+      def with(...)
         hook = nil
         hook = ->(ctx) do
           if ctx.current_action == @target_action
@@ -30,7 +32,7 @@ module FunctionalLightService
 
         begin
           catch(:return_ctx_from_execution) do
-            @organizer.call(*args, &block)
+            @organizer.call(...)
           end
         ensure
           # L'hook e' per-chiamata: la classe organizer non deve conservarlo

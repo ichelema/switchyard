@@ -15,6 +15,7 @@ end
 
 class AddsOneWithRollbackAction
   extend FunctionalLightService::Action
+
   expects :number
   promises :number
 
@@ -31,6 +32,7 @@ end
 
 class AddsThreeWithRollbackAction
   extend FunctionalLightService::Action
+
   expects :number
 
   executed do |context|
@@ -58,6 +60,7 @@ end
 
 class AddsThreeWithNoRollbackAction
   extend FunctionalLightService::Action
+
   expects :number
 
   executed do |context|
@@ -81,6 +84,7 @@ end
 
 class AddsTwoActionWithRollback
   extend FunctionalLightService::Action
+
   expects :number
 
   executed do |context|

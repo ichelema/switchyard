@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   module Organizer
     class WithReducer
@@ -32,7 +34,7 @@ module FunctionalLightService
 
         actions.flatten!
 
-        actions.each_with_index.each_with_object(context) do |(action, index), current_context|
+        actions.each_with_index.with_object(context) do |(action, index), current_context|
           invoke_action(current_context, action)
         rescue FailWithRollbackError
           reduce_rollback(actions, index)

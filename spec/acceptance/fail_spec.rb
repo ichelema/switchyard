@@ -4,6 +4,7 @@ RSpec.describe "fail_and_return!" do
   describe "returns immediately from executed block" do
     class FailAndReturnAction
       extend FunctionalLightService::Action
+
       promises :one, :two
 
       executed do |ctx|
@@ -27,6 +28,7 @@ RSpec.describe "fail_and_return!" do
   describe "accepts error_code option" do
     class FailAndReturnWithErrorCodeAction
       extend FunctionalLightService::Action
+
       promises :one, :two
 
       executed do |ctx|

@@ -1,8 +1,6 @@
 require 'spec_helper'
 
-# rubocop:disable Style/MixinUsage
 include FunctionalLightService::Prelude::Result
-# rubocop:enable Style/MixinUsage
 
 Success(1).to_s                        # => "1"
 Success(Success(1))                    # => Success(1)

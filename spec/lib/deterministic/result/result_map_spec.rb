@@ -10,6 +10,7 @@ describe FunctionalLightService::Result do
     it "Failure stops execution" do
       class ChainUnderTest
         include FunctionalLightService::Prelude::Result
+
         alias :m :method
 
         def call

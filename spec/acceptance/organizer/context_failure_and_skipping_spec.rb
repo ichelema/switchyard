@@ -4,6 +4,7 @@ require 'test_doubles'
 RSpec.describe FunctionalLightService::Organizer do
   class TestSkipBefore
     extend FunctionalLightService::Organizer
+
     def self.call
       with(:number => 1)
         .reduce([
@@ -16,6 +17,7 @@ RSpec.describe FunctionalLightService::Organizer do
 
   class TestSkipAfter
     extend FunctionalLightService::Organizer
+
     def self.call
       with(:number => 1)
         .reduce([
@@ -31,6 +33,7 @@ RSpec.describe FunctionalLightService::Organizer do
 
   class TestContextFailure
     extend FunctionalLightService::Organizer
+
     def self.call
       with(:number => 1)
         .reduce([

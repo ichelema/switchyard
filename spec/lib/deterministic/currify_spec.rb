@@ -83,7 +83,8 @@ describe "Pref" do
     actual = b.validate(1) >> b.req(2) >> b.find >> b.render(:html)
 
     # il formato di Hash#to_s cambia tra Ruby 3.3 e 3.4: costruiamo l'atteso dinamicamente
-    expected = FunctionalLightService::Result::Success.new("rendered in html: #{{ :id => 3 }}")
+    rendered_params = { :id => 3 }
+    expected = FunctionalLightService::Result::Success.new("rendered in html: #{rendered_params}")
     expect(actual).to eq expected
   end
 end

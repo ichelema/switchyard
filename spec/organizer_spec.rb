@@ -53,6 +53,7 @@ describe FunctionalLightService::Organizer do
     let(:organizer) do
       Class.new do
         extend FunctionalLightService::Organizer
+
         aliases :foo => :bar
 
         def self.call
