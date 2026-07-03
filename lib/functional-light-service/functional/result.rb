@@ -44,16 +44,15 @@ module FunctionalLightService
       is_a? Result::Failure
     end
 
+    # Le operazioni usano il dispatch diretto invece del motore match:
+    # stessa semantica, ~2 ordini di grandezza piu veloce (audit, finding 3.1)
     def or(other)
       unless other.is_a? Result
         msg = "Expected #{other.inspect} to be a Result"
         raise FunctionalLightService::Monad::NotMonadError, msg
       end
 
-      match do
-        Success() { |_| self }
-        Failure() { |_| other }
-      end
+      success? ? self : other
     end
 
     def and(other)
@@ -62,10 +61,7 @@ module FunctionalLightService
         raise FunctionalLightService::Monad::NotMonadError, msg
       end
 
-      match do
-        Success() { |_| other }
-        Failure() { |_| self }
-      end
+      success? ? other : self
     end
 
     def +(other)
@@ -74,11 +70,12 @@ module FunctionalLightService
         raise FunctionalLightService::Monad::NotMonadError, msg
       end
 
-      match do
-        Success(where { other.success? }) { |s| Result::Success.new(s + other.value) }
-        Failure(where { other.failure? }) { |f| Result::Failure.new(f + other.value) }
-        Success() { |_| other } # implied other.failure?
-        Failure() { |_| self } # implied other.success?
+      if success? == other.success?
+        self.class.new(value + other.value)
+      elsif success?
+        other # other is the failure
+      else
+        self # self is the failure
       end
     end
 
