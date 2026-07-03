@@ -9,6 +9,7 @@ if ENV['RUN_COVERAGE_REPORT']
     add_filter %r{^/spec/}
   end
 
+  SimpleCov.minimum_coverage 98
   SimpleCov.minimum_coverage_by_file 90
 
   require "simplecov-cobertura"
@@ -21,3 +22,8 @@ require "functional-light-service/functional/null"
 require "support"
 require "test_doubles"
 require "stringio"
+
+# Le API deprecate (Maybe/Null, operatori esotici) restano testate:
+# i warning vengono silenziati globalmente e riattivati solo nelle
+# spec che li verificano
+FunctionalLightService::Deprecations.silenced = true

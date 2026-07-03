@@ -13,12 +13,13 @@ shared_examples 'Result' do
 
   it "#to_s" do
     expect(result.new(1).to_s).to eq "1"
-    expect(result.new(:a => 1).to_s).to eq "{:a=>1}"
+    # il formato di Hash#to_s/inspect cambia tra Ruby 3.3 e 3.4: costruiamo l'atteso dinamicamente
+    expect(result.new(:a => 1).to_s).to eq({ :a => 1 }.to_s)
   end
 
   it "#inspect" do
     expect(result.new(1).inspect).to eq "#{result_name}(1)"
-    expect(result.new(:a => 1).inspect).to eq "#{result_name}({:a=>1})"
+    expect(result.new(:a => 1).inspect).to eq "#{result_name}(#{{ :a => 1 }.inspect})"
   end
 end
 

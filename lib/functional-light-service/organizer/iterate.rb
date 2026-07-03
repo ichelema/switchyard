@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "dry/inflector"
 
 module FunctionalLightService
@@ -5,14 +7,17 @@ module FunctionalLightService
     class Iterate
       extend ScopedReducable
 
+      INFLECTOR = Dry::Inflector.new
+
       def self.run(organizer, collection_key, steps)
+        # La singolarizzazione dipende solo dalla chiave: si calcola una volta,
+        # non a ogni invocazione dello step (ne' tantomeno per ogni item)
+        item_key = INFLECTOR.singularize(collection_key).to_sym
+
         ->(ctx) do
           return ctx if ctx.stop_processing?
 
-          collection = ctx[collection_key]
-          inflector = Dry::Inflector.new
-          item_key = inflector.singularize(collection_key).to_sym
-          collection.each do |item|
+          ctx[collection_key].each do |item|
             ctx[item_key] = item
             ctx = scoped_reduce(organizer, ctx, steps)
           end

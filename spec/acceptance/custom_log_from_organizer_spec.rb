@@ -28,6 +28,7 @@ describe "Log from an organizer with a custom logger" do
 
       Class.new do
         extend FunctionalLightService::Organizer
+
         log_with custom_logger
 
         def self.call(coffee, this_hot = :very_hot)

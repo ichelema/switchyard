@@ -20,7 +20,7 @@ describe FunctionalLightService::Enum do
 
     it "can't instantiate parent" do
       expect { MyEnym.new }.to \
-        raise_error NoMethodError, "private method `new' called for MyEnym:Class"
+        raise_error NoMethodError, /private method [`']new'/
     end
 
     it "Nullary" do

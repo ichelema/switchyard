@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
-  VERSION = "0.5.4".freeze
+  VERSION = "6.0.0"
 end

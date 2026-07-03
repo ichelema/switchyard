@@ -1,5 +1,6 @@
 class ProvidesFreeShippingAction
   extend FunctionalLightService::Action
+
   expects :order
 
   executed do |context|

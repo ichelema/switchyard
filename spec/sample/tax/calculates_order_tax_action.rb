@@ -1,5 +1,6 @@
 class CalculatesOrderTaxAction
   extend ::FunctionalLightService::Action
+
   expects :order, :tax_percentage
 
   executed do |ctx|

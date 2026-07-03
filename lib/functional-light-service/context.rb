@@ -1,9 +1,13 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   # rubocop:disable Metrics/ClassLength
   class Context < Hash
     include FunctionalLightService::Prelude::Option
     include FunctionalLightService::Prelude::Result
-    attr_accessor :outcome, :current_action, :organized_by
+
+    attr_reader :outcome
+    attr_accessor :current_action, :organized_by
 
     # rubocop:disable Lint/MissingSuper
     def initialize(context = {},
@@ -43,7 +47,7 @@ module FunctionalLightService
     end
 
     def reset_skip_remaining!
-      @outcome = Success(:message => '', :error => nil)
+      # Resetta soltanto il flag: l'esito (e il suo messaggio) non vanno persi
       @skip_remaining = false
     end
 
@@ -66,8 +70,9 @@ module FunctionalLightService
       options_or_error_code ||= {}
 
       if options_or_error_code.is_a?(Hash)
-        error_code = options_or_error_code.delete(:error_code)
-        options = options_or_error_code
+        # dup: l'hash di opzioni appartiene al chiamante e non va mutato
+        options = options_or_error_code.dup
+        error_code = options.delete(:error_code)
       else
         error_code = options_or_error_code
         options = {}
@@ -99,23 +104,48 @@ module FunctionalLightService
       failure? || skip_remaining?
     end
 
+    # Registra le chiavi come accessor consentiti: la lettura/scrittura passa
+    # da method_missing con whitelist. Rispetto a define_singleton_method non
+    # materializza una singleton class per ogni context (audit, finding 3.3)
     def define_accessor_methods_for_keys(keys)
       return if keys.nil?
 
+      @accessor_methods ||= {}
       keys.each do |key|
-        next if respond_to?(key.to_sym)
+        key = key.to_sym
+        next if @accessor_methods.key?(key)
 
-        define_singleton_method(key.to_s) { fetch(key) }
-        define_singleton_method("#{key}=") { |value| self[key] = value }
+        # Prima il conflitto veniva saltato in silenzio e ctx.size (o :count,
+        # :message, ...) ritornava il metodo di Hash invece del valore
+        if respond_to?(key) || respond_to?("#{key}=")
+          raise ReservedKeysInContextError,
+                "expected or promised key :#{key} conflicts with an existing " \
+                "#{self.class.name} method: rename the key or access it via ctx[:#{key}]"
+        end
+
+        @accessor_methods[key] = [:reader, key]
+        @accessor_methods[:"#{key}="] = [:writer, key]
       end
+    end
+
+    def method_missing(name, *args)
+      accessor = @accessor_methods && @accessor_methods[name]
+      return super unless accessor
+
+      accessor[0] == :reader ? fetch(accessor[1]) : self[accessor[1]] = args.first
+    end
+
+    def respond_to_missing?(name, _include_all = false)
+      (!@accessor_methods.nil? && @accessor_methods.key?(name)) || super
     end
 
     def assign_aliases(aliases)
       @aliases = aliases
+      # Hash inverso precomputato: la risoluzione in lettura/scrittura
+      # resta O(1) invece del reverse-scan di Hash#key
+      @inverse_aliases = aliases.invert
 
-      aliases.each_pair do |key, key_alias|
-        self[key_alias] = self[key]
-      end
+      self
     end
 
     def aliases
@@ -123,24 +153,37 @@ module FunctionalLightService
     end
 
     def [](key)
-      key = aliases.key(key) || key
-      return super(key)
+      super(resolve_key(key))
     end
 
-    def fetch(key, default = nil, &blk)
-      self[key] ||= if block_given?
-                      super(key, &blk)
-                    else
-                      super
-                    end
+    def []=(key, value)
+      super(resolve_key(key), value)
     end
+
+    def fetch(key, ...)
+      super(resolve_key(key), ...)
+    end
+
+    def key?(key)
+      super(resolve_key(key))
+    end
+
+    alias has_key? key?
+    alias member? key?
+    alias include? key?
 
     def inspect
       "#{self.class}(#{self}, success: #{success?}, message: #{check_nil(message)}, error_code: " \
-        "#{check_nil(error_code)}, skip_remaining: #{@skip_remaining}, aliases: #{@aliases})"
+        "#{check_nil(error_code)}, skip_remaining: #{@skip_remaining}, aliases: #{aliases})"
     end
 
     private
+
+    def resolve_key(key)
+      return key unless @inverse_aliases
+
+      @inverse_aliases[key] || key
+    end
 
     def check_nil(value)
       return 'nil' unless value

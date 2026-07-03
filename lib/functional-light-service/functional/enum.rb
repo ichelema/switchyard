@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FunctionalLightService
   module Enum
     class MatchError < StandardError; end
@@ -12,8 +14,8 @@ module FunctionalLightService
       module AnyEnum
         include FunctionalLightService::Monad
 
-        def match(&block)
-          parent.match(self, &block)
+        def match(&)
+          parent.match(self, &)
         end
 
         def to_s
@@ -33,6 +35,25 @@ module FunctionalLightService
             [value]
           end
         end
+
+        # Supporto al pattern matching nativo di Ruby (case/in):
+        #   case result
+        #   in FunctionalLightService::Result::Success(s) then ...
+        #   in FunctionalLightService::Result::Failure(f) then ...
+        #   end
+        def deconstruct
+          is_a?(FunctionalLightService::EnumBuilder::DataType::Nullary) ? [] : wrapped_values
+        end
+
+        def deconstruct_keys(_keys)
+          if is_a?(FunctionalLightService::EnumBuilder::DataType::Binary)
+            value.dup
+          elsif is_a?(FunctionalLightService::EnumBuilder::DataType::Nullary)
+            {}
+          else
+            { args[0] => value }
+          end
+        end
       end
 
       module Nullary
@@ -48,11 +69,11 @@ module FunctionalLightService
       # TODO: this should probably be named Multary
       module Binary
         def initialize(*init)
-          unless (init.count == 1 && init[0].is_a?(Hash)) || init.count == args.count
+          unless (init.one? && init[0].is_a?(Hash)) || init.count == args.count
             raise ArgumentError, "Expected arguments for #{args}, got #{init}"
           end
 
-          @value = if init.count == 1 && init[0].is_a?(Hash)
+          @value = if init.one? && init[0].is_a?(Hash)
                      args.zip(init[0].values).to_h
                    else
                      args.zip(init).to_h
@@ -76,6 +97,7 @@ module FunctionalLightService
         dt.instance_eval do
           public_class_method :new
           include AnyEnum
+
           define_method(:args) { args }
 
           define_method(:parent) { parent }
@@ -86,6 +108,7 @@ module FunctionalLightService
         when 0
           dt.instance_eval do
             include Nullary
+
             private :value
           end
         when 1
@@ -115,10 +138,14 @@ module FunctionalLightService
 
     def method_missing(m, *args)
       if @parent.const_defined?(m)
-        super
-      else
-        @parent.const_set(m, DataType.create(@parent, args))
+        raise ArgumentError, "variant #{m} is already defined for this enum"
       end
+
+      @parent.const_set(m, DataType.create(@parent, args))
+    end
+
+    def respond_to_missing?(_m, _include_all = false)
+      true
     end
   end
 
@@ -133,17 +160,19 @@ module FunctionalLightService
       private_class_method :new
 
       def self.match(obj, &block)
-        caller_ctx = block.binding.eval 'self'
+        # Binding#receiver: stesso risultato di binding.eval('self') senza eval
+        caller_ctx = block.binding.receiver
 
         matcher = self::Matcher.new(obj)
         matcher.instance_eval(&block)
 
-        variants_in_match = matcher.matches.collect do |e|
-          e[1].name.split('::')[-1].to_sym
-        end.uniq.sort
-        variants_not_covered = variants - variants_in_match
-        unless variants_not_covered.empty?
-          raise Enum::MatchError, "Match is non-exhaustive, #{variants_not_covered} not covered"
+        # exhaustiveness check su classi memoizzate: niente split/sort di
+        # stringhe per chiamata
+        covered = matcher.matches.map { |e| e[1] }
+        missing = variant_classes.reject { |klass| covered.include?(klass) }
+        unless missing.empty?
+          missing_names = missing.map { |klass| klass.name.split('::')[-1].to_sym }
+          raise Enum::MatchError, "Match is non-exhaustive, #{missing_names} not covered"
         end
 
         type_matches = matcher.matches.select { |r| r[0].is_a?(r[1]) }
@@ -151,7 +180,7 @@ module FunctionalLightService
         type_matches.each do |match|
           obj, _type, block, args, guard = match
 
-          return caller_ctx.instance_eval(&block) if args.count.zero?
+          return caller_ctx.instance_eval(&block) if args.empty?
 
           if args.count != obj.args.count
             msg = "Pattern (#{args.join(', ')}) must match (#{obj.args.join(', ')})"
@@ -173,11 +202,20 @@ module FunctionalLightService
         constants - %i[Matcher MatchError]
       end
 
+      def self.variant_classes
+        @variant_classes ||= variants.map { |v| const_get(v) }.freeze
+      end
+
       def self.guard_context(obj, args)
+        # Struct.new definisce una classe: va fatto una volta per firma,
+        # non a ogni match con guard
+        @guard_structs ||= {}
+        struct = @guard_structs[args] ||= Struct.new(*args)
+
         if obj.is_a?(FunctionalLightService::EnumBuilder::DataType::Binary)
-          Struct.new(*args).new(*obj.value.values)
+          struct.new(*obj.value.values)
         else
-          Struct.new(*args).new(obj.value)
+          struct.new(obj.value)
         end
       end
     end
@@ -242,9 +280,7 @@ module FunctionalLightService
 
   def impl(enum_type, &block)
     enum_type.variants.each do |v|
-      name = "#{enum_type.name}::#{v}"
-      type = Kernel.eval(name)
-      type.class_eval(&block)
+      enum_type.const_get(v).class_eval(&block)
     end
   end
 end
