@@ -1,7 +1,7 @@
-## 1.0.0 (2026-07-03)
+## 6.0.0 (2026-07-03)
 
 Release maggiore guidata da un audit tecnico completo (vedi `AUDIT-functional-light-service.md`
-e la sezione "Upgrading to 1.0" del README). Richiede **Ruby >= 3.1** (testato fino a Ruby 4.0).
+e la sezione "Upgrading to 6.0" del README). Richiede **Ruby >= 3.1** (testato fino a Ruby 4.0).
 
 ### Fixed
 -  Gli hook before_actions/after_actions dichiarativi non vengono piu consumati dalla prima chiamata dell'organizer (bug critico + race condition in multi-thread) ( 2026-07-03 ) [ sphynx79]
@@ -30,7 +30,7 @@ e la sezione "Upgrading to 1.0" del README). Richiede **Ruby >= 3.1** (testato f
 
 ### Changed
 -  required_ruby_version >= 3.1; dev dependencies modernizzate (rspec 3.13, rubocop 1.75+, simplecov 0.22, solargraph 0.60); CI matrix Ruby 3.1/3.2/3.3/3.4/4.0 ( 2026-07-03 ) [ sphynx79]
--  README: sezione "Upgrading to 1.0", contratto di threading documentato, fix esempio fail_with_rollback! (residuo LightService::) ( 2026-07-03 ) [ sphynx79]
+-  README: sezione "Upgrading to 6.0", contratto di threading documentato, fix esempio fail_with_rollback! (residuo LightService::) ( 2026-07-03 ) [ sphynx79]
 
 ### Removed
 -  Kernel.eval in impl (sostituito da const_get); dead code (macro ctx di Action) ( 2026-07-03 ) [ sphynx79]

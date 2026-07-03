@@ -38,7 +38,7 @@
 
 ## Requirements
 
-This gem requires ruby >= 2.5.0
+This gem requires ruby >= 3.1 (tested up to ruby 4.0)
 
 ## Installation
 
@@ -1465,9 +1465,9 @@ actions in order and write code for the actions. That's it.
 
 For further examples, please visit the project's [Wiki](https://github.com/sphynx79/functional-light-service/wiki).
 
-## Upgrading to 1.0
+## Upgrading to 6.0
 
-Version 1.0 requires **Ruby >= 3.1** and ships a few breaking changes plus new guarantees.
+Version 6.0 requires **Ruby >= 3.1** and ships a few breaking changes plus new guarantees.
 They come from a full technical audit (see `AUDIT-functional-light-service.md`).
 
 ### Breaking changes
