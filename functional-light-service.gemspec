@@ -28,6 +28,9 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency("rspec-mocks", "= 3.10.2")
   gem.add_development_dependency("simplecov", "~> 0.21.2")
   gem.add_development_dependency("simplecov-cobertura", "~> 2.1.0")
+  # rexml >= 3.3 ha un parser XML piu severo che rompe simplecov-cobertura 2.1.0
+  # (Malformed XML: No root element). Blocco alla 3.2.x compatibile.
+  gem.add_development_dependency("rexml", "< 3.3")
   gem.add_development_dependency("rubocop", "~> 1.25.0")
   gem.add_development_dependency("rubocop-performance", "~> 1.13.2")
   gem.add_development_dependency("pry", "~> 0.14.1")
