@@ -28,6 +28,7 @@
   * [Usage](#functional-usage)
     * [Result: Success & Failure](#functional-usage-success-failure)
     * [Result Chaining](#functional-usage-chaining)
+    * [Sequencing (do-notation)](#functional-usage-sequencing)
     * [Complex Example in a Builder Action](#functional-usage-complex-action)
     * [Pattern matching](#functional-usage-pattern-matching)
     * [Option](#functional-usage-option)
@@ -1149,6 +1150,39 @@ Success(params) >>
   send << log >>
   build_response
 ```
+
+### Sequencing (do-notation) – `in_sequence` <a name="functional-usage-sequencing"></a>
+
+When a pipeline needs the intermediate values of earlier steps, chaining alone
+gets awkward. `in_sequence` (ported from the [deterministic](https://github.com/pzol/deterministic)
+gem, MIT License) gives you a do-notation style block: each step returns a
+`Result`, the sequence short-circuits on the first `Failure`, and values bound
+with `get`/`let` are available to all subsequent steps by name.
+
+```ruby
+class DownloadRemit
+  include FunctionalLightService::Prelude
+
+  def call(row)
+    in_sequence do
+      get(:url)      { extract_url(row) }        # binds the Success value to :url
+      get(:file)     { fetch(url) }              # :url is available here
+      let(:name)     { File.basename(url) }      # binds a plain (non-Result) value
+      and_then       { validate(file) }          # step without binding
+      observe        { logger.info("got #{name}") } # side effect, return value ignored
+      and_yield      { Success(name) }           # final result of the sequence
+    end
+  end
+end
+```
+
+* `get(:name) { ... }` – runs a step returning a `Result`; on `Success` binds the
+  unwrapped value to `name`, on `Failure` stops the sequence and returns it.
+* `let(:name) { ... }` – binds the block's plain return value (no `Result` involved).
+* `and_then { ... }` – runs a step returning a `Result` without binding its value.
+* `observe { ... }` – runs a side effect; its return value is ignored.
+* `and_yield { ... }` – mandatory final step; its `Result` is the value of the
+  whole `in_sequence` block.
 
 #### Complex Example in a Builder Action <a name="functional-usage-complex-action"></a>
 
