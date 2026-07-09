@@ -1,3 +1,10 @@
+## 6.1.0 (2026-07-03)
+
+### Added
+-  Sequencer: do-notation per Result con in_sequence/get/let/and_then/observe/and_yield, portato dalla gem deterministic (MIT) e incluso nel Prelude ( 2026-07-03 ) [ sphynx79]
+
+
+
 ## 6.0.0 (2026-07-03)
 
 Release maggiore guidata da un audit tecnico completo (vedi `AUDIT-functional-light-service.md`
