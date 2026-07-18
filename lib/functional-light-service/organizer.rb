@@ -36,16 +36,28 @@ module FunctionalLightService
         ReduceIf.run(self, condition_block, steps)
       end
 
+      def reduce_if_else(condition_block, if_steps, else_steps)
+        ReduceIfElse.run(self, condition_block, if_steps, else_steps)
+      end
+
       def reduce_until(condition_block, steps)
         ReduceUntil.run(self, condition_block, steps)
+      end
+
+      def reduce_case(**args)
+        ReduceCase.run(self, **args)
+      end
+
+      def reduce_while(condition_block, steps)
+        ReduceWhile.run(self, condition_block, steps)
       end
 
       def iterate(collection_key, steps)
         Iterate.run(self, collection_key, steps)
       end
 
-      def execute(code_block)
-        Execute.run(code_block)
+      def execute(code_block = nil, &block)
+        Execute.run(code_block || block)
       end
 
       def with_callback(action, steps)
@@ -62,7 +74,10 @@ module FunctionalLightService
 
       def add_to_context(**args)
         args.map do |key, value|
-          execute(->(ctx) { ctx[key.to_sym] = value })
+          execute(->(ctx) do
+            ctx[key.to_sym] = value
+            ctx.define_accessor_methods_for_keys([key])
+          end)
         end
       end
 

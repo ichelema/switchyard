@@ -19,4 +19,6 @@ vendor/bundle
 bin
 gems.tags
 tags
+.claude/
+.ruby-lsp/
 !*.gitkeep

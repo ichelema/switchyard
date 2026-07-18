@@ -14,7 +14,7 @@ RSpec.describe FunctionalLightService::Context do
     it 'inspects the hash with all the fields' do
       inspected_context =
         "FunctionalLightService::Context({}, success: true, message: '', error_code: nil, " \
-        "skip_remaining: false, aliases: {})"
+        "skip_remaining: false, skip_all_remaining: false, aliases: {})"
 
       expect(context.inspect).to eq(inspected_context)
     end
@@ -24,7 +24,7 @@ RSpec.describe FunctionalLightService::Context do
 
       inspected_context =
         "FunctionalLightService::Context({}, success: false, message: 'There was an error', " \
-        "error_code: nil, skip_remaining: false, aliases: {})"
+        "error_code: nil, skip_remaining: false, skip_all_remaining: false, aliases: {})"
 
       expect(context.inspect).to eq(inspected_context)
     end
@@ -34,7 +34,17 @@ RSpec.describe FunctionalLightService::Context do
 
       inspected_context =
         "FunctionalLightService::Context({}, success: true, message: 'No need to process', " \
-        "error_code: nil, skip_remaining: true, aliases: {})"
+        "error_code: nil, skip_remaining: true, skip_all_remaining: false, aliases: {})"
+
+      expect(context.inspect).to eq(inspected_context)
+    end
+
+    it 'prints skip_all_remaining' do
+      context.skip_all_remaining!('Nothing else to process')
+
+      inspected_context =
+        "FunctionalLightService::Context({}, success: true, message: 'Nothing else to process', " \
+        "error_code: nil, skip_remaining: false, skip_all_remaining: true, aliases: {})"
 
       expect(context.inspect).to eq(inspected_context)
     end

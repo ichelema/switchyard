@@ -3,7 +3,7 @@
 module FunctionalLightService
   class Configuration
     class << self
-      attr_writer :logger, :localization_adapter
+      attr_writer :logger, :localization_adapter, :locale
 
       def logger
         @logger = _default_logger unless instance_variable_defined?("@logger")
@@ -11,7 +11,17 @@ module FunctionalLightService
       end
 
       def localization_adapter
-        @localization_adapter ||= LocalizationAdapter.new
+        # La gem i18n non è una dipendenza: l'adapter I18n viene scelto solo
+        # se la costante è già stata caricata dall'applicazione ospite
+        @localization_adapter ||= if Module.const_defined?('I18n')
+                                    FunctionalLightService::I18n::LocalizationAdapter.new
+                                  else
+                                    LocalizationAdapter.new
+                                  end
+      end
+
+      def locale
+        @locale ||= :en
       end
 
       private
