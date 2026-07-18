@@ -44,6 +44,10 @@ module FunctionalLightService
         ReduceUntil.run(self, condition_block, steps)
       end
 
+      def reduce_while(condition_block, steps)
+        ReduceWhile.run(self, condition_block, steps)
+      end
+
       def iterate(collection_key, steps)
         Iterate.run(self, collection_key, steps)
       end
