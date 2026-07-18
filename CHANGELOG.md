@@ -1,3 +1,22 @@
+## 6.2.0 (2026-07-18)
+
+Port selettivo delle feature di light-service upstream 0.14-0.21 (niente Rails
+support; solo aggiunte retro-compatibili).
+
+### Added
+-  skip_all_remaining!: salta tutto il resto dell'organizer, scope annidati compresi; non viene resettato da reduce_if/iterate/ecc. (upstream 0.21) ( 2026-07-18 ) [ sphynx79]
+-  reduce_while: macro dell'organizer che controlla la condizione prima di ogni step (upstream 0.21) ( 2026-07-18 ) [ sphynx79]
+-  reduce_if_else: come reduce_if ma con ramo else (upstream 0.17) ( 2026-07-18 ) [ sphynx79]
+-  reduce_case: dispatch sugli step in base a un valore del context, kwargs :value/:when/:else (upstream 0.18) ( 2026-07-18 ) [ sphynx79]
+-  expects :key, default: valore-o-lambda per chiavi attese opzionali; kwarg diverso da :default solleva UnusableExpectKeyDefaultError (upstream 0.17) ( 2026-07-18 ) [ sphynx79]
+-  execute accetta un blocco oltre alla lambda (upstream master) ( 2026-07-18 ) [ sphynx79]
+-  :organized_by tra le chiavi riservate del KeyVerifier: errore piu chiaro in caso di collisione (upstream 0.14) ( 2026-07-18 ) [ sphynx79]
+
+### Changed
+-  add_to_context registra anche gli accessor delle chiavi aggiunte (ctx.mia_chiave); chiavi che collidono con metodi del Context ora sollevano ReservedKeysInContextError invece di passare in silenzio (upstream 0.16) ( 2026-07-18 ) [ sphynx79]
+-  i18n non e' piu una dipendenza runtime: di default i simboli si risolvono col nuovo adapter built-in (LocalizationMap + Configuration.locale); l'adapter I18n trasloca in FunctionalLightService::I18n::LocalizationAdapter e viene selezionato solo se l'applicazione carica la gem i18n (upstream 0.19/0.20) ( 2026-07-18 ) [ sphynx79]
+
+
 ## 6.1.0 (2026-07-03)
 
 ### Added

@@ -116,7 +116,7 @@ module FunctionalLightService
       def reserved_keys
         # _aliases/_before_actions/_after_actions sono chiavi infrastrutturali
         # scritte da Organizer.with nel context
-        %i[message error_code current_action
+        %i[message error_code current_action organized_by
            _aliases _before_actions _after_actions].freeze
       end
     end
