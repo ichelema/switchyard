@@ -43,4 +43,25 @@ RSpec.describe FunctionalLightService::Organizer do
     result = TestExecute.call(empty_context)
     expect(result).to be_success
   end
+
+  it 'accepts a block instead of a lambda' do
+    organizer = Class.new do
+      extend FunctionalLightService::Organizer
+
+      def self.call(context)
+        with(context).reduce(steps)
+      end
+
+      def self.steps
+        [
+          execute { |ctx| ctx[:number] += 1 }
+        ]
+      end
+    end
+
+    result = organizer.call(:number => 1)
+
+    expect(result).to be_success
+    expect(result[:number]).to eq(2)
+  end
 end

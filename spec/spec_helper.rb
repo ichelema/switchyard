@@ -16,6 +16,9 @@ if ENV['RUN_COVERAGE_REPORT']
   SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 end
 
+# i18n non e' piu una dipendenza runtime della gem: viene caricata qui
+# per testare l'adapter I18n e la selezione automatica in Configuration
+require "i18n"
 require "functional-light-service"
 require "functional-light-service/testing"
 require "functional-light-service/functional/null"

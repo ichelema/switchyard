@@ -419,6 +419,28 @@ end
 In the example above, the organizer invokes four actions.
 The first two run successfully; the third calls skip_remaining!, so the fourth is never executed, yet the overall context stays successful.
 
+### Skipping everything, including nested scopes
+
+`skip_remaining!` is scoped: constructs like `reduce_if` or `iterate` reset it
+at their boundary, so it only exits the **current** scope. When you need to stop
+the whole organizer from inside a nested construct, use
+`context.skip_all_remaining!` — it is never reset, so every remaining step (in
+the current scope and in the outer ones) is skipped while the context stays
+successful:
+
+```ruby
+class StopsEverythingAction
+  extend FunctionalLightService::Action
+  expects :item
+
+  executed do |context|
+    if context.item.poison_pill?
+      context.skip_all_remaining!("Poison pill found, stopping the pipeline")
+    end
+  end
+end
+```
+
 ## Benchmarking Actions with Around Advice
 
 When you need to profile a pipeline, adding timing code inside every single
@@ -619,6 +641,33 @@ end
 ```
 
 Want to see it in practice? Check out [this spec](spec/action_expects_and_promises_spec.rb) test file.
+
+### Default values for expected keys
+
+An expected key can declare a `default`, used when the key is missing from the
+context (also when the action runs inside an organizer). The default can be a
+static value or a lambda receiving the context:
+
+```ruby
+class GreetsSomeoneAction
+  extend FunctionalLightService::Action
+
+  expects :name
+  expects :greeting, :default => "Hello"
+  expects :message,  :default => ->(ctx) { "#{ctx[:greeting]}, #{ctx[:name]}!" }
+
+  executed do |context|
+    puts context.message
+  end
+end
+
+GreetsSomeoneAction.execute(:name => "Rick") # ⇒ "Hello, Rick!"
+```
+
+Note that `expects` accepts a single key when a default is given, and any
+keyword other than `default` raises `UnusableExpectKeyDefaultError` at class
+definition time. Keys already reachable through an alias are considered
+present, so their default is not applied.
 
 ## Key Aliases
 
@@ -830,10 +879,30 @@ For a full example, see [this acceptance test](spec/acceptance/rollback_spec.rb)
 
 ## Localizing Messages
 
-FunctionalLightService integrates with **I18n** out of the box, so you can translate
-success or failure messages without extra plumbing.  
-If your app needs something more advanced, you can swap in a custom localization
-adapter.
+Symbols passed to `fail!`/`succeed!` are looked up through a localization
+adapter. Two adapters ship with the gem:
+
+- **Built-in adapter** (default): resolves messages from
+  `FunctionalLightService::LocalizationMap.instance`, a plain hash keyed by
+  `Configuration.locale` (default `:en`) — no extra dependency needed:
+
+  ```ruby
+  FunctionalLightService::LocalizationMap.instance[:en] = {
+    :foo_action => {
+      :light_service => {
+        :failures => { :exceeded_api_limit => "Exceeded API limit" },
+        :successes => { :api_call_ok => "All good" }
+      }
+    }
+  }
+  ```
+
+- **I18n adapter**: selected automatically when your application loads the
+  `i18n` gem (it is no longer a runtime dependency of this gem — add it to
+  your own Gemfile if you want I18n-backed lookups).
+
+If your app needs something more advanced, you can swap in a custom
+localization adapter.
 
 ```ruby
 class FooAction
@@ -906,7 +975,7 @@ configuration:
 FunctionalLightService::Configuration.localization_adapter = MyLocalizer.new
 
 # lib/my_localizer.rb
-class MyLocalizer < FunctionalLightService::LocalizationAdapter
+class MyLocalizer < FunctionalLightService::I18n::LocalizationAdapter
   # change default scope to: "light_service.failures.<class_path>"
   def i18n_scope_from_class(action_class, type)
     "light_service.#{type.pluralize}.#{action_class.name.underscore}"
@@ -984,15 +1053,18 @@ your actions.
 
 | Construct                                                          | Declarative “equivalent” | What it does (in one line)                                                                  |
 | ------------------------------------------------------------------ | ------------------------ | ------------------------------------------------------------------------------------------- |
-| [reduce_until](spec/acceptance/organizer/reduce_until_spec.rb)     | `while` loop             | Keeps reducing the listed steps **until** the lambda returns `true`.                        |
-| [reduce_if](spec/acceptance/organizer/reduce_if_spec.rb)           | `if/else`                | Reduces its sub‑steps **only if** the lambda returns `true`.                                |
+| [reduce_until](spec/acceptance/organizer/reduce_until_spec.rb)     | `until` loop             | Keeps reducing the listed steps **until** the lambda returns `true`.                        |
+| [reduce_while](spec/acceptance/organizer/reduce_while_spec.rb)     | `while` guard            | Checks the lambda **before each step** and stops as soon as it returns `false`.             |
+| [reduce_if](spec/acceptance/organizer/reduce_if_spec.rb)           | `if`                     | Reduces its sub‑steps **only if** the lambda returns `true`.                                |
+| [reduce_if_else](spec/acceptance/organizer/reduce_if_else_spec.rb) | `if/else`                | Reduces the first list of steps when the lambda is `true`, the second one otherwise.        |
+| [reduce_case](spec/acceptance/organizer/reduce_case_spec.rb)       | `case/when`              | Dispatches to the steps matching a context value (`:value`, `:when`, `:else` kwargs).       |
 | [iterate](spec/acceptance/organizer/iterate_spec.rb)               | `each` loop              | Loops over a collection key; each element is exposed under the **singular** name.           |
-| [execute](spec/acceptance/organizer/execute_spec.rb)               | one‑off lambda           | Runs an inline lambda for quick context tweaks (add keys, transform values, etc.).          |
+| [execute](spec/acceptance/organizer/execute_spec.rb)               | one‑off lambda           | Runs an inline lambda or block for quick context tweaks (add keys, transform values, etc.). |
 | [with_callback](spec/acceptance/organizer/with_callback_spec.rb)   | streaming callback       | Defers execution like a SAX parser—great for huge inputs without loading everything in RAM. |
-| [add_to_context](spec/acceptance/organizer/add_to_context_spec.rb) | N/A (context inject)     | Injects key–value pairs into the context just before the following steps run.               |
+| [add_to_context](spec/acceptance/organizer/add_to_context_spec.rb) | N/A (context inject)     | Injects key–value pairs into the context (defining accessors) before the next steps run.    |
 | [add_aliases](spec/acceptance/organizer/add_aliases_spec.rb)       | key aliasing             | Creates an alias so actions can read/write the same value under different names.            |
 
-All seven are covered by acceptance tests in spec/acceptance/organizer/*_spec.rb.
+All ten are covered by acceptance tests in spec/acceptance/organizer/*_spec.rb.
 
 **Tip**: When iterating, the collection must already be in the context.
 iterate(:items) expects context[:items]; it then places each element under
@@ -1003,10 +1075,23 @@ iterate(:items, [ProcessItem])
 # Inside ProcessItem → context.item
 ```
 
-Need a quick context mutation? Use execute:
+Need a quick context mutation? Use execute, with a lambda or a block:
 
 ```ruby
 execute(->(c) { c[:some_values] = c.some_hash.values })
+# or
+execute { |c| c[:some_values] = c.some_hash.values }
+```
+
+Need to branch on a context value? Use reduce_case:
+
+```ruby
+reduce_case :value => :status,
+            :when => {
+              :active   => [NotifiesUserAction],
+              :archived => [ArchivesRecordAction]
+            },
+            :else => [RaisesUnknownStatusAction]
 ```
 
 ## ContextFactory for Faster Action Testing

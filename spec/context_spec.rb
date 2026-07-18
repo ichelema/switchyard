@@ -198,6 +198,18 @@ RSpec.describe FunctionalLightService::Context do
       expect { action.execute(:_before_actions => []) }
         .to raise_error(FunctionalLightService::ReservedKeysInContextError)
     end
+
+    it "rejects :organized_by in expects/promises" do
+      action = Class.new do
+        extend FunctionalLightService::Action
+
+        expects :organized_by
+        executed { |_ctx| } # rubocop:disable Lint/EmptyBlock
+      end
+
+      expect { action.execute(:organized_by => Object) }
+        .to raise_error(FunctionalLightService::ReservedKeysInContextError)
+    end
   end
 
   describe "#fail! does not mutate the caller's options hash" do
