@@ -11,7 +11,7 @@ module FunctionalLightService
 
           loop do
             ctx = scoped_reduce(organizer, ctx, steps)
-            break if condition_block.call(ctx) || ctx.failure?
+            break if condition_block.call(ctx) || ctx.stop_processing?
           end
 
           ctx

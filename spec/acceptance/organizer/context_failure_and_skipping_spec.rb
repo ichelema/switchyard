@@ -31,6 +31,21 @@ RSpec.describe FunctionalLightService::Organizer do
     end
   end
 
+  class TestSkipAllFromNestedScope
+    extend FunctionalLightService::Organizer
+
+    def self.call
+      with(:number => 1)
+        .reduce([
+                  reduce_if(->(_ctx) { true }, [
+                              TestDoubles::AddsOneAction,
+                              execute(lambda(&:skip_all_remaining!))
+                            ]),
+                  TestDoubles::AddsOneAction
+                ])
+    end
+  end
+
   class TestContextFailure
     extend FunctionalLightService::Organizer
 
@@ -57,6 +72,13 @@ RSpec.describe FunctionalLightService::Organizer do
 
     expect(result).to be_success
     expect(result[:number]).to eq(3)
+  end
+
+  it 'does not reset skip_all_remaining at the end of a nested scope' do
+    result = TestSkipAllFromNestedScope.call
+
+    expect(result).to be_success
+    expect(result[:number]).to eq(2)
   end
 
   it 'respects failure across all nestings' do
