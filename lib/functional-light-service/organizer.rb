@@ -74,7 +74,10 @@ module FunctionalLightService
 
       def add_to_context(**args)
         args.map do |key, value|
-          execute(->(ctx) { ctx[key.to_sym] = value })
+          execute(->(ctx) do
+            ctx[key.to_sym] = value
+            ctx.define_accessor_methods_for_keys([key])
+          end)
         end
       end
 
