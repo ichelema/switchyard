@@ -14,6 +14,7 @@ module FunctionalLightService
                    outcome = Success(:message => '', :error => nil))
       @outcome = outcome
       @skip_remaining = false
+      @skip_all_remaining = false
       context.to_hash.each { |k, v| self[k] = v }
     end
     # rubocop:enable Lint/MissingSuper
@@ -44,6 +45,10 @@ module FunctionalLightService
 
     def skip_remaining?
       @skip_remaining
+    end
+
+    def skip_all_remaining?
+      @skip_all_remaining
     end
 
     def reset_skip_remaining!
@@ -100,8 +105,15 @@ module FunctionalLightService
       @skip_remaining = true
     end
 
+    # Variante non azzerabile di skip_remaining!: salta tutto il resto
+    # dell'organizer, scope annidati compresi (scoped_reduce non la resetta)
+    def skip_all_remaining!(message = nil)
+      @outcome = Success(:message => message)
+      @skip_all_remaining = true
+    end
+
     def stop_processing?
-      failure? || skip_remaining?
+      failure? || skip_remaining? || skip_all_remaining?
     end
 
     # Registra le chiavi come accessor consentiti: la lettura/scrittura passa
@@ -174,7 +186,8 @@ module FunctionalLightService
 
     def inspect
       "#{self.class}(#{self}, success: #{success?}, message: #{check_nil(message)}, error_code: " \
-        "#{check_nil(error_code)}, skip_remaining: #{@skip_remaining}, aliases: #{aliases})"
+        "#{check_nil(error_code)}, skip_remaining: #{@skip_remaining}, " \
+        "skip_all_remaining: #{@skip_all_remaining}, aliases: #{aliases})"
     end
 
     private

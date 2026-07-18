@@ -27,4 +27,28 @@ RSpec.describe FunctionalLightService::Organizer do
     expect(result.number).to eq(1)
     expect(result[:something]).to eq("hello")
   end
+
+  it "defines accessors for the added keys" do
+    result = TestAddToContext.call
+
+    expect(result.something).to eq("hello")
+  end
+
+  it "raises when the added key conflicts with a Context method" do
+    organizer = Class.new do
+      extend FunctionalLightService::Organizer
+
+      def self.call
+        reduce(steps)
+      end
+
+      def self.steps
+        [add_to_context(:message => "boom")]
+      end
+    end
+
+    expect { organizer.call }
+      .to raise_error(FunctionalLightService::ReservedKeysInContextError,
+                      /:message conflicts/)
+  end
 end

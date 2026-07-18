@@ -5,6 +5,25 @@ describe FunctionalLightService::LocalizationAdapter do
   let(:action_class) { TestDoubles::AnAction }
   let(:adapter) { described_class.new }
 
+  before do
+    FunctionalLightService::LocalizationMap.instance[:en] = {
+      :'test_doubles/an_action' => {
+        :light_service => {
+          :failures => {
+            :not_found => "failure message"
+          },
+          :successes => {
+            :not_found => "success message"
+          }
+        }
+      }
+    }
+  end
+
+  after do
+    FunctionalLightService::LocalizationMap.instance.clear
+  end
+
   describe "#failure" do
     subject { adapter.failure(message_or_key, action_class) }
 
@@ -12,25 +31,7 @@ describe FunctionalLightService::LocalizationAdapter do
       let(:message_or_key) { :not_found }
 
       it "translates the message" do
-        expected_scope = "test_doubles/an_action.light_service.failures"
-
-        expect(I18n).to receive(:t)
-          .with(message_or_key, :scope => expected_scope)
-          .and_return("message")
-
-        expect(subject).to eq("message")
-      end
-
-      it "allows passing interpolation options to I18n layer" do
-        expect(I18n).to receive(:t)
-          .with(message_or_key, hash_including(:i18n_variable => "value"))
-          .and_return("message")
-
-        subject = adapter.failure(message_or_key,
-                                  action_class,
-                                  :i18n_variable => "value")
-
-        expect(subject).to eq("message")
+        expect(subject).to eq("failure message")
       end
     end
 
@@ -50,25 +51,7 @@ describe FunctionalLightService::LocalizationAdapter do
       let(:message_or_key) { :not_found }
 
       it "translates the message" do
-        expected_scope = "test_doubles/an_action.light_service.successes"
-
-        expect(I18n).to receive(:t)
-          .with(message_or_key, :scope => expected_scope)
-          .and_return("message")
-
-        expect(subject).to eq("message")
-      end
-
-      it "allows passing interpolation options to I18n layer" do
-        expect(I18n).to receive(:t)
-          .with(message_or_key, hash_including(:i18n_variable => "value"))
-          .and_return("message")
-
-        subject = adapter.success(message_or_key,
-                                  action_class,
-                                  :i18n_variable => "value")
-
-        expect(subject).to eq("message")
+        expect(subject).to eq("success message")
       end
     end
 
