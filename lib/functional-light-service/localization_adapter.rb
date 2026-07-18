@@ -1,48 +1,39 @@
 # frozen_string_literal: true
 
-require 'i18n'
+require 'dry/inflector'
 
 module FunctionalLightService
+  # Adapter built-in basato su LocalizationMap: nessuna dipendenza da I18n.
+  # Viene selezionato da Configuration quando la costante ::I18n non esiste
   class LocalizationAdapter
-    def failure(message_or_key, action_class, i18n_options = {})
+    INFLECTOR = Dry::Inflector.new
+
+    def failure(message_or_key, action_class, options = {})
       find_translated_message(message_or_key,
-                              action_class,
-                              i18n_options,
-                              :type => :failure)
+                              INFLECTOR.underscore(action_class.to_s),
+                              options.merge(:type => :failures))
     end
 
-    def success(message_or_key, action_class, i18n_options = {})
+    def success(message_or_key, action_class, options = {})
       find_translated_message(message_or_key,
-                              action_class,
-                              i18n_options,
-                              :type => :success)
+                              INFLECTOR.underscore(action_class.to_s),
+                              options.merge(:type => :successes))
     end
 
     private
 
-    def find_translated_message(message_or_key,
-                                action_class,
-                                i18n_options,
-                                type)
+    def find_translated_message(message_or_key, action_class, options)
       if message_or_key.is_a?(Symbol)
-        translate(message_or_key, action_class, i18n_options.merge(type))
+        FunctionalLightService::LocalizationMap.instance.dig(
+          FunctionalLightService::Configuration.locale,
+          action_class.to_sym,
+          :light_service,
+          options[:type],
+          message_or_key
+        )
       else
         message_or_key
       end
-    end
-
-    def translate(key, action_class, options = {})
-      type = options.delete(:type)
-
-      scope = i18n_scope_from_class(action_class, type)
-      options[:scope] = scope
-
-      I18n.t(key, **options)
-    end
-
-    def i18n_scope_from_class(action_class, type)
-      inflector = Dry::Inflector.new
-      "#{inflector.underscore(action_class.name)}.light_service.#{inflector.pluralize(type)}"
     end
   end
 end
