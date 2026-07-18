@@ -56,8 +56,8 @@ module FunctionalLightService
         Iterate.run(self, collection_key, steps)
       end
 
-      def execute(code_block)
-        Execute.run(code_block)
+      def execute(code_block = nil, &block)
+        Execute.run(code_block || block)
       end
 
       def with_callback(action, steps)
