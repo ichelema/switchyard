@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'test_doubles'
 
-RSpec.describe FunctionalLightService::Organizer do
+RSpec.describe Switchyard::Organizer do
   class TestReduceUntil
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(context)
       with(context).reduce(actions)
@@ -17,7 +17,7 @@ RSpec.describe FunctionalLightService::Organizer do
     end
   end
 
-  let(:empty_context) { FunctionalLightService::Context.make }
+  let(:empty_context) { Switchyard::Context.make }
 
   it 'reduces until the block evaluates to true' do
     context = { :number => 1 }

@@ -1,7 +1,7 @@
 require "spec_helper"
 require 'test_doubles'
 
-describe FunctionalLightService::I18n::LocalizationAdapter do
+describe Switchyard::I18n::LocalizationAdapter do
   let(:action_class) { TestDoubles::AnAction }
   let(:adapter) { described_class.new }
 
@@ -12,7 +12,7 @@ describe FunctionalLightService::I18n::LocalizationAdapter do
       let(:message_or_key) { :not_found }
 
       it "translates the message" do
-        expected_scope = "test_doubles/an_action.light_service.failures"
+        expected_scope = "test_doubles/an_action.switchyard.failures"
 
         expect(I18n).to receive(:t)
           .with(message_or_key, :scope => expected_scope)
@@ -50,7 +50,7 @@ describe FunctionalLightService::I18n::LocalizationAdapter do
       let(:message_or_key) { :not_found }
 
       it "translates the message" do
-        expected_scope = "test_doubles/an_action.light_service.successes"
+        expected_scope = "test_doubles/an_action.switchyard.successes"
 
         expect(I18n).to receive(:t)
           .with(message_or_key, :scope => expected_scope)

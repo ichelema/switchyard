@@ -1,35 +1,35 @@
 require 'spec_helper'
 # Maybe()/Null e il monkey-patch di Object sono opt-in: non fanno parte
 # del require chain di default della gem
-require 'functional-light-service/functional/maybe'
+require 'switchyard/functional/maybe'
 
 describe "deprecation warnings" do
   around do |example|
-    FunctionalLightService::Deprecations.silenced = false
-    FunctionalLightService::Deprecations.reset!
+    Switchyard::Deprecations.silenced = false
+    Switchyard::Deprecations.reset!
     example.run
   ensure
-    FunctionalLightService::Deprecations.silenced = true
-    FunctionalLightService::Deprecations.reset!
+    Switchyard::Deprecations.silenced = true
+    Switchyard::Deprecations.reset!
   end
 
-  context "when including FunctionalLightService::Organizer" do
+  context "when including Switchyard::Organizer" do
     it "warns on stderr" do
       expect do
         class OrganizerIncludingLS
-          include FunctionalLightService::Organizer
+          include Switchyard::Organizer
         end
-      end.to output(/Including FunctionalLightService::Organizer is deprecated/).to_stderr
+      end.to output(/Including Switchyard::Organizer is deprecated/).to_stderr
     end
   end
 
-  context "when including FunctionalLightService::Action" do
+  context "when including Switchyard::Action" do
     it "warns on stderr" do
       expect do
         class ActionIncludingLS
-          include FunctionalLightService::Action
+          include Switchyard::Action
         end
-      end.to output(/Including FunctionalLightService::Action is deprecated/).to_stderr
+      end.to output(/Including Switchyard::Action is deprecated/).to_stderr
     end
   end
 
@@ -43,7 +43,7 @@ describe "deprecation warnings" do
   end
 
   context "when using the exotic operators" do
-    include FunctionalLightService::Prelude::Result
+    include Switchyard::Prelude::Result
 
     it "Result#>= warns and delegates to #try" do
       result = nil
@@ -65,7 +65,7 @@ describe "deprecation warnings" do
     end
 
     it "Option#+ warns and still combines" do
-      some = FunctionalLightService::Option::Some
+      some = Switchyard::Option::Some
       result = nil
       expect { result = some.new(1) + some.new(2) }
         .to output(/Option#\+ is deprecated/).to_stderr
@@ -75,7 +75,7 @@ describe "deprecation warnings" do
 
   context "when silenced" do
     it "emits nothing" do
-      FunctionalLightService::Deprecations.silenced = true
+      Switchyard::Deprecations.silenced = true
       expect { Maybe(nil) }.not_to output.to_stderr
     end
   end

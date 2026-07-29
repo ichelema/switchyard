@@ -2,7 +2,7 @@ require 'spec_helper'
 
 # A Unit of Work for validating an address
 module ValidateAddress
-  extend FunctionalLightService::Prelude::Result
+  extend Switchyard::Prelude::Result
 
   def self.call(candidate)
     errors = {}
@@ -15,7 +15,7 @@ module ValidateAddress
 end
 
 describe ValidateAddress do
-  include FunctionalLightService
+  include Switchyard
 
   subject { ValidateAddress.call(candidate) }
   context 'sunny day' do
@@ -26,13 +26,13 @@ describe ValidateAddress do
         :postal => "3472",
         :country => "nz" }
     end
-    specify { expect(subject).to be_a FunctionalLightService::Result::Success }
+    specify { expect(subject).to be_a Switchyard::Result::Success }
     specify { expect(subject.value).to eq candidate }
   end
 
   context 'empty data' do
     let(:candidate) { {} }
-    specify { expect(subject).to be_a FunctionalLightService::Result::Failure }
+    specify { expect(subject).to be_a Switchyard::Result::Failure }
     specify { expect(subject.value).to include(:street, :city, :postal) }
   end
 end

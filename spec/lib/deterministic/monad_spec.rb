@@ -1,9 +1,9 @@
 require 'spec_helper'
 require_relative 'monad_axioms'
 
-describe FunctionalLightService::Monad do
+describe Switchyard::Monad do
   class Identity
-    include FunctionalLightService::Monad
+    include Switchyard::Monad
   end
 
   let(:monad) { Identity }
@@ -23,7 +23,7 @@ describe FunctionalLightService::Monad do
     it "raises an error if the passed function does not return a monad of the same class" do
       # rubocop:disable Lint/EmptyBlock
       expect { Identity.new(1).bind {} }.to \
-        raise_error(FunctionalLightService::Monad::NotMonadError)
+        raise_error(Switchyard::Monad::NotMonadError)
       # rubocop:enable Lint/EmptyBlock
     end
     specify { expect(Identity.new(1).bind { |value| Identity.new(value) }).to eq Identity.new(1) }

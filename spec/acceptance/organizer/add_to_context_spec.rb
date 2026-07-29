@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-RSpec.describe FunctionalLightService::Organizer do
+RSpec.describe Switchyard::Organizer do
   class TestAddToContext
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
-    def self.call(context = FunctionalLightService::Context.make)
+    def self.call(context = Switchyard::Context.make)
       with(context).reduce(steps)
     end
 
@@ -36,7 +36,7 @@ RSpec.describe FunctionalLightService::Organizer do
 
   it "raises when the added key conflicts with a Context method" do
     organizer = Class.new do
-      extend FunctionalLightService::Organizer
+      extend Switchyard::Organizer
 
       def self.call
         reduce(steps)
@@ -48,7 +48,7 @@ RSpec.describe FunctionalLightService::Organizer do
     end
 
     expect { organizer.call }
-      .to raise_error(FunctionalLightService::ReservedKeysInContextError,
+      .to raise_error(Switchyard::ReservedKeysInContextError,
                       /:message conflicts/)
   end
 end

@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'test_doubles'
 
-RSpec.describe FunctionalLightService::Organizer do
+RSpec.describe Switchyard::Organizer do
   class TestReduceIfElse
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(context)
       with(context).reduce(actions)
@@ -21,7 +21,7 @@ RSpec.describe FunctionalLightService::Organizer do
     end
   end
 
-  let(:empty_context) { FunctionalLightService::Context.make }
+  let(:empty_context) { Switchyard::Context.make }
 
   it 'reduces the if_steps if the condition is true' do
     result = TestReduceIfElse.call(:number => 0)

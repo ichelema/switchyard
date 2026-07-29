@@ -6,7 +6,7 @@ describe ":promises macro" do
     it "raises an ArgumentError" do
       module TestDoubles
         class MakesCappuccinoAction1
-          extend FunctionalLightService::Action
+          extend Switchyard::Action
 
           expects :coffee, :milk
           promises :cappuccino
@@ -22,13 +22,13 @@ describe ":promises macro" do
         TestDoubles::MakesCappuccinoAction1.execute(:coffee => "espresso",
                                                     :milk => "2%")
       end.to \
-        raise_error(FunctionalLightService::PromisedKeysNotInContextError, exception_msg)
+        raise_error(Switchyard::PromisedKeysNotInContextError, exception_msg)
     end
 
     it "can fail the context without fulfilling its promise" do
       module TestDoubles
         class MakesCappuccinoAction2
-          extend FunctionalLightService::Action
+          extend Switchyard::Action
 
           expects :coffee, :milk
           promises :cappuccino
@@ -51,7 +51,7 @@ describe ":promises macro" do
     it "can be set with an actual value" do
       module TestDoubles
         class MakesCappuccinoAction3
-          extend FunctionalLightService::Action
+          extend Switchyard::Action
 
           expects :coffee, :milk
           promises :cappuccino
@@ -73,7 +73,7 @@ describe ":promises macro" do
     it "can be set with nil" do
       module TestDoubles
         class MakesCappuccinoAction4
-          extend FunctionalLightService::Action
+          extend Switchyard::Action
 
           expects :coffee, :milk
           promises :cappuccino
@@ -98,7 +98,7 @@ describe ":promises macro" do
       expect do
         TestDoubles::MakesTeaPromisingReservedKey.execute(:tea => "black")
       end.to \
-        raise_error(FunctionalLightService::ReservedKeysInContextError, exception_msg)
+        raise_error(Switchyard::ReservedKeysInContextError, exception_msg)
     end
 
     it "raises error indicating multiple reserved keys have been promised" do
@@ -108,7 +108,7 @@ describe ":promises macro" do
         ctx = { :tea => "black" }
         TestDoubles::MakesTeaPromisingMultipleReservedKeys.execute(ctx)
       end.to \
-        raise_error(FunctionalLightService::ReservedKeysInContextError, exception_msg)
+        raise_error(Switchyard::ReservedKeysInContextError, exception_msg)
     end
   end
 

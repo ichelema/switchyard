@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-include FunctionalLightService::Prelude::Option
+include Switchyard::Prelude::Option
 
-describe FunctionalLightService::Option do
+describe Switchyard::Option do
   it "Some cannot wrap nil" do
     expect { described_class::Some.new(nil) }
       .to raise_error(ArgumentError, /use None instead/)
@@ -133,7 +133,7 @@ end
 
 require_relative 'monad_axioms'
 
-describe FunctionalLightService::Option::Some do
+describe Switchyard::Option::Some do
   it_behaves_like 'a Monad' do
     let(:monad) { described_class }
   end

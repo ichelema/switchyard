@@ -7,7 +7,7 @@ RSpec.describe 'ContextFactory - used with ReduceUntilOrganizer' do
   context 'when called with truthy block' do
     it 'creates a context up-to the action defined before the iteration' do
       ctx =
-        FunctionalLightService::Testing::ContextFactory
+        Switchyard::Testing::ContextFactory
         .make_from(organizer)
         .for(TestDoubles::AddsTwoAction)
         .with(:number => 1)
@@ -17,7 +17,7 @@ RSpec.describe 'ContextFactory - used with ReduceUntilOrganizer' do
 
     it 'creates a context only to the first step of the loop' do
       ctx =
-        FunctionalLightService::Testing::ContextFactory
+        Switchyard::Testing::ContextFactory
         .make_from(organizer)
         .for(TestDoubles::AddsThreeAction)
         .with(:number => 1)
@@ -29,7 +29,7 @@ RSpec.describe 'ContextFactory - used with ReduceUntilOrganizer' do
   context 'when called with falsey block' do
     it 'creates a context up-to the first step' do
       ctx =
-        FunctionalLightService::Testing::ContextFactory
+        Switchyard::Testing::ContextFactory
         .make_from(organizer)
         .for(TestDoubles::AddsThreeAction)
         .with(:number => 7)

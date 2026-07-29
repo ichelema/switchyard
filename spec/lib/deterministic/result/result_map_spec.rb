@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe FunctionalLightService::Result do
-  include FunctionalLightService::Prelude::Result
+describe Switchyard::Result do
+  include Switchyard::Prelude::Result
 
   context ">> (map)" do
     specify { expect(Success(0).map { |n| Success(n + 1) }).to eq Success(1) }
@@ -9,7 +9,7 @@ describe FunctionalLightService::Result do
 
     it "Failure stops execution" do
       class ChainUnderTest
-        include FunctionalLightService::Prelude::Result
+        include Switchyard::Prelude::Result
 
         alias :m :method
 
@@ -51,7 +51,7 @@ describe FunctionalLightService::Result do
       end
 
       expect { Success(1) >> method(:returns_non_result) }.to \
-        raise_error(FunctionalLightService::Monad::NotMonadError)
+        raise_error(Switchyard::Monad::NotMonadError)
     end
 
     it "works with a block" do
@@ -75,7 +75,7 @@ describe FunctionalLightService::Result do
 
   context "using self as the context for success" do
     class SelfContextUnderTest
-      include FunctionalLightService::Prelude::Result
+      include Switchyard::Prelude::Result
 
       def call
         @step = 0

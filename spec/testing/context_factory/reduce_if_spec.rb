@@ -7,7 +7,7 @@ RSpec.describe 'ContextFactory - used with ReduceIfOrganizer' do
   context 'when called with a truthy argument action' do
     it 'executes a context up-to the callback action' do
       ctx =
-        FunctionalLightService::Testing::ContextFactory
+        Switchyard::Testing::ContextFactory
         .make_from(organizer)
         .for(TestDoubles::AddsThreeAction)
         .with(:number => 1)
@@ -17,7 +17,7 @@ RSpec.describe 'ContextFactory - used with ReduceIfOrganizer' do
 
     it 'creates a context up-to action with empty context steps' do
       ctx =
-        FunctionalLightService::Testing::ContextFactory
+        Switchyard::Testing::ContextFactory
         .make_from(organizer)
         .for(TestDoubles::AddsTwoAction)
         .with(:number => 1)
@@ -29,7 +29,7 @@ RSpec.describe 'ContextFactory - used with ReduceIfOrganizer' do
   context 'when called with a false argument action' do
     it 'does not execute the steps' do
       ctx =
-        FunctionalLightService::Testing::ContextFactory
+        Switchyard::Testing::ContextFactory
         .make_from(organizer)
         .for(TestDoubles::AddsThreeAction)
         .with(:number => 0)
