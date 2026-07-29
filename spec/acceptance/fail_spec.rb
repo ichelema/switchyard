@@ -3,7 +3,7 @@ require 'spec_helper'
 RSpec.describe "fail_and_return!" do
   describe "returns immediately from executed block" do
     class FailAndReturnAction
-      extend FunctionalLightService::Action
+      extend Switchyard::Action
 
       promises :one, :two
 
@@ -27,7 +27,7 @@ RSpec.describe "fail_and_return!" do
 
   describe "accepts error_code option" do
     class FailAndReturnWithErrorCodeAction
-      extend FunctionalLightService::Action
+      extend Switchyard::Action
 
       promises :one, :two
 

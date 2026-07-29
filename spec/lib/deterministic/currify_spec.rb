@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'pry'
 
-module FunctionalLightService
+module Switchyard
   module Currify
     module ClassMethods
       def currify(*names)
@@ -43,8 +43,8 @@ class Object
 end
 
 class Booking
-  include FunctionalLightService::Currify
-  include FunctionalLightService::Prelude::Result
+  include Switchyard::Currify
+  include Switchyard::Prelude::Result
 
   def initialize(deps)
     @deps = deps
@@ -76,7 +76,7 @@ class Booking
 end
 
 describe "Pref" do
-  include FunctionalLightService::Prelude::Result
+  include Switchyard::Prelude::Result
 
   it "does something" do
     b = Booking.new(1)
@@ -84,7 +84,7 @@ describe "Pref" do
 
     # il formato di Hash#to_s cambia tra Ruby 3.3 e 3.4: costruiamo l'atteso dinamicamente
     rendered_params = { :id => 3 }
-    expected = FunctionalLightService::Result::Success.new("rendered in html: #{rendered_params}")
+    expected = Switchyard::Result::Success.new("rendered in html: #{rendered_params}")
     expect(actual).to eq expected
   end
 end

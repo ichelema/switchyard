@@ -2,8 +2,8 @@ require 'spec_helper'
 require_relative '../monad_axioms'
 require_relative 'result_shared'
 
-describe FunctionalLightService::Result::Success do
-  include FunctionalLightService::Prelude::Result
+describe Switchyard::Result::Success do
+  include Switchyard::Prelude::Result
 
   it_behaves_like 'a Monad' do
     let(:monad) { described_class }

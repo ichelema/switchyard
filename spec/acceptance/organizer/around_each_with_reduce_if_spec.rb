@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'test_doubles'
 
-RSpec.describe FunctionalLightService::Organizer do
+RSpec.describe Switchyard::Organizer do
   class TestReduceIfWithAroundEach
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(context)
       with(context)

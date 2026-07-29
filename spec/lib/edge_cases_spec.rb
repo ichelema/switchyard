@@ -1,23 +1,23 @@
 require 'spec_helper'
-require 'functional-light-service/functional/maybe'
+require 'switchyard/functional/maybe'
 
 # Copertura dei path d'errore e delle API minori emersi dall'audit
 describe "edge cases and error paths" do
-  include FunctionalLightService::Prelude::Result
-  include FunctionalLightService::Prelude::Option
+  include Switchyard::Prelude::Result
+  include Switchyard::Prelude::Option
 
-  describe FunctionalLightService::Context do
+  describe Switchyard::Context do
     it "#add_to_context merges values" do
-      ctx = FunctionalLightService::Context.make(:a => 1)
+      ctx = Switchyard::Context.make(:a => 1)
       ctx.add_to_context(:b => 2)
 
       expect(ctx[:b]).to eq(2)
     end
   end
 
-  describe FunctionalLightService::Context::KeyVerifier do
+  describe Switchyard::Context::KeyVerifier do
     it "the base verifier requires throw_error_predicate to be overridden" do
-      ctx = FunctionalLightService::Context.make
+      ctx = Switchyard::Context.make
       verifier = described_class.new(ctx, nil)
 
       expect { verifier.throw_error_predicate([]) }.to raise_error(NotImplementedError)
@@ -58,7 +58,7 @@ describe "edge cases and error paths" do
   describe "enum error paths" do
     it "raises when a variant is defined twice" do
       expect do
-        FunctionalLightService.enum do
+        Switchyard.enum do
           Dup()
           Dup()
         end
@@ -66,7 +66,7 @@ describe "edge cases and error paths" do
     end
 
     it "the enum builder responds to any variant name" do
-      builder = FunctionalLightService::EnumBuilder.new(Class.new)
+      builder = Switchyard::EnumBuilder.new(Class.new)
 
       expect(builder.respond_to?(:AnyVariantName)).to be(true)
     end
@@ -76,7 +76,7 @@ describe "edge cases and error paths" do
         Some(1).match do
           Some() { |s| s }
         end
-      end.to raise_error(FunctionalLightService::Enum::MatchError, /non-exhaustive/)
+      end.to raise_error(Switchyard::Enum::MatchError, /non-exhaustive/)
     end
 
     it "raises MatchError when the block arity does not match the variant" do
@@ -85,7 +85,7 @@ describe "edge cases and error paths" do
           Some() { |a, b| [a, b] }
           None() { nil }
         end
-      end.to raise_error(FunctionalLightService::Enum::MatchError, /must match/)
+      end.to raise_error(Switchyard::Enum::MatchError, /must match/)
     end
 
     it "raises MatchError when no guard matches" do
@@ -94,7 +94,7 @@ describe "edge cases and error paths" do
           Some(where { s > 100 }) { |s| s }
           None() { nil }
         end
-      end.to raise_error(FunctionalLightService::Enum::MatchError, /No match could be made/)
+      end.to raise_error(Switchyard::Enum::MatchError, /No match could be made/)
     end
 
     it "rejects unnamed/rest block parameters" do
@@ -118,7 +118,7 @@ describe "edge cases and error paths" do
     end
 
     it "None deconstructs to an empty hash and array" do
-      none = FunctionalLightService::Option::None.new
+      none = Switchyard::Option::None.new
 
       expect(none.deconstruct).to eq([])
       expect(none.deconstruct_keys(nil)).to eq({})
@@ -128,7 +128,7 @@ describe "edge cases and error paths" do
   describe "Option minor APIs" do
     it "#value_to_a returns the raw value" do
       expect(Some(1).value_to_a).to eq(1)
-      expect(FunctionalLightService::Option::None.new.value_to_a).to be_nil
+      expect(Switchyard::Option::None.new.value_to_a).to be_nil
     end
 
     it "Prelude None() builds the shared None" do
@@ -136,14 +136,14 @@ describe "edge cases and error paths" do
     end
 
     it "Prelude Option() returns the Option enum" do
-      expect(Option()).to eq(FunctionalLightService::Option)
+      expect(Option()).to eq(Switchyard::Option)
     end
   end
 
   describe "Result minor APIs" do
     it "#+ raises NotMonadError for non-Result operands" do
       expect { Success(1) + "not a result" } # rubocop:disable Style/StringConcatenation
-        .to raise_error(FunctionalLightService::Monad::NotMonadError)
+        .to raise_error(Switchyard::Monad::NotMonadError)
     end
 
     it "Prelude try! wraps exceptions in Failure" do

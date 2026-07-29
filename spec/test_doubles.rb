@@ -2,13 +2,13 @@
 
 module TestDoubles
   class RollbackAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     executed(&:fail_with_rollback!)
   end
 
   class RaiseErrorAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     executed do |_ctx|
       raise 'A problem has occured.'
@@ -16,7 +16,7 @@ module TestDoubles
   end
 
   class RaiseAnotherErrorAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     executed do |_ctx|
       raise 'More problems'
@@ -24,19 +24,19 @@ module TestDoubles
   end
 
   class SkipAllAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     executed(&:skip_remaining!)
   end
 
   class FailureAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     executed(&:fail!)
   end
 
   class AddTwoOrganizer
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(context)
       with(context).reduce([AddsOneAction, AddsOneAction])
@@ -73,7 +73,7 @@ module TestDoubles
   end
 
   class AroundEachOrganizer
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(action_arguments)
       with(action_arguments)
@@ -83,7 +83,7 @@ module TestDoubles
   end
 
   class AddsTwoActionWithFetch
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     executed do |context|
       number = context.fetch(:number, 0)
@@ -92,15 +92,15 @@ module TestDoubles
   end
 
   class AnAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
   end
 
   class AnotherAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
   end
 
   class AnOrganizer
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(action_arguments)
       with(action_arguments).reduce([AnAction, AnotherAction])
@@ -116,7 +116,7 @@ module TestDoubles
   end
 
   class NotExplicitlyReturningContextOrganizer
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(context)
       context[:foo] = [1, 2, 3]
@@ -124,7 +124,7 @@ module TestDoubles
   end
 
   class NestingOrganizer
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(context)
       with(context).reduce(actions)
@@ -136,7 +136,7 @@ module TestDoubles
   end
 
   class NestedAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :foo
 
@@ -146,7 +146,7 @@ module TestDoubles
   end
 
   class MakesTeaWithMilkAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :tea, :milk
     promises :milk_tea
@@ -157,7 +157,7 @@ module TestDoubles
   end
 
   class MultipleExpectsAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :tea
     expects :milk, :chocolate
@@ -170,14 +170,14 @@ module TestDoubles
   end
 
   class MakesCappuccinoAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :coffee, :milk
     promises :cappuccino
   end
 
   class MakesLatteAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :coffee, :milk
     promises :latte
@@ -201,7 +201,7 @@ module TestDoubles
   end
 
   class MultiplePromisesAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :coffee, :milk
     promises :cappuccino
@@ -214,7 +214,7 @@ module TestDoubles
   end
 
   class MakesTeaAndCappuccino
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(tea, milk, coffee)
       with(:tea => tea, :milk => milk, :coffee => coffee)
@@ -224,7 +224,7 @@ module TestDoubles
   end
 
   class MakesCappuccinoAddsTwo
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(milk, coffee)
       with(:milk => milk, :coffee => coffee)
@@ -234,7 +234,7 @@ module TestDoubles
   end
 
   class MakesCappuccinoAddsTwoAndFails
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(coffee, this_hot = :very_hot)
       with(:milk => this_hot, :coffee => coffee)
@@ -244,7 +244,7 @@ module TestDoubles
   end
 
   class MakesCappuccinoSkipsAddsTwo
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(coffee)
       with(:milk => "5%", :coffee => coffee)
@@ -254,7 +254,7 @@ module TestDoubles
   end
 
   class AdditionOrganizer
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(number)
       with(:number => number).reduce(actions)
@@ -270,7 +270,7 @@ module TestDoubles
   end
 
   class ExtraArgumentAdditionOrganizer
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(number, another_number)
       with(:number => number + another_number).reduce(actions)
@@ -286,7 +286,7 @@ module TestDoubles
   end
 
   class AddsOne
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def call(ctx)
       with(ctx).reduce(actions)
@@ -298,7 +298,7 @@ module TestDoubles
   end
 
   class AddsOneAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :number
     promises :number
@@ -309,7 +309,7 @@ module TestDoubles
   end
 
   class AddsTwoAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :number
 
@@ -319,7 +319,7 @@ module TestDoubles
   end
 
   class AddsThreeAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :number
 
@@ -329,7 +329,7 @@ module TestDoubles
   end
 
   class IterateOrganizer
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(ctx)
       with(ctx).reduce(actions)
@@ -347,7 +347,7 @@ module TestDoubles
   end
 
   class AddsOneIteratesAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :numbers
     promises :numbers
@@ -358,7 +358,7 @@ module TestDoubles
   end
 
   class CallbackOrganizer
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(ctx)
       with(ctx).reduce(actions)
@@ -376,7 +376,7 @@ module TestDoubles
   end
 
   class AddTenCallbackAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :number, :callback
 
@@ -388,7 +388,7 @@ module TestDoubles
   end
 
   class ReduceUntilOrganizer
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(ctx)
       with(ctx).reduce(actions)
@@ -406,7 +406,7 @@ module TestDoubles
   end
 
   class ReduceIfOrganizer
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(ctx)
       with(ctx).reduce(actions)
@@ -424,7 +424,7 @@ module TestDoubles
   end
 
   class MakesTeaExpectingReservedKey
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :tea, :message
 
@@ -434,7 +434,7 @@ module TestDoubles
   end
 
   class MakesTeaExpectingMultipleReservedKeys
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :tea, :message, :error_code, :current_action
 
@@ -444,7 +444,7 @@ module TestDoubles
   end
 
   class MakesTeaPromisingReservedKey
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :tea
     promises :product, :message
@@ -455,7 +455,7 @@ module TestDoubles
   end
 
   class MakesTeaPromisingMultipleReservedKeys
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :tea
     promises :product, :message, :error_code, :current_action
@@ -466,7 +466,7 @@ module TestDoubles
   end
 
   class MakesTeaPromisingKeyButRaisesException
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     promises :product
 
@@ -481,7 +481,7 @@ module TestDoubles
   end
 
   class PromisesPromisedKeyAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     promises :promised_key
 
@@ -491,7 +491,7 @@ module TestDoubles
   end
 
   class ExpectsExpectedKeyAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :expected_key
     promises :final_key
@@ -502,7 +502,7 @@ module TestDoubles
   end
 
   class NullAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     # rubocop:disable Lint/EmptyBlock
     executed { |_ctx| }
@@ -510,7 +510,7 @@ module TestDoubles
   end
 
   class TestIterate
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(context)
       with(context)
@@ -526,7 +526,7 @@ module TestDoubles
   end
 
   class TestWithCallback
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(context = {})
       with(context).reduce(actions)
@@ -543,7 +543,7 @@ module TestDoubles
   end
 
   class SetUpContextAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     promises :numbers, :counter, :total
 
@@ -555,7 +555,7 @@ module TestDoubles
   end
 
   class IterateCollectionAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :numbers, :callback
     promises :number
@@ -569,7 +569,7 @@ module TestDoubles
   end
 
   class IncrementCountAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :counter
 
@@ -579,7 +579,7 @@ module TestDoubles
   end
 
   class AddToTotalAction
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :number, :total
 
@@ -589,7 +589,7 @@ module TestDoubles
   end
 
   class CapitalizeMessage
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects :a_message
     promises :final_message
@@ -600,7 +600,7 @@ module TestDoubles
   end
 
   class AddsNumbersWithOptionalDefaults
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     expects  :first_number
     expects  :second_number, :default => ->(ctx) { ctx[:first_number] + 7 }
@@ -613,7 +613,7 @@ module TestDoubles
   end
 
   class OrganizerWithActionsUsingDefaults
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call
       with(:first_number => 1, :number => 1).reduce(actions)
@@ -628,7 +628,7 @@ module TestDoubles
   end
 
   class AnOrganizerThatAddsToContext
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call
       with.reduce(actions)
@@ -643,7 +643,7 @@ module TestDoubles
   end
 
   class AnOrganizerThatAddsAliases
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call
       with(:foo => :bar).reduce(actions)

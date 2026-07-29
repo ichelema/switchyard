@@ -4,7 +4,7 @@ require 'test_doubles'
 describe "organizer aliases macro" do
   let(:organizer_with_alias) do
     Class.new do
-      extend FunctionalLightService::Organizer
+      extend Switchyard::Organizer
 
       aliases :promised_key => :expected_key
 

@@ -1,5 +1,5 @@
 class CalculatesOrderTaxAction
-  extend ::FunctionalLightService::Action
+  extend ::Switchyard::Action
 
   expects :order, :tax_percentage
 

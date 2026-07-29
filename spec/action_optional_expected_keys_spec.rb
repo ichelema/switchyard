@@ -62,7 +62,7 @@ describe ":expects macro using defaults" do
   context "when the expected key is satisfied through an alias" do
     it "is expected to not apply the default" do
       action = Class.new do
-        extend FunctionalLightService::Action
+        extend Switchyard::Action
 
         expects  :greeting, :default => "hello"
         promises :greeted
@@ -73,7 +73,7 @@ describe ":expects macro using defaults" do
       end
 
       organizer = Class.new do
-        extend FunctionalLightService::Organizer
+        extend Switchyard::Organizer
 
         aliases :salutation => :greeting
       end
@@ -90,7 +90,7 @@ describe ":expects macro using defaults" do
         # Needs to be specified in the block
         # as error is raised at define time
         class AddsNumbersWithIncorrectDefaults
-          extend FunctionalLightService::Action
+          extend Switchyard::Action
 
           expects  :first,  :default => 10 # This one is fine. Other two arent
           expects  :second, :defalut => ->(ctx) { ctx[:first] + 7 }
@@ -101,7 +101,7 @@ describe ":expects macro using defaults" do
             ctx.total = ctx.first + ctx.second + ctx.third
           end
         end
-      end.to raise_error(FunctionalLightService::UnusableExpectKeyDefaultError)
+      end.to raise_error(Switchyard::UnusableExpectKeyDefaultError)
     end
   end
 end

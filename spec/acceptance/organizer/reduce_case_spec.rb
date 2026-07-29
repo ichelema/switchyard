@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'test_doubles'
 
-RSpec.describe FunctionalLightService::Organizer do
+RSpec.describe Switchyard::Organizer do
   class TestReduceCase
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(context)
       with(context).reduce(actions)
@@ -54,7 +54,7 @@ RSpec.describe FunctionalLightService::Organizer do
   it 'raises ArgumentError when a mandatory keyword argument is missing' do
     expect do
       Class.new do
-        extend FunctionalLightService::Organizer
+        extend Switchyard::Organizer
 
         def self.actions
           [reduce_case(:value => :incr_num, :when => {})]
