@@ -1,18 +1,18 @@
 require 'spec_helper'
 
-describe FunctionalLightService::Enum do
-  include FunctionalLightService
+describe Switchyard::Enum do
+  include Switchyard
 
   it "can't use value" do
     expect do
-      InvalidEnum = FunctionalLightService.enum do
+      InvalidEnum = Switchyard.enum do
         Unary(:value)
       end
     end.to raise_error ArgumentError
   end
 
   context "Nullary, Unary, Binary" do
-    MyEnym = FunctionalLightService.enum do
+    MyEnym = Switchyard.enum do
       Nullary()
       Unary(:a)
       Binary(:a, :b)

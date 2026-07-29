@@ -1,8 +1,8 @@
 require 'spec_helper'
 require 'test_doubles'
 
-RSpec.describe FunctionalLightService::Context do
-  subject(:context) { FunctionalLightService::Context.make }
+RSpec.describe Switchyard::Context do
+  subject(:context) { Switchyard::Context.make }
 
   describe 'to_s' do
     it 'prints the context hash' do
@@ -13,7 +13,7 @@ RSpec.describe FunctionalLightService::Context do
   describe '#inspect' do
     it 'inspects the hash with all the fields' do
       inspected_context =
-        "FunctionalLightService::Context({}, success: true, message: '', error_code: nil, " \
+        "Switchyard::Context({}, success: true, message: '', error_code: nil, " \
         "skip_remaining: false, skip_all_remaining: false, aliases: {})"
 
       expect(context.inspect).to eq(inspected_context)
@@ -23,7 +23,7 @@ RSpec.describe FunctionalLightService::Context do
       context.fail!('There was an error')
 
       inspected_context =
-        "FunctionalLightService::Context({}, success: false, message: 'There was an error', " \
+        "Switchyard::Context({}, success: false, message: 'There was an error', " \
         "error_code: nil, skip_remaining: false, skip_all_remaining: false, aliases: {})"
 
       expect(context.inspect).to eq(inspected_context)
@@ -33,7 +33,7 @@ RSpec.describe FunctionalLightService::Context do
       context.skip_remaining!('No need to process')
 
       inspected_context =
-        "FunctionalLightService::Context({}, success: true, message: 'No need to process', " \
+        "Switchyard::Context({}, success: true, message: 'No need to process', " \
         "error_code: nil, skip_remaining: true, skip_all_remaining: false, aliases: {})"
 
       expect(context.inspect).to eq(inspected_context)
@@ -43,7 +43,7 @@ RSpec.describe FunctionalLightService::Context do
       context.skip_all_remaining!('Nothing else to process')
 
       inspected_context =
-        "FunctionalLightService::Context({}, success: true, message: 'Nothing else to process', " \
+        "Switchyard::Context({}, success: true, message: 'Nothing else to process', " \
         "error_code: nil, skip_remaining: false, skip_all_remaining: true, aliases: {})"
 
       expect(context.inspect).to eq(inspected_context)

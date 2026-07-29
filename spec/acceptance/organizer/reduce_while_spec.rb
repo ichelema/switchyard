@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'test_doubles'
 
-RSpec.describe FunctionalLightService::Organizer do
+RSpec.describe Switchyard::Organizer do
   class TestReduceWhile
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(context)
       with(context).reduce(actions)
@@ -19,7 +19,7 @@ RSpec.describe FunctionalLightService::Organizer do
     end
   end
 
-  let(:empty_context) { FunctionalLightService::Context.make }
+  let(:empty_context) { Switchyard::Context.make }
 
   it 'reduces while the block evaluates to true' do
     result = TestReduceWhile.call(:number => 0)
@@ -64,7 +64,7 @@ RSpec.describe FunctionalLightService::Organizer do
 
   it 'skips actions within its own scope' do
     org = Class.new do
-      extend FunctionalLightService::Organizer
+      extend Switchyard::Organizer
 
       def self.call
         reduce(actions)

@@ -2,7 +2,7 @@ require "spec_helper"
 require "test_doubles"
 
 class TestsLocalizationAdapter
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
 
   def self.call(pass_or_fail, message_or_key, i18n_options = {})
     with(
@@ -14,7 +14,7 @@ class TestsLocalizationAdapter
 end
 
 class TestsLocalizationInvocationOptionsAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   expects :pass_or_fail, :message_or_key, :i18n_options
 
@@ -41,7 +41,7 @@ describe "Localization Adapter" do
       :en,
       :tests_localization_invocation_options_action =>
       {
-        :light_service => {
+        :switchyard => {
           :failures => {
             :some_failure_reason => "This has failed",
             :failure_with_interpolation => "Failed with %{reason}"

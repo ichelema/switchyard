@@ -1,8 +1,8 @@
 require 'spec_helper'
 require 'test_doubles'
 
-RSpec.describe FunctionalLightService::Organizer do
-  let(:empty_context) { FunctionalLightService::Context.make }
+RSpec.describe Switchyard::Organizer do
+  let(:empty_context) { Switchyard::Context.make }
 
   it 'reduces each item of a collection and singularizes the collection key' do
     result = TestDoubles::TestIterate.call(:number => 1,

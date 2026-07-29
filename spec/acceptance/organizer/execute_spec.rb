@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'test_doubles'
 
-RSpec.describe FunctionalLightService::Organizer do
+RSpec.describe Switchyard::Organizer do
   class TestExecute
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call(context)
       with(context).reduce(steps)
@@ -19,7 +19,7 @@ RSpec.describe FunctionalLightService::Organizer do
     end
   end
 
-  let(:empty_context) { FunctionalLightService::Context.make }
+  let(:empty_context) { Switchyard::Context.make }
 
   it 'calls the lambda in the execute block using the context' do
     result = TestExecute.call(:number => 0)
@@ -46,7 +46,7 @@ RSpec.describe FunctionalLightService::Organizer do
 
   it 'accepts a block instead of a lambda' do
     organizer = Class.new do
-      extend FunctionalLightService::Organizer
+      extend Switchyard::Organizer
 
       def self.call(context)
         with(context).reduce(steps)

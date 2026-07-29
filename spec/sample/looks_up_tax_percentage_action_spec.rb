@@ -2,7 +2,7 @@ require 'spec_helper'
 require_relative 'tax/looks_up_tax_percentage_action'
 
 class TaxRange
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 end
 
 describe LooksUpTaxPercentageAction do
@@ -14,7 +14,7 @@ describe LooksUpTaxPercentageAction do
     order
   end
   let(:context) do
-    FunctionalLightService::Context.make(:order => order)
+    Switchyard::Context.make(:order => order)
   end
   let(:tax_percentage) { double('tax_percentage') }
   let(:tax_ranges) { double('tax_ranges') }

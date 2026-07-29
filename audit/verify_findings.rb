@@ -1,6 +1,6 @@
 # Verifica dei finding dell'audit — eseguito contro lib/ reale
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
-require 'functional-light-service'
+require 'switchyard'
 
 results = []
 def check(results, name)
@@ -12,14 +12,14 @@ end
 
 # ---------- F1: before_actions perso alla seconda chiamata ----------
 class AddOne
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :number
   promises :number
   executed { |ctx| ctx.number = ctx.number + 1 }
 end
 
 class Org1
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
   before_actions ->(ctx) { ctx.number -= 10 if ctx.current_action == AddOne }
   def self.call(number)
     with(:number => number).reduce([AddOne])
@@ -34,20 +34,20 @@ end
 
 # ---------- F2: Context#fetch — nessun KeyError e scrittura su read ----------
 check(results, "F2a fetch(:missing) ritorna nil invece di KeyError e scrive la chiave") do
-  ctx = FunctionalLightService::Context.make({})
+  ctx = Switchyard::Context.make({})
   v = ctx.fetch(:missing)
   [v.nil? && ctx.to_h.key?(:missing), "valore=#{v.inspect}, chiavi dopo fetch=#{ctx.keys.inspect}"]
 end
 
 check(results, "F2b fetch con default sovrascrive un valore falsy esistente") do
-  ctx = FunctionalLightService::Context.make(:flag => false)
+  ctx = Switchyard::Context.make(:flag => false)
   v = ctx.fetch(:flag, true)
   [v == true && ctx[:flag] == true, "fetch(:flag, true)=#{v.inspect}, ctx[:flag] ora=#{ctx[:flag].inspect} (era false)"]
 end
 
 # ---------- F3: alias asimmetrico lettura/scrittura ----------
 check(results, "F3 scrittura su alias persa in lettura") do
-  ctx = FunctionalLightService::Context.make(:codice_fiscale => "ABC")
+  ctx = Switchyard::Context.make(:codice_fiscale => "ABC")
   ctx.assign_aliases(:codice_fiscale => :cf)
   ctx[:cf] = "NUOVO"          # scrive la chiave :cf direttamente
   read = ctx[:cf]              # legge tradotto -> :codice_fiscale -> "ABC"
@@ -56,7 +56,7 @@ end
 
 # ---------- F4: accessor non definito per chiavi che collidono con metodi Hash ----------
 class UsesSize
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :size
   executed { |ctx| ctx[:observed] = ctx.size }  # l'utente si aspetta il valore di :size
 end
@@ -70,12 +70,12 @@ end
 check(results, "F5 la classe Action trattiene l'ultimo context in @ctx") do
   AddOne.execute(:number => 5)
   held = AddOne.instance_variable_get(:@ctx)
-  [held.is_a?(FunctionalLightService::Context), "AddOne @ctx = #{held.inspect[0,80]}"]
+  [held.is_a?(Switchyard::Context), "AddOne @ctx = #{held.inspect[0,80]}"]
 end
 
 # ---------- F6: fail! muta l'hash di opzioni del chiamante ----------
 check(results, "F6 fail! cancella :error_code dall'hash del chiamante") do
-  ctx = FunctionalLightService::Context.make({})
+  ctx = Switchyard::Context.make({})
   opts = { :error_code => 500 }
   ctx.fail!("boom", opts)
   [!opts.key?(:error_code), "opts dopo fail! = #{opts.inspect}"]
@@ -93,22 +93,22 @@ end
 
 # ---------- F8: Context#[] con aliases usa Hash#key (reverse lookup O(n)) ----------
 check(results, "F8 lettura di chiave originale con molti alias resta corretta (sanity)") do
-  ctx = FunctionalLightService::Context.make(:a => 1)
+  ctx = Switchyard::Context.make(:a => 1)
   ctx.assign_aliases(:a => :b)
   [ctx[:b] == 1 && ctx[:a] == 1, "ctx[:a]=#{ctx[:a]}, ctx[:b]=#{ctx[:b]}"]
 end
 
 # ---------- F9: skip_remaining! dentro iterate viene resettato ad ogni item ----------
 class SkipAll
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   executed { |ctx| ctx.skip_remaining!("basta") if ctx[:counter] == 2 }
 end
 class CollectAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   executed { |ctx| (ctx[:seen] ||= []) << ctx[:counter] }
 end
 class OrgIter
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
   def self.call(ctx)
     with(ctx).reduce([iterate(:counters, [SkipAll, CollectAction])])
   end
@@ -121,7 +121,7 @@ end
 
 # ---------- F10: succeed! + message perso da reset_skip_remaining! in scoped_reduce ----------
 check(results, "F10 reset_skip_remaining! azzera anche message/outcome") do
-  ctx = FunctionalLightService::Context.make({})
+  ctx = Switchyard::Context.make({})
   ctx.succeed!("fatto bene")
   ctx.reset_skip_remaining!
   [ctx.message == '', "message dopo reset=#{ctx.message.inspect}"]
@@ -129,30 +129,30 @@ end
 
 # ---------- F11: Context#select/map degradano a Hash ----------
 check(results, "F11 Context#select ritorna Hash, non Context (perde outcome)") do
-  ctx = FunctionalLightService::Context.make(:a => 1)
+  ctx = Switchyard::Context.make(:a => 1)
   sel = ctx.select { |_k, _v| true }
-  [!sel.is_a?(FunctionalLightService::Context), "select.class=#{sel.class}"]
+  [!sel.is_a?(Switchyard::Context), "select.class=#{sel.class}"]
 end
 
 # ---------- F12: Some(nil) e' costruibile ----------
 check(results, "F12 Some(nil) e' consentito (Option non valida il nil)") do
-  s = FunctionalLightService::Option::Some.new(nil)
+  s = Switchyard::Option::Some.new(nil)
   [s.some? && s.value.nil?, "Some(nil).some?=#{s.some?}, value=nil"]
 end
 
 # ---------- F13: rollback con azione duplicata nella lista ----------
 class RollA
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   executed { |ctx| (ctx[:trace] ||= []) << :a }
   rolled_back { |ctx| (ctx[:rb] ||= []) << :a }
 end
 class RollB
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   executed { |ctx| (ctx[:trace] ||= []) << :b; ctx.fail_with_rollback!("ko") if ctx[:trace].count(:b) == 2 }
   rolled_back { |ctx| (ctx[:rb] ||= []) << :b }
 end
 class OrgRoll
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
   def self.call(ctx)
     with(ctx).reduce([RollB, RollA, RollB])   # RollB duplicata; fallisce la SECONDA RollB
   end

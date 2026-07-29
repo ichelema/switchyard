@@ -6,10 +6,10 @@ require_relative 'tax/provides_free_shipping_action'
 
 describe CalculatesTax do
   let(:order) { double('order') }
-  let(:ctx) { FunctionalLightService::Context.make(:user => nil) }
+  let(:ctx) { Switchyard::Context.make(:user => nil) }
 
   it "calls the actions in order" do
-    allow(FunctionalLightService::Context).to receive(:make)
+    allow(Switchyard::Context).to receive(:make)
       .with({ :order => order })
       .and_return(ctx)
 

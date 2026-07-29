@@ -5,7 +5,7 @@ describe "Organizer entry point" do
   context "when the organizer entry method is not named `call`" do
     it "works without emitting any warning" do
       class OrganizerWithoutCallMethod
-        extend FunctionalLightService::Organizer
+        extend Switchyard::Organizer
 
         def self.do_something
           reduce([])
@@ -15,21 +15,21 @@ describe "Organizer entry point" do
       result = nil
       expect { result = OrganizerWithoutCallMethod.do_something }
         .not_to output.to_stdout
-      expect(result).to be_a_kind_of(FunctionalLightService::Context)
+      expect(result).to be_a_kind_of(Switchyard::Context)
     end
   end
 
   context "when the organizer has the `call` method" do
     it "works without emitting any warning" do
       class OrganizerWithCallMethod
-        extend FunctionalLightService::Organizer
+        extend Switchyard::Organizer
 
         def self.call
           reduce([])
         end
       end
 
-      expect(OrganizerWithCallMethod.call).to be_a_kind_of(FunctionalLightService::Context)
+      expect(OrganizerWithCallMethod.call).to be_a_kind_of(Switchyard::Context)
     end
   end
 end

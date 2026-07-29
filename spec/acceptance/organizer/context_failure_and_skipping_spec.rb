@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'test_doubles'
 
-RSpec.describe FunctionalLightService::Organizer do
+RSpec.describe Switchyard::Organizer do
   class TestSkipBefore
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call
       with(:number => 1)
@@ -16,7 +16,7 @@ RSpec.describe FunctionalLightService::Organizer do
   end
 
   class TestSkipAfter
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call
       with(:number => 1)
@@ -32,7 +32,7 @@ RSpec.describe FunctionalLightService::Organizer do
   end
 
   class TestSkipAllFromNestedScope
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call
       with(:number => 1)
@@ -47,7 +47,7 @@ RSpec.describe FunctionalLightService::Organizer do
   end
 
   class TestContextFailure
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
     def self.call
       with(:number => 1)

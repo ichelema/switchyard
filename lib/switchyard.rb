@@ -1,0 +1,36 @@
+# frozen_string_literal: true
+
+require 'logger'
+
+require 'switchyard/version'
+
+module Switchyard; end
+
+require 'switchyard/deprecations'
+require 'switchyard/functional/monad'
+require 'switchyard/functional/enum'
+require 'switchyard/functional/result'
+require 'switchyard/functional/option'
+require 'switchyard/functional/null'
+require 'switchyard/functional/sequencer'
+require 'switchyard/errors'
+require 'switchyard/configuration'
+require 'switchyard/i18n/localization_adapter'
+require 'switchyard/localization_adapter'
+require 'switchyard/localization_map'
+require 'switchyard/context'
+require 'switchyard/context/key_verifier'
+require 'switchyard/organizer/scoped_reducable'
+require 'switchyard/organizer/with_reducer'
+require 'switchyard/organizer/with_reducer_log_decorator'
+require 'switchyard/organizer/with_reducer_factory'
+require 'switchyard/organizer/reduce_if'
+require 'switchyard/organizer/reduce_if_else'
+require 'switchyard/organizer/reduce_case'
+require 'switchyard/organizer/reduce_until'
+require 'switchyard/organizer/reduce_while'
+require 'switchyard/organizer/iterate'
+require 'switchyard/organizer/execute'
+require 'switchyard/organizer/with_callback'
+require 'switchyard/action'
+require 'switchyard/organizer'
