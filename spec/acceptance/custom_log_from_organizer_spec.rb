@@ -1,10 +1,10 @@
 require 'spec_helper'
 
 describe "Log from an organizer with a custom logger" do
-  context "when overriding the global FunctionalLightService organizer" do
+  context "when overriding the global Switchyard organizer" do
     let(:global_logger_organizer) do
       Class.new do
-        extend FunctionalLightService::Organizer
+        extend Switchyard::Organizer
 
         def self.call(number)
           with(:number => number).reduce(actions)
@@ -27,7 +27,7 @@ describe "Log from an organizer with a custom logger" do
       custom_logger = Logger.new(custom_logger_string)
 
       Class.new do
-        extend FunctionalLightService::Organizer
+        extend Switchyard::Organizer
 
         log_with custom_logger
 
@@ -40,8 +40,8 @@ describe "Log from an organizer with a custom logger" do
     end
 
     before do
-      @original_global_logger = FunctionalLightService::Configuration.logger
-      FunctionalLightService::Configuration.logger = Logger.new(global_logger_string)
+      @original_global_logger = Switchyard::Configuration.logger
+      Switchyard::Configuration.logger = Logger.new(global_logger_string)
     end
 
     it "logs in own logger" do
@@ -55,7 +55,7 @@ describe "Log from an organizer with a custom logger" do
     end
 
     after do
-      FunctionalLightService::Configuration.logger = @original_global_logger
+      Switchyard::Configuration.logger = @original_global_logger
     end
   end
 end

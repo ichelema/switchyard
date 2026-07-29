@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe FunctionalLightService::Result do
-  include FunctionalLightService::Prelude::Result
+describe Switchyard::Result do
+  include Switchyard::Prelude::Result
 
   it "can't call Result#new directly" do
     # il formato del messaggio NoMethodError cambia tra le versioni di Ruby

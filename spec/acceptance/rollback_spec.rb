@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'test_doubles'
 
 class RollbackOrganizer
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
 
   def self.call(number)
     with(:number => number).reduce(
@@ -14,7 +14,7 @@ class RollbackOrganizer
 end
 
 class AddsOneWithRollbackAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   expects :number
   promises :number
@@ -31,7 +31,7 @@ class AddsOneWithRollbackAction
 end
 
 class AddsThreeWithRollbackAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   expects :number
 
@@ -47,7 +47,7 @@ class AddsThreeWithRollbackAction
 end
 
 class RollbackOrganizerWithNoRollback
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
 
   def self.call(number)
     with(:number => number).reduce(
@@ -59,7 +59,7 @@ class RollbackOrganizerWithNoRollback
 end
 
 class AddsThreeWithNoRollbackAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   expects :number
 
@@ -71,7 +71,7 @@ class AddsThreeWithNoRollbackAction
 end
 
 class RollbackOrganizerWithMiddleRollback
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
 
   def self.call(number)
     with(:number => number).reduce(
@@ -83,7 +83,7 @@ class RollbackOrganizerWithMiddleRollback
 end
 
 class AddsTwoActionWithRollback
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   expects :number
 
@@ -99,7 +99,7 @@ class AddsTwoActionWithRollback
 end
 
 class RollbackOrganizerWithDuplicatedAction
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
 
   def self.call(ctx)
     with(ctx).reduce(
@@ -112,7 +112,7 @@ class RollbackOrganizerWithDuplicatedAction
 end
 
 class TracksRollbackAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   executed do |context|
     (context[:executed] ||= []) << :tracks
@@ -124,7 +124,7 @@ class TracksRollbackAction
 end
 
 class FailsOnSecondRunWithRollbackAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   executed do |context|
     (context[:executed] ||= []) << :fails

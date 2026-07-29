@@ -4,7 +4,7 @@ RSpec.describe "skip_all_remaining!" do
   context "with regular organizer" do
     let(:organizer) do
       Class.new do
-        extend FunctionalLightService::Organizer
+        extend Switchyard::Organizer
 
         def self.call(ctx)
           with(ctx).reduce(actions)
@@ -21,7 +21,7 @@ RSpec.describe "skip_all_remaining!" do
     end
 
     it "skips all remaining actions" do
-      result = organizer.call(FunctionalLightService::Context.make)
+      result = organizer.call(Switchyard::Context.make)
 
       expect(result[:first]).to be true
       expect(result[:second]).to be_nil
@@ -31,7 +31,7 @@ RSpec.describe "skip_all_remaining!" do
   context "with an organizer with a reducer" do
     let(:organizer) do
       Class.new do
-        extend FunctionalLightService::Organizer
+        extend Switchyard::Organizer
 
         def self.call(ctx)
           with(ctx).reduce(actions)
@@ -54,7 +54,7 @@ RSpec.describe "skip_all_remaining!" do
     end
 
     it "skips all remaining actions inside and outside the reducer" do
-      result = organizer.call(FunctionalLightService::Context.make)
+      result = organizer.call(Switchyard::Context.make)
 
       expect(result[:first_inside]).to be true
       expect(result[:second_inside]).to be_nil
@@ -65,7 +65,7 @@ RSpec.describe "skip_all_remaining!" do
   context "with a message" do
     let(:organizer) do
       Class.new do
-        extend FunctionalLightService::Organizer
+        extend Switchyard::Organizer
 
         def self.call(ctx)
           with(ctx).reduce(actions)
@@ -86,7 +86,7 @@ RSpec.describe "skip_all_remaining!" do
     end
 
     it "preserves the message when exiting scoped reducers" do
-      result = organizer.call(FunctionalLightService::Context.make)
+      result = organizer.call(Switchyard::Context.make)
 
       expect(result.message).to eq("Skipping with message")
       expect(result[:outside]).to be_nil
@@ -96,7 +96,7 @@ RSpec.describe "skip_all_remaining!" do
   context "with an organizer with nested reducers" do
     let(:organizer) do
       Class.new do
-        extend FunctionalLightService::Organizer
+        extend Switchyard::Organizer
 
         def self.call(ctx)
           with(ctx).reduce(actions)
@@ -128,7 +128,7 @@ RSpec.describe "skip_all_remaining!" do
     end
 
     it "skips all remaining actions across all nested scopes" do
-      result = organizer.call(FunctionalLightService::Context.make(:items => [1, 2, 3]))
+      result = organizer.call(Switchyard::Context.make(:items => [1, 2, 3]))
 
       expect(result[:executed_items]).to eq([1, 2])
       expect(result[:skipped_in_iterate]).to eq([1])

@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe FunctionalLightService::Sequencer do
-  include FunctionalLightService::Prelude::Result
+describe Switchyard::Sequencer do
+  include Switchyard::Prelude::Result
 
-  let(:test_class) { Class.new { include FunctionalLightService::Sequencer } }
+  let(:test_class) { Class.new { include Switchyard::Sequencer } }
   let(:test_instance) { test_class.new }
   let(:arbitrary_success) { Success(double) }
 
@@ -401,8 +401,8 @@ describe FunctionalLightService::Sequencer do
     end.to raise_error(NameError)
   end
 
-  context 'when including FunctionalLightService::Prelude' do
-    let(:test_class) { Class.new { include FunctionalLightService::Prelude } }
+  context 'when including Switchyard::Prelude' do
+    let(:test_class) { Class.new { include Switchyard::Prelude } }
 
     it '#in_sequence is available' do
       expect do
@@ -416,7 +416,7 @@ describe FunctionalLightService::Sequencer do
   context 'readme example' do
     let(:test_class) do
       Class.new do
-        include FunctionalLightService::Prelude
+        include Switchyard::Prelude
 
         # rubocop:disable Metrics/AbcSize
         def call(input)

@@ -10,7 +10,7 @@ describe "ContextFactory - used with AdditionOrganizer" do
 
   context "when called with the first action" do
     it "does not alter the context" do
-      ctx = FunctionalLightService::Testing::ContextFactory
+      ctx = Switchyard::Testing::ContextFactory
             .make_from(organizer)
             .for(TestDoubles::AddsOneAction)
             .with(1)
@@ -21,7 +21,7 @@ describe "ContextFactory - used with AdditionOrganizer" do
 
   context "when called with the second action" do
     it "adds one to the number provided" do
-      ctx = FunctionalLightService::Testing::ContextFactory
+      ctx = Switchyard::Testing::ContextFactory
             .make_from(organizer)
             .for(TestDoubles::AddsTwoAction)
             .with(1)
@@ -32,7 +32,7 @@ describe "ContextFactory - used with AdditionOrganizer" do
 
   context "when called with third action" do
     it "creates a context up-to the action defined" do
-      ctx = FunctionalLightService::Testing::ContextFactory
+      ctx = Switchyard::Testing::ContextFactory
             .make_from(organizer)
             .for(TestDoubles::AddsThreeAction)
             .with(1)
@@ -47,7 +47,7 @@ describe "ContextFactory - used with AdditionOrganizer" do
         ->(ctx) { ctx[:number] += 1 if ctx.current_action == TestDoubles::AddsTwoAction }
       ]
 
-      context = FunctionalLightService::Testing::ContextFactory
+      context = Switchyard::Testing::ContextFactory
                 .make_from(TestDoubles::AdditionOrganizer)
                 .for(TestDoubles::AddsThreeAction)
                 .with(4) # Context is a "glorified" hash
@@ -60,7 +60,7 @@ describe "ContextFactory - used with AdditionOrganizer" do
   context "when used repeatedly" do
     it "does not leave its temporary hook on the organizer class" do
       2.times do
-        FunctionalLightService::Testing::ContextFactory
+        Switchyard::Testing::ContextFactory
           .make_from(organizer)
           .for(TestDoubles::AddsTwoAction)
           .with(1)

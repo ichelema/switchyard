@@ -1,8 +1,8 @@
 require 'spec_helper'
 require 'test_doubles'
 
-describe FunctionalLightService::Organizer do
-  let(:ctx) { FunctionalLightService::Context.make(:user => user) }
+describe Switchyard::Organizer do
+  let(:ctx) { Switchyard::Context.make(:user => user) }
   let(:user) { double(:user) }
 
   context "when #with is called with hash" do
@@ -52,7 +52,7 @@ describe FunctionalLightService::Organizer do
   context "when aliases are declared" do
     let(:organizer) do
       Class.new do
-        extend FunctionalLightService::Organizer
+        extend Switchyard::Organizer
 
         aliases :foo => :bar
 

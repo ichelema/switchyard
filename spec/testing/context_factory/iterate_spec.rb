@@ -7,7 +7,7 @@ RSpec.describe 'ContextFactory - used with IterateOrganizer' do
   context 'when called with outside iterate steps' do
     it 'creates a context up-to the action defined before the iteration' do
       ctx =
-        FunctionalLightService::Testing::ContextFactory
+        Switchyard::Testing::ContextFactory
         .make_from(organizer)
         .for(TestDoubles::AddsOneIteratesAction)
         .with(:numbers => [1, 2])
@@ -17,7 +17,7 @@ RSpec.describe 'ContextFactory - used with IterateOrganizer' do
 
     it 'creates a context up-to iteration with empty context steps' do
       ctx =
-        FunctionalLightService::Testing::ContextFactory
+        Switchyard::Testing::ContextFactory
         .make_from(organizer)
         .for(TestDoubles::AddsTwoAction)
         .with(:numbers => [1, 2])
@@ -27,7 +27,7 @@ RSpec.describe 'ContextFactory - used with IterateOrganizer' do
 
     it 'creates a context only to the first step of the iteration' do
       ctx =
-        FunctionalLightService::Testing::ContextFactory
+        Switchyard::Testing::ContextFactory
         .make_from(organizer)
         .for(TestDoubles::AddsThreeAction)
         .with(:numbers => [1, 2])

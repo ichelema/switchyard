@@ -1,10 +1,10 @@
 # Micro-benchmark dei costi nascosti individuati nell'audit
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
-require 'functional-light-service'
+require 'switchyard'
 require 'benchmark/ips'
 
-include FunctionalLightService::Prelude::Result
-include FunctionalLightService::Prelude::Option
+include Switchyard::Prelude::Result
+include Switchyard::Prelude::Option
 
 puts "Ruby #{RUBY_VERSION}, YJIT: #{defined?(RubyVM::YJIT) && RubyVM::YJIT.enabled? ? 'on' : 'off'}"
 puts
@@ -15,10 +15,10 @@ success = Success(42)
 # 1) Costo del motore match (Option#value_or usa match) vs equivalente diretto
 Benchmark.ips do |x|
   x.report("Option#value_or (match engine)") { some.value_or(0) }
-  x.report("equivalente is_a? diretto")      { some.is_a?(FunctionalLightService::Option::Some) ? some.value : 0 }
+  x.report("equivalente is_a? diretto")      { some.is_a?(Switchyard::Option::Some) ? some.value : 0 }
   x.report("case/in nativo Ruby") do
     case some
-    in FunctionalLightService::Option::Some then some.value
+    in Switchyard::Option::Some then some.value
     else 0
     end
   end
@@ -30,8 +30,8 @@ Benchmark.ips do |x|
   other = Success(1)
   x.report("Result#+ (match con guard -> Struct.new/call)") { success + other }
   x.report("somma diretta is_a?") do
-    if success.is_a?(FunctionalLightService::Result::Success) && other.is_a?(FunctionalLightService::Result::Success)
-      FunctionalLightService::Result::Success.new(success.value + other.value)
+    if success.is_a?(Switchyard::Result::Success) && other.is_a?(Switchyard::Result::Success)
+      Switchyard::Result::Success.new(success.value + other.value)
     end
   end
   x.compare!
@@ -41,7 +41,7 @@ end
 Benchmark.ips do |x|
   f = ->(v) { Success(v + 1) }
   x.report("Result#map via bind") { success.map(f) }
-  x.report("lambda diretta")      { success.is_a?(FunctionalLightService::Result::Success) ? f.call(success.value) : success }
+  x.report("lambda diretta")      { success.is_a?(Switchyard::Result::Success) ? f.call(success.value) : success }
   x.compare!
 end
 
@@ -61,18 +61,18 @@ end
 Benchmark.ips do |x|
   keys = %i[number total counter]
   x.report("nuovo Context + define accessor per keys") do
-    ctx = FunctionalLightService::Context.make(:number => 1, :total => 2, :counter => 3)
+    ctx = Switchyard::Context.make(:number => 1, :total => 2, :counter => 3)
     ctx.define_accessor_methods_for_keys(keys)
   end
   x.report("nuovo Context senza accessor") do
-    FunctionalLightService::Context.make(:number => 1, :total => 2, :counter => 3)
+    Switchyard::Context.make(:number => 1, :total => 2, :counter => 3)
   end
   x.compare!
 end
 
 # 6) Context#[] con alias attivi (Hash#key reverse scan) vs Hash puro
 Benchmark.ips do |x|
-  ctx = FunctionalLightService::Context.make(:a => 1, :b => 2, :c => 3)
+  ctx = Switchyard::Context.make(:a => 1, :b => 2, :c => 3)
   ctx.assign_aliases(:a => :alfa)
   h = { :a => 1, :b => 2, :c => 3 }
   x.report("Context#[] (con lookup alias)") { ctx[:b] }
@@ -82,12 +82,12 @@ end
 
 # 7) Organizer end-to-end: quota di overhead per call minimale
 class BenchAdd
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :number
   executed { |ctx| ctx[:number] = ctx[:number] + 1 }
 end
 class BenchOrg
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
   def self.call(n)
     with(:number => n).reduce([BenchAdd])
   end

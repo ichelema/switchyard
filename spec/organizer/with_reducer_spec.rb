@@ -1,8 +1,8 @@
 require 'spec_helper'
 require 'test_doubles'
 
-describe FunctionalLightService::Organizer::WithReducer do
-  let(:context) { FunctionalLightService::Context.make }
+describe Switchyard::Organizer::WithReducer do
+  let(:context) { Switchyard::Context.make }
   let(:action1) { TestDoubles::NullAction }
   let(:action2) { TestDoubles::NullAction.clone }
   let(:actions) { [action1, action2] }
@@ -31,7 +31,7 @@ describe FunctionalLightService::Organizer::WithReducer do
     it "reduces the rollback" do
       expect(action1).to receive(:execute).with(context).and_return(context)
       expect(action2).to receive(:execute).with(context) do
-        raise FunctionalLightService::FailWithRollbackError
+        raise Switchyard::FailWithRollbackError
       end
       expect(action1).to receive(:rollback).with(context).and_return(context)
       expect(action2).to receive(:rollback).with(context).and_return(context)
@@ -44,7 +44,7 @@ describe FunctionalLightService::Organizer::WithReducer do
     it "reduces the rollback with an action without `rollback`" do
       expect(action1).to receive(:execute).with(context).and_return(context)
       expect(action2).to receive(:execute).with(context) do
-        raise FunctionalLightService::FailWithRollbackError
+        raise Switchyard::FailWithRollbackError
       end
       expect(action2).to receive(:rollback).with(context).and_return(context)
 
