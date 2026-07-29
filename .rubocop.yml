@@ -3,11 +3,11 @@
 AllCops:
   TargetRubyVersion: 3.1
   Exclude:
-    - 'lib/functional-light-service.rb'
+    - 'lib/switchyard.rb'
     - 'vendor/bundle/**/*'
     - 'gemfiles/vendor/bundle/**/*'
     - 'bin/*'
-    - 'functional-light-service.gemspec'
+    - 'switchyard.gemspec'
     - 'audit/**/*'
   NewCops: enable
   SuggestExtensions: false

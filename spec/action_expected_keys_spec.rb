@@ -14,13 +14,13 @@ describe ":expects macro" do
   end
 
   context "when an expected key is not in the context" do
-    it "raises an FunctionalLightService::ExpectedKeysNotInContextError" do
+    it "raises an Switchyard::ExpectedKeysNotInContextError" do
       exception_msg = "expected :milk to be in the context during " \
                       "TestDoubles::MakesTeaWithMilkAction"
       expect do
         TestDoubles::MakesTeaWithMilkAction.execute(:tea => "black")
       end.to \
-        raise_error(FunctionalLightService::ExpectedKeysNotInContextError, exception_msg)
+        raise_error(Switchyard::ExpectedKeysNotInContextError, exception_msg)
     end
   end
 
@@ -44,7 +44,7 @@ describe ":expects macro" do
         TestDoubles::MakesTeaExpectingReservedKey.execute(:tea => "black",
                                                           :message => "no no")
       end.to \
-        raise_error(FunctionalLightService::ReservedKeysInContextError, exception_msg)
+        raise_error(Switchyard::ReservedKeysInContextError, exception_msg)
     end
 
     it "raises an error indicating that multiple reserved keys are expected" do
@@ -56,7 +56,7 @@ describe ":expects macro" do
                    :message => "no no",
                    :error_code => 1,
                    :current_action => "update")
-      end.to raise_error(FunctionalLightService::ReservedKeysInContextError,
+      end.to raise_error(Switchyard::ReservedKeysInContextError,
                          exception_msg)
     end
   end

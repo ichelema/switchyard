@@ -1,8 +1,8 @@
 require 'spec_helper'
 require 'test_doubles'
 
-describe FunctionalLightService::Action do
-  let(:context) { FunctionalLightService::Context.make }
+describe Switchyard::Action do
+  let(:context) { Switchyard::Context.make }
 
   context "when the action context has failure" do
     it "returns immediately" do
@@ -77,7 +77,7 @@ describe FunctionalLightService::Action do
   end
 
   context "when invoked with hash" do
-    it "creates FunctionalLightService::Context implicitly" do
+    it "creates Switchyard::Context implicitly" do
       ctx = { :some_key => "some value" }
       result = TestDoubles::AddsTwoActionWithFetch.execute(ctx)
 
@@ -87,7 +87,7 @@ describe FunctionalLightService::Action do
   end
 
   context "when invoked without arguments" do
-    it "creates FunctionalLightService::Context implicitly" do
+    it "creates Switchyard::Context implicitly" do
       result = TestDoubles::AddsTwoActionWithFetch.execute
 
       expect(result).to be_success

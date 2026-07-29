@@ -37,7 +37,7 @@ RSpec.describe 'Action before_actions' do
   describe 'can be added to organizers declaratively' do
     module BeforeActions
       class AdditionOrganizer
-        extend FunctionalLightService::Organizer
+        extend Switchyard::Organizer
 
         before_actions ->(ctx) do
           ctx.number -= 2 if ctx.current_action == TestDoubles::AddsOneAction

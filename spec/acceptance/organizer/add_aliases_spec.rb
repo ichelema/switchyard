@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-RSpec.describe FunctionalLightService::Organizer do
+RSpec.describe Switchyard::Organizer do
   class TestAddAliases
-    extend FunctionalLightService::Organizer
+    extend Switchyard::Organizer
 
-    def self.call(context = FunctionalLightService::Context.make)
+    def self.call(context = Switchyard::Context.make)
       with(context).reduce(steps)
     end
 

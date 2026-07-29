@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe "native Ruby pattern matching (case/in) support" do
-  include FunctionalLightService::Prelude::Result
-  include FunctionalLightService::Prelude::Option
+  include Switchyard::Prelude::Result
+  include Switchyard::Prelude::Option
 
-  Result = FunctionalLightService::Result
-  Option = FunctionalLightService::Option
+  Result = Switchyard::Result
+  Option = Switchyard::Option
 
   it "deconstructs Success/Failure positionally" do
     matched =
@@ -53,7 +53,7 @@ describe "native Ruby pattern matching (case/in) support" do
     expect(none_result).to eq(:none)
   end
 
-  Shape = FunctionalLightService.enum do
+  Shape = Switchyard.enum do
     Point(:x, :y)
     Origin()
   end
@@ -69,6 +69,6 @@ describe "native Ruby pattern matching (case/in) support" do
   end
 
   def None # rubocop:disable Naming/MethodName
-    FunctionalLightService::Option::None.new
+    Switchyard::Option::None.new
   end
 end

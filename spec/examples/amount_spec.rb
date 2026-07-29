@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'functional-light-service/functional/enum'
+require 'switchyard/functional/enum'
 
-Amount = FunctionalLightService.enum do
+Amount = Switchyard.enum do
   Due(:amount)
   Paid(:amount)
   Info(:amount)
@@ -13,7 +13,7 @@ class Amount
   end
 end
 
-FunctionalLightService.impl(Amount) do
+Switchyard.impl(Amount) do
   def to_s
     match do
       Due()  { |a| format("%0.2f", a) }

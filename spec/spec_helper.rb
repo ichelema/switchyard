@@ -19,9 +19,9 @@ end
 # i18n non e' piu una dipendenza runtime della gem: viene caricata qui
 # per testare l'adapter I18n e la selezione automatica in Configuration
 require "i18n"
-require "functional-light-service"
-require "functional-light-service/testing"
-require "functional-light-service/functional/null"
+require "switchyard"
+require "switchyard/testing"
+require "switchyard/functional/null"
 require "support"
 require "test_doubles"
 require "stringio"
@@ -29,4 +29,4 @@ require "stringio"
 # Le API deprecate (Maybe/Null, operatori esotici) restano testate:
 # i warning vengono silenziati globalmente e riattivati solo nelle
 # spec che li verificano
-FunctionalLightService::Deprecations.silenced = true
+Switchyard::Deprecations.silenced = true

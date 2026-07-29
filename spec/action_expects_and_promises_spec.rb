@@ -3,7 +3,7 @@ require 'spec_helper'
 describe ":expects and :promises macros" do
   describe "actions are backward compatible" do
     class FooAction
-      extend FunctionalLightService::Action
+      extend Switchyard::Action
 
       executed do |context|
         baz = context.fetch :baz
@@ -21,7 +21,7 @@ describe ":expects and :promises macros" do
 
   context "when expected keys are not in context" do
     class FooNoExpectedKeyAction
-      extend FunctionalLightService::Action
+      extend Switchyard::Action
 
       expects :baz
 
@@ -35,13 +35,13 @@ describe ":expects and :promises macros" do
     it "throws an ExpectedKeysNotInContextError" do
       # FooAction invoked with nothing in the context
       expect { FooNoExpectedKeyAction.execute }.to \
-        raise_error(FunctionalLightService::ExpectedKeysNotInContextError)
+        raise_error(Switchyard::ExpectedKeysNotInContextError)
     end
   end
 
   describe "expected keys" do
     class FooWithReaderAction
-      extend FunctionalLightService::Action
+      extend Switchyard::Action
 
       expects :baz
 
@@ -60,7 +60,7 @@ describe ":expects and :promises macros" do
 
   context "when promised keys are not in context" do
     class FooNoPromisedKeyAction
-      extend FunctionalLightService::Action
+      extend Switchyard::Action
 
       expects :baz
       promises :bar
@@ -72,13 +72,13 @@ describe ":expects and :promises macros" do
     it "throws a PromisedKeysNotInContextError" do
       # FooAction invoked with nothing placed in the context
       expect { FooNoPromisedKeyAction.execute(:baz => 3) }.to \
-        raise_error(FunctionalLightService::PromisedKeysNotInContextError)
+        raise_error(Switchyard::PromisedKeysNotInContextError)
     end
   end
 
   describe "promised keys" do
     class FooWithExpectsAndPromisesAction
-      extend FunctionalLightService::Action
+      extend Switchyard::Action
 
       expects :baz
       promises :bar

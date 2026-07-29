@@ -1,14 +1,14 @@
 require "spec_helper"
 require 'test_doubles'
 
-describe FunctionalLightService::LocalizationAdapter do
+describe Switchyard::LocalizationAdapter do
   let(:action_class) { TestDoubles::AnAction }
   let(:adapter) { described_class.new }
 
   before do
-    FunctionalLightService::LocalizationMap.instance[:en] = {
+    Switchyard::LocalizationMap.instance[:en] = {
       :'test_doubles/an_action' => {
-        :light_service => {
+        :switchyard => {
           :failures => {
             :not_found => "failure message"
           },
@@ -21,7 +21,7 @@ describe FunctionalLightService::LocalizationAdapter do
   end
 
   after do
-    FunctionalLightService::LocalizationMap.instance.clear
+    Switchyard::LocalizationMap.instance.clear
   end
 
   describe "#failure" do

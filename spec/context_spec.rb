@@ -1,12 +1,12 @@
 require 'spec_helper'
 require 'test_doubles'
 
-RSpec.describe FunctionalLightService::Context do
-  let(:context) { FunctionalLightService::Context.make }
+RSpec.describe Switchyard::Context do
+  let(:context) { Switchyard::Context.make }
 
   describe "can be made" do
     context "with no arguments" do
-      subject { FunctionalLightService::Context.make }
+      subject { Switchyard::Context.make }
       it { is_expected.to be_success }
       specify "message is empty string" do
         expect(context.message).to be_empty
@@ -15,7 +15,7 @@ RSpec.describe FunctionalLightService::Context do
 
     context "with a hash" do
       it "has the hash values" do
-        context = FunctionalLightService::Context.make(:one => 1)
+        context = Switchyard::Context.make(:one => 1)
 
         expect(context[:one]).to eq(1)
       end
@@ -23,8 +23,8 @@ RSpec.describe FunctionalLightService::Context do
 
     context "with FAILURE" do
       it "is failed" do
-        outcome = FunctionalLightService::Result::Failure(:message => '', :error => nil)
-        context = FunctionalLightService::Context.new({}, outcome)
+        outcome = Switchyard::Result::Failure(:message => '', :error => nil)
+        context = Switchyard::Context.new({}, outcome)
 
         expect(context).to be_failure
       end
@@ -33,20 +33,20 @@ RSpec.describe FunctionalLightService::Context do
 
   describe "can't be made" do
     specify "with invalid parameters" do
-      expect { FunctionalLightService::Context.make([]) }.to raise_error(ArgumentError)
+      expect { Switchyard::Context.make([]) }.to raise_error(ArgumentError)
     end
   end
 
   it "can be asked for success?" do
-    outcome = FunctionalLightService::Result::Success(:message => '', :error => nil)
-    context = FunctionalLightService::Context.new({}, outcome)
+    outcome = Switchyard::Result::Success(:message => '', :error => nil)
+    context = Switchyard::Context.new({}, outcome)
 
     expect(context).to be_success
   end
 
   it "can be asked for failure?" do
-    outcome = FunctionalLightService::Result::Failure(:message => '', :error => nil)
-    context = FunctionalLightService::Context.new({}, outcome)
+    outcome = Switchyard::Result::Failure(:message => '', :error => nil)
+    context = Switchyard::Context.new({}, outcome)
 
     expect(context).to be_failure
   end
@@ -101,12 +101,12 @@ RSpec.describe FunctionalLightService::Context do
 
   it "uses localization adapter to translate failure message" do
     action_class = TestDoubles::AnAction
-    expect(FunctionalLightService::Configuration.localization_adapter)
+    expect(Switchyard::Configuration.localization_adapter)
       .to receive(:failure)
       .with(:failure_reason, action_class, {})
       .and_return("message")
 
-    context = FunctionalLightService::Context.make
+    context = Switchyard::Context.make
     context.current_action = action_class
     context.fail!(:failure_reason)
 
@@ -116,12 +116,12 @@ RSpec.describe FunctionalLightService::Context do
 
   it "uses localization adapter to translate success message" do
     action_class = TestDoubles::AnAction
-    expect(FunctionalLightService::Configuration.localization_adapter)
+    expect(Switchyard::Configuration.localization_adapter)
       .to receive(:success)
       .with(:action_passed, action_class, {})
       .and_return("message")
 
-    context = FunctionalLightService::Context.make
+    context = Switchyard::Context.make
     context.current_action = action_class
     context.succeed!(:action_passed)
 
@@ -149,16 +149,16 @@ RSpec.describe FunctionalLightService::Context do
 
   it "can fail with FailWithRollBackError" do
     expect { context.fail_with_rollback!("roll me back") }.to \
-      raise_error(FunctionalLightService::FailWithRollbackError)
+      raise_error(Switchyard::FailWithRollbackError)
   end
 
   it "exptected outcome reader get Success and message empty and error nil" do
-    outcome = FunctionalLightService::Result::Success(:message => "", :error => nil)
+    outcome = Switchyard::Result::Success(:message => "", :error => nil)
     expect(context.outcome).to eq(outcome)
   end
 
   it "can contain false values" do
-    context = FunctionalLightService::Context.make(:foo => false)
+    context = Switchyard::Context.make(:foo => false)
     expect(context[:foo]).to eq false
   end
 
@@ -174,11 +174,11 @@ RSpec.describe FunctionalLightService::Context do
   describe "#define_accessor_methods_for_keys" do
     it "raises when a key conflicts with an existing Hash/Context method" do
       expect { context.define_accessor_methods_for_keys([:size]) }
-        .to raise_error(FunctionalLightService::ReservedKeysInContextError, /:size conflicts/)
+        .to raise_error(Switchyard::ReservedKeysInContextError, /:size conflicts/)
     end
 
     it "does not raise when re-defining accessors for the same key" do
-      ctx = FunctionalLightService::Context.make(:number => 1)
+      ctx = Switchyard::Context.make(:number => 1)
       ctx.define_accessor_methods_for_keys([:number])
 
       expect { ctx.define_accessor_methods_for_keys([:number]) }.not_to raise_error
@@ -189,26 +189,26 @@ RSpec.describe FunctionalLightService::Context do
   describe "reserved keys" do
     it "rejects infrastructure keys in expects/promises" do
       action = Class.new do
-        extend FunctionalLightService::Action
+        extend Switchyard::Action
 
         expects :_before_actions
         executed { |_ctx| } # rubocop:disable Lint/EmptyBlock
       end
 
       expect { action.execute(:_before_actions => []) }
-        .to raise_error(FunctionalLightService::ReservedKeysInContextError)
+        .to raise_error(Switchyard::ReservedKeysInContextError)
     end
 
     it "rejects :organized_by in expects/promises" do
       action = Class.new do
-        extend FunctionalLightService::Action
+        extend Switchyard::Action
 
         expects :organized_by
         executed { |_ctx| } # rubocop:disable Lint/EmptyBlock
       end
 
       expect { action.execute(:organized_by => Object) }
-        .to raise_error(FunctionalLightService::ReservedKeysInContextError)
+        .to raise_error(Switchyard::ReservedKeysInContextError)
     end
   end
 
@@ -247,7 +247,7 @@ RSpec.describe FunctionalLightService::Context do
     end
 
     it "returns existing falsy values instead of the default" do
-      context = FunctionalLightService::Context.make(:flag => false)
+      context = Switchyard::Context.make(:flag => false)
 
       expect(context.fetch(:flag, true)).to eq(false)
     end
@@ -255,7 +255,7 @@ RSpec.describe FunctionalLightService::Context do
 
   context "when aliases are included via .make" do
     let(:context) do
-      FunctionalLightService::Context.make(
+      Switchyard::Context.make(
         :foo => "foobar",
         :foo2 => false,
         :_aliases => aliases

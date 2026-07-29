@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'test_doubles'
 
-RSpec.describe FunctionalLightService::Organizer do
+RSpec.describe Switchyard::Organizer do
   describe 'a simple case with a single callback' do
     it 'calls the actions defined with callback' do
       result = TestDoubles::TestWithCallback.call
@@ -13,7 +13,7 @@ RSpec.describe FunctionalLightService::Organizer do
 
   describe 'a more complex example with nested callbacks' do
     class TestWithNestedCallback
-      extend FunctionalLightService::Organizer
+      extend Switchyard::Organizer
 
       def self.call(context = {})
         with(context).reduce(actions)
@@ -32,7 +32,7 @@ RSpec.describe FunctionalLightService::Organizer do
     end
 
     class SetUpNestedContextAction
-      extend FunctionalLightService::Action
+      extend Switchyard::Action
 
       promises :outer_numbers, :outer_counter,
                :numbers, :counter, :total
@@ -47,7 +47,7 @@ RSpec.describe FunctionalLightService::Organizer do
     end
 
     class IterateOuterCollectionAction
-      extend FunctionalLightService::Action
+      extend Switchyard::Action
 
       expects :outer_numbers, :callback
       promises :outer_number
@@ -61,7 +61,7 @@ RSpec.describe FunctionalLightService::Organizer do
     end
 
     class IncrementOuterCountAction
-      extend FunctionalLightService::Action
+      extend Switchyard::Action
 
       expects :outer_counter
 
@@ -86,7 +86,7 @@ RSpec.describe FunctionalLightService::Organizer do
 
   describe 'with failed or skipped context' do
     class TestWithFailureCallback
-      extend FunctionalLightService::Organizer
+      extend Switchyard::Organizer
 
       def self.call(context = {})
         with(context).reduce(actions)

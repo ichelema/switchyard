@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module FunctionalLightService
+module Switchyard
   module Procify
     def py(m, *args)
       args.any? ? method(m).to_proc.curry[*args] : method(m)
@@ -9,8 +9,8 @@ module FunctionalLightService
 end
 
 class BookingController
-  include FunctionalLightService::Prelude::Result
-  include FunctionalLightService::Procify
+  include Switchyard::Prelude::Result
+  include Switchyard::Procify
 
   Context = Struct.new(:booking, :ability, :format)
 

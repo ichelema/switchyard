@@ -1,5 +1,5 @@
 class LooksUpTaxPercentageAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   expects :order
   promises :tax_percentage

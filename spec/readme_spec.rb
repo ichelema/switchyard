@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-include FunctionalLightService::Prelude::Result
+include Switchyard::Prelude::Result
 
 Success(1).to_s                        # => "1"
 Success(Success(1))                    # => Success(1)
@@ -11,13 +11,13 @@ Failure(Failure(1))                    # => Failure(1)
 Success(1).fmap { |v| v + 1 }           # => Success(2)
 Failure(1).fmap { |v| v - 1 }           # => Failure(0)
 
-Threenum = FunctionalLightService.enum do
+Threenum = Switchyard.enum do
   Nullary()
   Unary(:a)
   Binary(:a, :b)
 end
 
-FunctionalLightService.impl(Threenum) do
+Switchyard.impl(Threenum) do
   def sum
     match do
       Nullary() {        0 }

@@ -1,3 +1,14 @@
+## 7.0.0 (2026-07-30)
+
+La gem viene rinominata da `functional-light-service` a `switchyard`; anche il
+repository GitHub passa da `sphynx79/functional-light-service` a
+`sphynx79/switchyard`. Nessun cambiamento funzionale rispetto alla 6.2.0.
+
+### Changed
+-  Rinominata la gem in `switchyard` (nome del pacchetto RubyGems, gemspec, require path, URL homepage) ( 2026-07-30 ) [ sphynx79]
+-  Rinominato il repository GitHub in `sphynx79/switchyard` ( 2026-07-30 ) [ sphynx79]
+
+
 ## 6.2.0 (2026-07-18)
 
 Port selettivo delle feature di light-service upstream 0.14-0.21 (niente Rails

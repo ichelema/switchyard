@@ -5,7 +5,7 @@ class AdditionOrganizerContextFactory
   def self.make_for(action, number)
     number += 3 # You can add more logic to prepare your context
 
-    FunctionalLightService::Testing::ContextFactory
+    Switchyard::Testing::ContextFactory
       .make_from(TestDoubles::AdditionOrganizer)
       .for(action)
       .with(number)
@@ -23,7 +23,7 @@ RSpec.describe TestDoubles::AddsThreeAction do
 
   it 'creates a context for the action using the ContextFactory' do
     context =
-      FunctionalLightService::Testing::ContextFactory
+      Switchyard::Testing::ContextFactory
       .make_from(TestDoubles::AdditionOrganizer)
       .for(TestDoubles::AddsThreeAction)
       .with(4) # Context is a "glorified" hash
@@ -32,7 +32,7 @@ RSpec.describe TestDoubles::AddsThreeAction do
   end
 
   it "works with multiple arguments passed to Organizer's call method" do
-    context = FunctionalLightService::Testing::ContextFactory
+    context = Switchyard::Testing::ContextFactory
               .make_from(TestDoubles::ExtraArgumentAdditionOrganizer)
               .for(described_class)
               .with(4, 2)
@@ -43,7 +43,7 @@ end
 
 RSpec.describe TestDoubles::AddsTwoAction do
   it 'does not execute a callback entirely from a ContextFactory' do
-    context = FunctionalLightService::Testing::ContextFactory
+    context = Switchyard::Testing::ContextFactory
               .make_from(TestDoubles::CallbackOrganizer)
               .for(described_class)
               .with(:number => 0)

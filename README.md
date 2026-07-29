@@ -1,16 +1,16 @@
-# FunctionalLightService
+# Switchyard
 
-[![Gem Version](https://img.shields.io/gem/v/functional-light-service.svg)](https://rubygems.org/gems/functional-light-service)
-[![CI Tests](https://github.com/sphynx79/functional-light-service/actions/workflows/project-build.yml/badge.svg)](https://github.com/sphynx79/functional-light-service/actions/workflows/project-build.yml)
-[![Codecov](https://codecov.io/gh/sphynx79/functional-light-service/branch/master/graph/badge.svg)](https://app.codecov.io/gh/sphynx79/functional-light-service)
+[![Gem Version](https://img.shields.io/gem/v/switchyard.svg)](https://rubygems.org/gems/switchyard)
+[![CI Tests](https://github.com/sphynx79/switchyard/actions/workflows/project-build.yml/badge.svg)](https://github.com/sphynx79/switchyard/actions/workflows/project-build.yml)
+[![Codecov](https://codecov.io/gh/sphynx79/switchyard/branch/master/graph/badge.svg)](https://app.codecov.io/gh/sphynx79/switchyard)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](http://opensource.org/licenses/MIT)
-[![Download Count](https://img.shields.io/gem/dt/functional-light-service)](https://rubygems.org/gems/functional-light-service)
+[![Download Count](https://img.shields.io/gem/dt/switchyard)](https://rubygems.org/gems/switchyard)
 
 ## Table of Content
 
 * [Requirements](#requirements)
 * [Installation](#installation)
-* [Why FunctionalLightService?](#why-functionallightservice?)
+* [Why Switchyard?](#why-switchyard?)
 * [Stopping the Series of Actions](#stopping-the-series-of-actions)
   * [Failing the Context](#failing-the-context)
   * [Skipping the Rest of the Actions](#skipping-the-rest-of-the-actions)
@@ -46,7 +46,7 @@ This gem requires ruby >= 3.1 (tested up to ruby 4.0)
 Add this line to your application's Gemfile:
 
 ```bash
-    gem 'functional-light-service'
+    gem 'switchyard'
 ```
 
 And then execute:
@@ -58,10 +58,10 @@ And then execute:
 Or install it yourself as:
 
 ```bash
-    $ gem install functional-light-service
+    $ gem install switchyard
 ```
 
-## Why FunctionalLightService?
+## Why Switchyard?
 
 While studying functional programming in Ruby, I discovered the fantastic gem **Deterministic**, which made it much easier to write Ruby code in a functional style.  
 By leveraging its `in_sequence` method, I can chain a series of actions:
@@ -217,7 +217,7 @@ That question led me to create **this gem**. Now I can keep all the conveniences
 
 ```ruby
 class Foo
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
 
   def self.call(name: "", password: "")
     result = with(:name => name, :password => password).reduce(actions)
@@ -236,7 +236,7 @@ class Foo
 end
 
 class Sanitize
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :name, :password
   promises :sanitized_input
 
@@ -259,7 +259,7 @@ class Sanitize
 end
 
 class Validate
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :sanitized_input
 
   executed do |ctx|
@@ -280,7 +280,7 @@ class Validate
 end
 
 class ConnectDb
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   executed do |ctx|
     ctx.try! do
@@ -290,7 +290,7 @@ class ConnectDb
 end
 
 class GetUser
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :sanitized_input
   promises :user
 
@@ -317,7 +317,7 @@ class GetUser
 end
 
 class PrintResponse
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :user
 
   executed do |ctx|
@@ -374,7 +374,7 @@ Here is an example:
 
 ```ruby
 class SubmitsOrderAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :order, :mailer
 
   executed do |context|
@@ -388,7 +388,7 @@ class SubmitsOrderAction
 end
 ```
 
-![fail-actions](https://raw.githubusercontent.com/sphynx79/functional-light-service/master/resources/fail_actions.png)
+![fail-actions](https://raw.githubusercontent.com/sphynx79/switchyard/master/resources/fail_actions.png)
 
 In the example above the organizer called 4 actions. The first 2 actions got executed successfully. The 3rd had a failure, that pushed the context into a failure state and the 4th action was skipped.
 
@@ -403,7 +403,7 @@ is already fine you can avoid processing the rest.
 
 ```ruby
 class ChecksOrderStatusAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :order
 
   executed do |context|
@@ -414,7 +414,7 @@ class ChecksOrderStatusAction
 end
 ```
 
-![skip-actions](https://raw.githubusercontent.com/sphynx79/functional-light-service/master/resources/skip_actions.png)
+![skip-actions](https://raw.githubusercontent.com/sphynx79/switchyard/master/resources/skip_actions.png)
 
 In the example above, the organizer invokes four actions.
 The first two run successfully; the third calls skip_remaining!, so the fourth is never executed, yet the overall context stays successful.
@@ -430,7 +430,7 @@ successful:
 
 ```ruby
 class StopsEverythingAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :item
 
   executed do |context|
@@ -454,7 +454,7 @@ class LogDuration
     start_time = Time.now
     result = yield           # run the wrapped action
     duration = Time.now - start_time
-    FunctionalLightService::Configuration.logger.info(
+    Switchyard::Configuration.logger.info(
       :action   => context.current_action,
       :duration => duration
     )
@@ -464,7 +464,7 @@ class LogDuration
 end
 
 class CalculatesTax
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
 
   def self.call(order)
     with(:order => order).around_each(LogDuration).reduce(
@@ -493,7 +493,7 @@ the actions themselves.
 ## Before and After Action Hooks
 
 Sometimes you need to run code **right before** or **right after** each action.  
-FunctionalLightService lets you do that with the `before_actions` and `after_actions` hooks.  
+Switchyard lets you do that with the `before_actions` and `after_actions` hooks.  
 Each hook accepts one (or many) lambdas that will be invoked by the organizer, keeping
 instrumentation neatly separated from business logic.
 
@@ -501,7 +501,7 @@ instrumentation neatly separated from business logic.
 
 ```ruby
 class SomeOrganizer
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
 
   def self.call(ctx)
     with(ctx).reduce(actions)
@@ -517,7 +517,7 @@ class SomeOrganizer
 end
 
 class TwoAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :user, :logger
 
   executed do |ctx|
@@ -538,7 +538,7 @@ Let’s move that concern into hooks.
 
 ```ruby
 class SomeOrganizer
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
   before_actions (lambda do |ctx|
                            if ctx.current_action == TwoAction
                              return unless ctx.user.role == 'admin'
@@ -566,7 +566,7 @@ class SomeOrganizer
 end
 
 class TwoAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :user
 
   executed do |ctx|
@@ -602,13 +602,13 @@ Two handy macros define the contract of every action:
 | `expects`  | Declares which keys **must** be present before the action runs. |
 | `promises` | Declares which keys **must** exist after the action finishes.   |
 
-If either rule is violated, FunctionalLightService raises a dedicated exception.
+If either rule is violated, Switchyard raises a dedicated exception.
 
 ### Basic usage
 
 ```ruby
 class FooAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   expects   :baz
   promises  :bar
@@ -629,7 +629,7 @@ Refactored, the action is cleaner:
 
 ```ruby
 class FooAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   expects   :baz
   promises  :bar
@@ -650,7 +650,7 @@ static value or a lambda receiving the context:
 
 ```ruby
 class GreetsSomeoneAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   expects :name
   expects :greeting, :default => "Hello"
@@ -677,7 +677,7 @@ action can read or write the value under its preferred name.
 
 ```ruby
 class AnOrganizer
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
 
   aliases :my_key => :key_alias
 
@@ -690,7 +690,7 @@ class AnOrganizer
 end
 
 class AnAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   promises :my_key
 
   executed do |context|
@@ -699,7 +699,7 @@ class AnAction
 end
 
 class AnotherAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :key_alias
 
   executed do |context|
@@ -716,28 +716,28 @@ which organizer is called, which actions run, which keys appear in the context, 
 Logging is **disabled by default**. Enable it in your app’s configuration:
 
 ```ruby
-FunctionalLightService::Configuration.logger = Logger.new(STDOUT)
+Switchyard::Configuration.logger = Logger.new(STDOUT)
 ```
 
 To silence it, point the logger at nil or /dev/null:
 
 ```ruby
-FunctionalLightService::Configuration.logger = Logger.new('/dev/null')
+Switchyard::Configuration.logger = Logger.new('/dev/null')
 ```
 
 Run an organizer and you’ll see output like:
 
 ```bash
-I, [DATE]  INFO -- : [FunctionalLightService] - calling organizer <TestDoubles::MakesTeaAndCappuccino>
-I, [DATE]  INFO -- : [FunctionalLightService] -     keys in context: :tea, :milk, :coffee
-I, [DATE]  INFO -- : [FunctionalLightService] - executing <TestDoubles::MakesTeaWithMilkAction>
-I, [DATE]  INFO -- : [FunctionalLightService] -   expects: :tea, :milk
-I, [DATE]  INFO -- : [FunctionalLightService] -   promises: :milk_tea
-I, [DATE]  INFO -- : [FunctionalLightService] -     keys in context: :tea, :milk, :coffee, :milk_tea
-I, [DATE]  INFO -- : [FunctionalLightService] - executing <TestDoubles::MakesLatteAction>
-I, [DATE]  INFO -- : [FunctionalLightService] -   expects: :coffee, :milk
-I, [DATE]  INFO -- : [FunctionalLightService] -   promises: :latte
-I, [DATE]  INFO -- : [FunctionalLightService] -     keys in context: :tea, :milk, :coffee, :milk_tea, :latte
+I, [DATE]  INFO -- : [Switchyard] - calling organizer <TestDoubles::MakesTeaAndCappuccino>
+I, [DATE]  INFO -- : [Switchyard] -     keys in context: :tea, :milk, :coffee
+I, [DATE]  INFO -- : [Switchyard] - executing <TestDoubles::MakesTeaWithMilkAction>
+I, [DATE]  INFO -- : [Switchyard] -   expects: :tea, :milk
+I, [DATE]  INFO -- : [Switchyard] -   promises: :milk_tea
+I, [DATE]  INFO -- : [Switchyard] -     keys in context: :tea, :milk, :coffee, :milk_tea
+I, [DATE]  INFO -- : [Switchyard] - executing <TestDoubles::MakesLatteAction>
+I, [DATE]  INFO -- : [Switchyard] -   expects: :coffee, :milk
+I, [DATE]  INFO -- : [Switchyard] -   promises: :latte
+I, [DATE]  INFO -- : [Switchyard] -     keys in context: :tea, :milk, :coffee, :milk_tea, :latte
 ```
 
 The log provides a blueprint of the series of actions. You can see what organizer is invoked, what actions
@@ -747,24 +747,24 @@ after each action is executed.
 Failures are logged at WARN level:
 
 ```bash
-W, [DATE]  WARN -- : [FunctionalLightService] - :-((( <TestDoubles::MakesLatteAction> has failed...
-W, [DATE]  WARN -- : [FunctionalLightService] - context message: Can't make a latte from a milk that's too hot!
+W, [DATE]  WARN -- : [Switchyard] - :-((( <TestDoubles::MakesLatteAction> has failed...
+W, [DATE]  WARN -- : [Switchyard] - context message: Can't make a latte from a milk that's too hot!
 ```
 
 Skipping the remaining actions is also reported:
 
 ```bash
-I, [DATE]  INFO -- : [FunctionalLightService] - calling organizer <TestDoubles::MakesCappuccinoSkipsAddsTwo>
-I, [DATE]  INFO -- : [FunctionalLightService] -     keys in context: :milk, :coffee
-I, [DATE]  INFO -- : [FunctionalLightService] - ;-) <TestDoubles::MakesLatteAction> has decided to skip the rest of the actions
-I, [DATE]  INFO -- : [FunctionalLightService] - context message: Can't make a latte with a fatty milk like that!
+I, [DATE]  INFO -- : [Switchyard] - calling organizer <TestDoubles::MakesCappuccinoSkipsAddsTwo>
+I, [DATE]  INFO -- : [Switchyard] -     keys in context: :milk, :coffee
+I, [DATE]  INFO -- : [Switchyard] - ;-) <TestDoubles::MakesLatteAction> has decided to skip the rest of the actions
+I, [DATE]  INFO -- : [Switchyard] - context message: Can't make a latte with a fatty milk like that!
 ```
 
 Need different log destinations per organizer? Override the global logger:
 
 ```ruby
 class FooOrganizer
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
   log_with Logger.new("/my/special.log")
 end
 ```
@@ -776,7 +776,7 @@ fail! and fail_and_return! accept an error_code: keyword so you can branch on we
 
 ```ruby
 class FooAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   executed do |context|
     result = external_service.call
@@ -818,7 +818,7 @@ That’s exactly what the `rolled_back` macro is for.
 
 ```ruby
 class SaveEntities
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :user
 
   executed do |context|
@@ -837,7 +837,7 @@ executed actions in reverse order.
 
 ```ruby
 class CallExternalApi
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   executed do |context|
     api_call_result = SomeAPI.save_user(context.user)
@@ -861,7 +861,7 @@ action is running inside an organizer:
 
 ```ruby
 class FooAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   executed do |context|
     # context.organized_by will be nil if run from an action,
@@ -883,11 +883,11 @@ Symbols passed to `fail!`/`succeed!` are looked up through a localization
 adapter. Two adapters ship with the gem:
 
 - **Built-in adapter** (default): resolves messages from
-  `FunctionalLightService::LocalizationMap.instance`, a plain hash keyed by
+  `Switchyard::LocalizationMap.instance`, a plain hash keyed by
   `Configuration.locale` (default `:en`) — no extra dependency needed:
 
   ```ruby
-  FunctionalLightService::LocalizationMap.instance[:en] = {
+  Switchyard::LocalizationMap.instance[:en] = {
     :foo_action => {
       :light_service => {
         :failures => { :exceeded_api_limit => "Exceeded API limit" },
@@ -906,7 +906,7 @@ localization adapter.
 
 ```ruby
 class FooAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   executed do |context|
     unless service_call.success?
@@ -926,7 +926,7 @@ Look‑ups follow ActiveSupport’s underscore, just like Rails models inside mo
 ```ruby
 module PaymentGateway
   class CaptureFunds
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     executed do |context|
       context.fail!(:funds_not_available) if api_service.failed?
@@ -945,7 +945,7 @@ Pass a hash for dynamic values:
 ```ruby
 module PaymentGateway
   class CaptureFunds
-    extend FunctionalLightService::Action
+    extend Switchyard::Action
 
     executed do |context|
       if api_service.failed?
@@ -972,10 +972,10 @@ configuration:
 
 ```ruby
 # config/initializers/light_service.rb
-FunctionalLightService::Configuration.localization_adapter = MyLocalizer.new
+Switchyard::Configuration.localization_adapter = MyLocalizer.new
 
 # lib/my_localizer.rb
-class MyLocalizer < FunctionalLightService::I18n::LocalizationAdapter
+class MyLocalizer < Switchyard::I18n::LocalizationAdapter
   # change default scope to: "light_service.failures.<class_path>"
   def i18n_scope_from_class(action_class, type)
     "light_service.#{type.pluralize}.#{action_class.name.underscore}"
@@ -994,7 +994,7 @@ puts result.message   # ⇒ "Exceeded API limit" (or localized equivalent)
 
 ## Logic in Organizers
 
-The Organizer - Action combination works really well for simple use cases. However, as business logic gets more complex, or when FunctionalLightService is used in an ETL workflow, the code that routes the different organizers becomes very complex and imperative. Let's look at a piece of code that does basic data transformations:
+The Organizer - Action combination works really well for simple use cases. However, as business logic gets more complex, or when Switchyard is used in an ETL workflow, the code that routes the different organizers becomes very complex and imperative. Let's look at a piece of code that does basic data transformations:
 
 ```ruby
 class ExtractsTransformsLoadsData
@@ -1023,7 +1023,7 @@ end
 
 ```ruby
 class ExtractsTransformsLoadsData
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
 
   def self.call(connection)
     with(:connection => connection).reduce(actions)
@@ -1097,7 +1097,7 @@ reduce_case :value => :status,
 ## ContextFactory for Faster Action Testing
 
 As workflows grow more complex, building a realistic
-`FunctionalLightService::Context` for unit tests can become painful.
+`Switchyard::Context` for unit tests can become painful.
 Factory objects help, but the data you assemble by hand may still differ
 from what earlier actions really produce—especially in ETL pipelines where
 each step mutates the context.
@@ -1106,7 +1106,7 @@ each step mutates the context.
 
 ```ruby
 class SomeOrganizer
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
 
   def self.call(ctx)
     with(ctx).reduce(actions)
@@ -1128,7 +1128,7 @@ You should test your workflow from the outside, invoking the organizer’s `call
 
 ### Enter ContextFactory
 
-FunctionalLightService::Testing::ContextFactory can generate a
+Switchyard::Testing::ContextFactory can generate a
 pre-populated context that mirrors real runtime data, letting you focus on
 the behaviour you want to test.
 
@@ -1138,7 +1138,7 @@ require "light-service/testing"
 
 RSpec.describe ETL::SetsUpMappingsAction do
   let(:context) do
-    FunctionalLightService::Testing::ContextFactory
+    Switchyard::Testing::ContextFactory
       .make_from(SomeOrganizer)          # build the full pipeline
       .for(described_class)              # stop right before our action
       .with(payload: File.read("spec/data/payload.json"))
@@ -1159,7 +1159,7 @@ See [acceptance test](spec/acceptance/testing/context_factory_spec.rb#L4-L11) fo
 
 ## Functional Programming
 
-FunctionalLightService lets you write **confident**, side-effect-aware Ruby by
+Switchyard lets you write **confident**, side-effect-aware Ruby by
 offering monads and algebraic data types (ADTs) you can compose and pattern-match
 without boilerplate.
 
@@ -1207,7 +1207,7 @@ Failure(1).or_else { |n| Success(n + 1) }         # => Success(2)
 #### Exception capturing
 
 ```ruby
-include FunctionalLightService::Prelude::Result
+include Switchyard::Prelude::Result
 
 try! { 1 }                             # => Success(1)
 try! { raise "hell" }                  # => Failure(#<RuntimeError: hell>)
@@ -1246,7 +1246,7 @@ with `get`/`let` are available to all subsequent steps by name.
 
 ```ruby
 class DownloadRemit
-  include FunctionalLightService::Prelude
+  include Switchyard::Prelude
 
   def call(row)
     in_sequence do
@@ -1273,7 +1273,7 @@ end
 
 ```ruby
 class Foo
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
   expects :params
   alias :m :method
 
@@ -1293,7 +1293,7 @@ class Foo
 end
 
 class Bar
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
 
   def self.call(params)
     with(:params => params).reduce(Foo)
@@ -1469,7 +1469,7 @@ Some(1).match {
 The simplest NullObject wrapper there can be. It adds `#some?` and `#null?` to `Object` though.
 
 ```ruby
-require 'functional-light-service/functional/maybe' # you need to do this explicitly
+require 'switchyard/functional/maybe' # you need to do this explicitly
 Maybe(nil).foo        # => Null
 Maybe(nil).foo.bar    # => Null
 Maybe({a: 1})[:a]     # => 1
@@ -1486,7 +1486,7 @@ Maybe({}).some?       # => true
 All the above are implemented using enums, see their definition, for more details.
 
 ```ruby
-Threenum = FunctionalLightService::enum {
+Threenum = Switchyard::enum {
             Nullary()
             Unary(:a)
             Binary(:a, :b)
@@ -1554,7 +1554,7 @@ Threenum::Unary(5).match {
 #### Add methods with impl
 
 ```ruby
-FunctionalLightService::impl(Threenum) {
+Switchyard::impl(Threenum) {
   def sum
     match {
       Nullary() {        0 }
@@ -1582,12 +1582,12 @@ All matches must be exhaustive; otherwise NoMatchError is raised.
 Based on the refactoring example above, just create an organizer object that calls the
 actions in order and write code for the actions. That's it.
 
-For further examples, please visit the project's [Wiki](https://github.com/sphynx79/functional-light-service/wiki).
+For further examples, please visit the project's [Wiki](https://github.com/sphynx79/switchyard/wiki).
 
 ## Upgrading to 6.0
 
 Version 6.0 requires **Ruby >= 3.1** and ships a few breaking changes plus new guarantees.
-They come from a full technical audit (see `AUDIT-functional-light-service.md`).
+They come from a full technical audit (see `AUDIT-switchyard.md`).
 
 ### Breaking changes
 
@@ -1615,8 +1615,8 @@ They come from a full technical audit (see `AUDIT-functional-light-service.md`).
 
   ```ruby
   case result
-  in FunctionalLightService::Result::Success[value] then value
-  in FunctionalLightService::Result::Failure[error] then handle(error)
+  in Switchyard::Result::Success[value] then value
+  in Switchyard::Result::Failure[error] then handle(error)
   end
   ```
 
@@ -1627,7 +1627,7 @@ They come from a full technical audit (see `AUDIT-functional-light-service.md`).
   then the outer flow continues. The outcome message set by `skip_remaining!` is preserved.
 - **Deprecations** (still working, warn once on stderr): `Maybe()`/`Null` (use
   `Option`), `Result#>=` (use `try`), `Result#<<` (use `pipe`), `Result#+`/`Option#+`.
-  Silence them with `FunctionalLightService::Deprecations.silenced = true`.
+  Silence them with `Switchyard::Deprecations.silenced = true`.
 
 ### Threading contract
 
@@ -1644,11 +1644,11 @@ multiple threads (Puma, Sidekiq) is safe.
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-Huge thanks to the [contributors](https://github.com/sphynx79/functional-light-service/graphs/contributors)!
+Huge thanks to the [contributors](https://github.com/sphynx79/switchyard/graphs/contributors)!
 
 ## Changelog
 
-Follow the changelog in this [document](https://github.com/sphynx79/functional-light-service/blob/master/CHANGELOG.md).
+Follow the changelog in this [document](https://github.com/sphynx79/switchyard/blob/master/CHANGELOG.md).
 
 ## Thank You
 
@@ -1656,8 +1656,8 @@ A very special thank you to [Attila Domokos](https://github.com/adomokos) for
 his fantastic work on [LightService](https://github.com/adomokos/light-service).
 A very special thank you to [Piotr Zolnierek](https://github.com/pzol) for
 his fantastic work on [Deterministic](https://github.com/pzol/deterministic).
-FunctionalLightService is inspired heavily by the concepts put to code by Attila and add some functionality taken from the excellent work of mario Piotr.
+Switchyard is inspired heavily by the concepts put to code by Attila and add some functionality taken from the excellent work of mario Piotr.
 
 ## License
 
-FunctionalLightService is released under the [MIT License](http://www.opensource.org/licenses/MIT).
+Switchyard is released under the [MIT License](http://www.opensource.org/licenses/MIT).

@@ -7,7 +7,7 @@ RSpec.describe 'ContextFactory - used with CallbackOrganizer' do
   context 'when called with the callback action' do
     it 'creates a context up-to the callback action' do
       ctx =
-        FunctionalLightService::Testing::ContextFactory
+        Switchyard::Testing::ContextFactory
         .make_from(organizer)
         .for(TestDoubles::AddTenCallbackAction)
         .with(:number => 1)
@@ -17,7 +17,7 @@ RSpec.describe 'ContextFactory - used with CallbackOrganizer' do
 
     it 'creates a context up-to callback action with empty context steps' do
       ctx =
-        FunctionalLightService::Testing::ContextFactory
+        Switchyard::Testing::ContextFactory
         .make_from(organizer)
         .for(TestDoubles::AddsTwoAction)
         .with(:number => 1)
@@ -27,7 +27,7 @@ RSpec.describe 'ContextFactory - used with CallbackOrganizer' do
 
     it 'creates a context up-to the action defined in context steps' do
       ctx =
-        FunctionalLightService::Testing::ContextFactory
+        Switchyard::Testing::ContextFactory
         .make_from(organizer)
         .for(TestDoubles::AddsThreeAction)
         .with(:number => 1)

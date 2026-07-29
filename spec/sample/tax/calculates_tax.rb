@@ -1,5 +1,5 @@
 class CalculatesTax
-  extend FunctionalLightService::Organizer
+  extend Switchyard::Organizer
 
   def self.call(order)
     with(:order => order).reduce(

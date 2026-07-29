@@ -1,5 +1,5 @@
 class ProvidesFreeShippingAction
-  extend FunctionalLightService::Action
+  extend Switchyard::Action
 
   expects :order
 
