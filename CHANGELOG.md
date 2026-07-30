@@ -1,3 +1,15 @@
+## [Unreleased]
+
+## 7.1.0 (2026-07-30)
+
+### Added
+-  Documentazione YARD completa su tutta la libreria: 32 file, 100% di copertura, 178 metodi documentati con esempi, parametri e valori restituiti ( 2026-07-30 ) [ sphynx79]
+-  Generazione del sito documentale via `bundle exec rake yard` e preview con `bundle exec rake yard` ( 2026-07-30 ) [ sphynx79]
+-  Dipendenza WEBrick per il server YARD su Ruby 4.0 ( 2026-07-30 ) [ sphynx79]
+
+### Removed
+-  Audit scripts (`audit/bench.rb`, `audit/verify_findings.rb`) — i finding sono già corretti e i benchmark obsoleti ( 2026-07-30 ) [ sphynx79]
+
 ## 7.0.0 (2026-07-30)
 
 La gem viene rinominata da `functional-light-service` a `switchyard`; anche il

@@ -4,6 +4,24 @@ require 'logger'
 
 require 'switchyard/version'
 
+# frozen_string_literal: true
+
+# Switchyard — a service skeleton with functional-programming constructs.
+#
+# Combines the Organizer / Action / Context pattern with Result and Option
+# monads, pattern matching, and do-notation. Workflows are decomposed into
+# small single-purpose actions with explicit contracts and functional error
+# handling.
+#
+# @example Requiring the gem
+#   require 'switchyard'
+#   # All core modules are loaded automatically.
+#
+# @see Switchyard::Organizer
+# @see Switchyard::Action
+# @see Switchyard::Context
+# @see Switchyard::Result
+# @see Switchyard::Option
 module Switchyard; end
 
 require 'switchyard/deprecations'

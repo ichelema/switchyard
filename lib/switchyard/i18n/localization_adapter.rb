@@ -3,8 +3,23 @@
 require 'dry/inflector'
 
 module Switchyard
+  # Namespace for the {LocalizationAdapter I18n-backed localisation adapter}.
   module I18n
+    # Localisation adapter backed by the `i18n` gem.
+    #
+    # Auto-selected by {Configuration} when `::I18n` is loaded. Uses
+    # `I18n.t` to translate symbol keys into locale-specific strings.
+    #
+    # The translation scope is derived from the action class name:
+    # `<underscored_action_name>.switchyard.<type>`.
+    #
     class LocalizationAdapter
+      # Looks up or returns a failure message via `I18n.t`.
+      #
+      # @param message_or_key [String, Symbol] literal or I18n key
+      # @param action_class [Class] the action class
+      # @param i18n_options [Hash] extra I18n options
+      # @return [String]
       def failure(message_or_key, action_class, i18n_options = {})
         find_translated_message(message_or_key,
                                 action_class,
@@ -12,6 +27,12 @@ module Switchyard
                                 :type => :failure)
       end
 
+      # Looks up or returns a success message via `I18n.t`.
+      #
+      # @param message_or_key [String, Symbol] literal or I18n key
+      # @param action_class [Class] the action class
+      # @param i18n_options [Hash] extra I18n options
+      # @return [String]
       def success(message_or_key, action_class, i18n_options = {})
         find_translated_message(message_or_key,
                                 action_class,

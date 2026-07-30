@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
 module Switchyard
-  VERSION = "7.0.0"
+  # The current version of the Switchyard gem.
+  #
+  # Follows semantic versioning (`major.minor.patch`).
+  VERSION = "7.1.0"
 end

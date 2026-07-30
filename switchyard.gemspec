@@ -31,5 +31,4 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency("rubocop-performance", "~> 1.20")
   gem.add_development_dependency("pry", "~> 0.15")
   gem.add_development_dependency("solargraph", "~> 0.50")
-  gem.add_development_dependency("benchmark-ips", "~> 2.13")
 end
