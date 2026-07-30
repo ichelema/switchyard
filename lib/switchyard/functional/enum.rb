@@ -1,33 +1,71 @@
 # frozen_string_literal: true
 
 module Switchyard
+  # Pattern-matching support for enum variants.
   module Enum
+    # Raised by {AnyEnum#match} when not all variants are covered or no
+    # guard matches.
     class MatchError < StandardError; end
   end
 
+  # Builds algebraic data types (enums with variants).
+  #
+  # Each variant is a class under the enum module. Variants may carry
+  # positional arguments (`:s`), multiple named arguments (`:a, :b`),
+  # or no arguments (nullary).
+  #
+  # @example
+  #   Shape = Switchyard.enum do
+  #     Circle(:radius)
+  #     Rect(:width, :height)
+  #     Point()
+  #   end
+  #
+  # @see Switchyard.enum
+  # @see Switchyard.impl
   class EnumBuilder
+    # @param parent [Class] the enum module being built
     def initialize(parent)
       @parent = parent
     end
 
+    # Base type for all enum variant instances.
     class DataType
+      # Shared behaviour for every variant instance.
       module AnyEnum
         include Switchyard::Monad
 
+        # Pattern matches this variant against the cases in the block.
+        #
+        # Uses the enum's {EnumBuilder::Matcher} to dispatch.
+        #
+        # @yield a block with case clauses (variant names)
+        # @return [Object] the matched block's return value
+        # @raise [Enum::MatchError] when no variant matches
         def match(&)
           parent.match(self, &)
         end
 
+        # Returns the string representation of the inner value.
+        #
+        # @return [String]
         def to_s
           value.to_s
         end
 
+        # Returns the short name of this variant (e.g. `"Success"`).
+        #
+        # @return [String]
         def name
           self.class.name.split("::")[-1]
         end
 
-        # Returns array. Will fail on Nullary objects.
-        # TODO: define a Unary module so we can define this method differently on Unary vs Binary
+        # Returns the wrapped values for destructuring.
+        #
+        # For binary variants, returns the hash values; for unary,
+        # returns an array with the single value.
+        #
+        # @return [Array]
         def wrapped_values
           if is_a?(Switchyard::EnumBuilder::DataType::Binary)
             value.values
@@ -36,15 +74,23 @@ module Switchyard
           end
         end
 
-        # Supporto al pattern matching nativo di Ruby (case/in):
+        # Native Ruby pattern-matching support (`case`/`in`).
+        #
+        # @example
         #   case result
-        #   in Switchyard::Result::Success(s) then ...
-        #   in Switchyard::Result::Failure(f) then ...
+        #   in Switchyard::Result::Success(s) then s
+        #   in Switchyard::Result::Failure(f) then handle(f)
         #   end
+        #
+        # @return [Array] the wrapped values for destructuring
         def deconstruct
           is_a?(Switchyard::EnumBuilder::DataType::Nullary) ? [] : wrapped_values
         end
 
+        # Native Ruby pattern-matching for keyword destructuring.
+        #
+        # @param _keys [nil] ignored
+        # @return [Hash] variant data keyed by argument names
         def deconstruct_keys(_keys)
           if is_a?(Switchyard::EnumBuilder::DataType::Binary)
             value.dup
@@ -56,18 +102,29 @@ module Switchyard
         end
       end
 
+      # Behaviour for variants that carry no value (e.g. `None`).
       module Nullary
+        # @param _args [Array] ignored
         def initialize(*_args)
           @value = nil
         end
 
+        # @return [String] the variant name only
         def inspect
           name
         end
       end
 
-      # TODO: this should probably be named Multary
+      # Behaviour for variants with multiple named arguments.
+      # @see Binary#initialize Binary for constructor details
       module Binary
+        # Initialises a Binary variant from positional or hash arguments.
+        #
+        # Accepts either positional values matching the declared argument
+        # names, or a single hash whose keys match the argument names.
+        #
+        # @param init [Array, Hash] values for the named arguments
+        # @raise [ArgumentError] if the number of arguments does not match
         def initialize(*init)
           unless (init.one? && init[0].is_a?(Hash)) || init.count == args.count
             raise ArgumentError, "Expected arguments for #{args}, got #{init}"
@@ -80,12 +137,26 @@ module Switchyard
                    end
         end
 
+        # Returns a human-readable representation.
+        #
+        # @example
+        #   Rect(width: 10, height: 20).inspect  # => "Rect(width: 10, height: 20)"
+        #
+        # @return [String]
         def inspect
           params = value.map { |k, v| "#{k}: #{v.inspect}" }
           "#{name}(#{params.join(', ')})"
         end
       end
 
+      # Creates an enum variant class.
+      #
+      # The generated class includes {AnyEnum} and the appropriate
+      # mixin ({Nullary} for 0-arg, unary for 1-arg, {Binary} for 2+).
+      #
+      # @param parent [Class] the enum module
+      # @param args [Array<Symbol>] argument names
+      # @return [Class] the variant class
       # rubocop:disable Metrics/MethodLength
       def self.create(parent, args)
         if args.include? :value
@@ -130,12 +201,23 @@ module Switchyard
         dt
       end
       # rubocop:enable Metrics/MethodLength
-
       class << self
         public :new
       end
     end
 
+    # Defines a new variant on the enum.
+    #
+    # Variant names become constants under the enum module. Each variant
+    # declares its positional argument names.
+    #
+    # @example
+    #   my_enum.Rect(:width, :height)  # defines Rect(width:, height:)
+    #
+    # @param m [Symbol] variant name
+    # @param args [Array<Symbol>] argument names
+    # @return [void]
+    # @raise [ArgumentError] if the variant was already defined
     def method_missing(m, *args)
       if @parent.const_defined?(m)
         raise ArgumentError, "variant #{m} is already defined for this enum"
@@ -155,6 +237,20 @@ module Switchyard
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/MethodLength
   # rubocop:disable Metrics/PerceivedComplexity
+  # Creates a new algebraic data type (enum).
+  #
+  # Returns a class with variant subclasses, each with its own
+  # constructor, `#inspect`, `#match` and native Ruby `case`/`in`
+  # support.
+  #
+  # @example
+  #   Status = Switchyard.enum do
+  #     Active(:user)
+  #     Inactive()
+  #   end
+  #
+  # @yield block in which variant names are called as methods
+  # @return [Class] the enum class
   def enum(&block)
     mod = Class.new do # the enum to be built
       private_class_method :new
@@ -278,6 +374,19 @@ module Switchyard
   # rubocop:enable Metrics/MethodLength
   # rubocop:enable Metrics/PerceivedComplexity
 
+  # Evaluates a block in the context of every variant class of an enum.
+  #
+  # Used to define shared methods (like `map`, `fmap`, `value_or`) on
+  # all variants at once.
+  #
+  # @example
+  #   Switchyard.impl(Option) do
+  #     def some?; is_a? Option::Some; end
+  #   end
+  #
+  # @param enum_type [Class] the enum class (returned by {.enum})
+  # @yield block evaluated in each variant class
+  # @return [void]
   def impl(enum_type, &block)
     enum_type.variants.each do |v|
       enum_type.const_get(v).class_eval(&block)
