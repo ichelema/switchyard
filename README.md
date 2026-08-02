@@ -52,7 +52,7 @@ Add this line to your application's Gemfile:
 And then execute:
 
 ```bash
-    $ bundle
+    $ bundle install
 ```
 
 Or install it yourself as:
@@ -1609,8 +1609,10 @@ They come from a full technical audit (see `AUDIT-switchyard.md`).
 
 - **Declarative hooks are stable**: `before_actions`/`after_actions` declared on an
   organizer now apply to *every* call (they used to disappear after the first one).
+
 - **Rollback is complete** even when the same action class appears more than once in
   the pipeline.
+
 - **Native pattern matching**: every enum variant supports `case/in`:
 
   ```ruby
@@ -1622,9 +1624,11 @@ They come from a full technical audit (see `AUDIT-switchyard.md`).
 
   For hot paths prefer `case/in` (or `success?`/`value`) over the `match` DSL: it is
   roughly two orders of magnitude faster.
+
 - **`skip_remaining!` is scoped**: inside `iterate`/`reduce_if`/`reduce_until` it skips
   the remaining *steps of the current sub-pipeline* (for `iterate`: of the current item),
   then the outer flow continues. The outcome message set by `skip_remaining!` is preserved.
+
 - **Deprecations** (still working, warn once on stderr): `Maybe()`/`Null` (use
   `Option`), `Result#>=` (use `try`), `Result#<<` (use `pipe`), `Result#+`/`Option#+`.
   Silence them with `Switchyard::Deprecations.silenced = true`.
