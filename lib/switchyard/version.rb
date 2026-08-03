@@ -4,5 +4,5 @@ module Switchyard
   # The current version of the Switchyard gem.
   #
   # Follows semantic versioning (`major.minor.patch`).
-  VERSION = "7.1.0"
+  VERSION = "7.1.1"
 end

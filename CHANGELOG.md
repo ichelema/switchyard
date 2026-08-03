@@ -1,5 +1,13 @@
 ## [Unreleased]
 
+## 7.1.1 (2026-08-03)
+
+### Fixed
+-  Generazione YARD senza warning: le varianti create a runtime (`Result::Success`/`Failure`, `Option::None`) sono dichiarate via `@!parse` e compaiono nella documentazione con pagine proprie; corretti i link tra namespace ( 2026-08-03 ) [ sphynx79]
+
+### Changed
+-  Tutti i commenti del sorgente sono ora in inglese, coerenti con la documentazione YARD; rimossi i commenti ridondanti e i riferimenti a documenti di audit non inclusi nel repo ( 2026-08-03 ) [ sphynx79]
+
 ## 7.1.0 (2026-07-30)
 
 ### Added
