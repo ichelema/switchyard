@@ -134,7 +134,7 @@ module Switchyard
     #
     # @return [false]
     def reset_skip_remaining!
-      # Resetta soltanto il flag: l'esito (e il suo messaggio) non vanno persi
+      # Reset only the flag: the outcome (and its message) must not be lost
       @skip_remaining = false
     end
 
@@ -186,7 +186,7 @@ module Switchyard
       options_or_error_code ||= {}
 
       if options_or_error_code.is_a?(Hash)
-        # dup: l'hash di opzioni appartiene al chiamante e non va mutato
+        # dup: the options hash belongs to the caller and must not be mutated
         options = options_or_error_code.dup
         error_code = options.delete(:error_code)
       else
@@ -294,8 +294,9 @@ module Switchyard
         key = key.to_sym
         next if @accessor_methods.key?(key)
 
-        # Prima il conflitto veniva saltato in silenzio e ctx.size (o :count,
-        # :message, ...) ritornava il metodo di Hash invece del valore
+        # Without this check the conflict would be silently skipped and
+        # ctx.size (or :count, :message, ...) would return the Hash method
+        # instead of the stored value
         if respond_to?(key) || respond_to?("#{key}=")
           raise ReservedKeysInContextError,
                 "expected or promised key :#{key} conflicts with an existing " \
@@ -348,8 +349,6 @@ module Switchyard
     # @return [self]
     def assign_aliases(aliases)
       @aliases = aliases
-      # Hash inverso precomputato: la risoluzione in lettura/scrittura
-      # resta O(1) invece del reverse-scan di Hash#key
       @inverse_aliases = aliases.invert
 
       self

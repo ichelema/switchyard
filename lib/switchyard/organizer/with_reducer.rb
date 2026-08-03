@@ -133,8 +133,8 @@ module Switchyard
       # @param index_of_failed_action [Integer, nil]
       # @return [Array]
       def reversable_actions(actions, index_of_failed_action = nil)
-        # L'indice viene tracciato nel reduce: actions.index troverebbe la prima
-        # occorrenza e con azioni duplicate il rollback sarebbe parziale
+        # The index is tracked in the reduce: actions.index would find the first
+        # occurrence, and with duplicated actions the rollback would be partial
         index_of_failed_action ||= actions.index(@context.current_action) || 0
 
         # Reverse from the point where the fail was triggered

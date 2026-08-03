@@ -1,6 +1,6 @@
 require 'spec_helper'
-# Maybe()/Null e il monkey-patch di Object sono opt-in: non fanno parte
-# del require chain di default della gem
+# Maybe()/Null and the Object monkey-patch are opt-in: they are not part
+# of the gem's default require chain
 require 'switchyard/functional/maybe'
 
 describe "deprecation warnings" do

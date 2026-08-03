@@ -167,7 +167,7 @@ RSpec.describe Switchyard::Context do
   end
 
   it "allows a default block value for #fetch" do
-    # la forma a blocco e' esattamente cio' che il test verifica
+    # the block form is exactly what this test verifies
     expect(context.fetch(:madeup) { :default }).to eq(:default) # rubocop:disable Style/RedundantFetchBlock
   end
 
@@ -282,7 +282,7 @@ RSpec.describe Switchyard::Context do
 
       expect(context[:bar]).to eq("updated")
       expect(context[:foo]).to eq("updated")
-      # nessuna chiave duplicata: l'alias e' un nome alternativo, non una copia
+      # no duplicated key: the alias is an alternative name, not a copy
       expect(context.to_h).not_to have_key(:bar)
     end
 

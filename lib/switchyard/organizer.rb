@@ -80,8 +80,8 @@ module Switchyard
       def with(data = {})
         data[:_aliases] = @aliases if @aliases
 
-        # Gli hook di classe vengono solo letti (mai azzerati): devono valere
-        # per ogni chiamata, anche concorrente
+        # Class-level hooks are only read (never cleared): they must hold
+        # for every call, including concurrent ones
         data[:_before_actions] = @before_actions.dup if @before_actions
         data[:_after_actions] = @after_actions.dup if @after_actions
 

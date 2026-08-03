@@ -48,8 +48,8 @@ module Switchyard
         hook = nil
         hook = ->(ctx) do
           if ctx.current_action == @target_action
-            # L'hook non deve essere re-invocato quando il context
-            # verra' usato con Action#execute nel test
+            # The hook must not be re-invoked when the context is later
+            # used with Action#execute in the test
             ctx[:_before_actions].delete(hook)
 
             throw(:return_ctx_from_execution, ctx)
@@ -63,7 +63,7 @@ module Switchyard
             @organizer.call(...)
           end
         ensure
-          # L'hook e' per-chiamata: la classe organizer non deve conservarlo
+          # The hook is per-call: the organizer class must not retain it
           @organizer.remove_before_actions(hook)
         end
       end

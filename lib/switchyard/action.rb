@@ -185,9 +185,9 @@ module Switchyard
       private
 
       def create_action_context(context)
-        # I default vanno applicati anche quando l'action gira dentro un
-        # organizer (il context è già un Context): prima dell'early return.
-        # Il guard sull'ivar evita lavoro (e scritture lazy) nel percorso caldo
+        # Defaults must be applied even when the action runs inside an
+        # organizer (the context is already a Context): before the early
+        # return. The ivar guard avoids work (and lazy writes) on the hot path
         apply_expects_defaults(context) if @available_defaults
 
         return context if context.is_a? Switchyard::Context
