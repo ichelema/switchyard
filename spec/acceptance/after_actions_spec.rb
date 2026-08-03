@@ -2,8 +2,8 @@ require 'spec_helper'
 require 'test_doubles'
 
 RSpec.describe 'Action after_actions' do
-  # Gli hook restano sulla classe (non vengono piu consumati da #with):
-  # i test double sono condivisi, quindi vanno ripuliti dopo ogni esempio
+  # Hooks stay on the class (no longer consumed by #with): the test
+  # doubles are shared, so they must be cleaned up after each example
   after do
     TestDoubles::AdditionOrganizer.after_actions = nil
     TestDoubles::TestIterate.after_actions = nil

@@ -177,7 +177,6 @@ describe "Rolling back actions when there is a failure" do
 
     expect(result).to be_failure
     expect(result[:executed]).to eq(%i[tracks fails tracks fails])
-    # tutte e 4 le azioni eseguite vengono compensate, in ordine inverso
     expect(result[:rolled_back]).to eq(%i[fails tracks fails tracks])
   end
 end

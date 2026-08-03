@@ -48,8 +48,8 @@ module Switchyard
       #
       # @return [LocalizationAdapter, I18n::LocalizationAdapter]
       def localization_adapter
-        # La gem i18n non è una dipendenza: l'adapter I18n viene scelto solo
-        # se la costante è già stata caricata dall'applicazione ospite
+        # The i18n gem is not a dependency: the I18n adapter is picked only
+        # when the constant has already been loaded by the host application
         @localization_adapter ||= if Module.const_defined?('I18n')
                                     Switchyard::I18n::LocalizationAdapter.new
                                   else

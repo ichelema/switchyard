@@ -16,8 +16,8 @@ if ENV['RUN_COVERAGE_REPORT']
   SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 end
 
-# i18n non e' piu una dipendenza runtime della gem: viene caricata qui
-# per testare l'adapter I18n e la selezione automatica in Configuration
+# i18n is no longer a runtime dependency of the gem: it is loaded here to
+# test the I18n adapter and the automatic selection in Configuration
 require "i18n"
 require "switchyard"
 require "switchyard/testing"
@@ -26,7 +26,7 @@ require "support"
 require "test_doubles"
 require "stringio"
 
-# Le API deprecate (Maybe/Null, operatori esotici) restano testate:
-# i warning vengono silenziati globalmente e riattivati solo nelle
-# spec che li verificano
+# Deprecated APIs (Maybe/Null, exotic operators) remain under test:
+# warnings are silenced globally and re-enabled only in the specs
+# that verify them
 Switchyard::Deprecations.silenced = true

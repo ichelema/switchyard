@@ -1,7 +1,6 @@
 require 'spec_helper'
 require 'switchyard/functional/maybe'
 
-# Copertura dei path d'errore e delle API minori emersi dall'audit
 describe "edge cases and error paths" do
   include Switchyard::Prelude::Result
   include Switchyard::Prelude::Option

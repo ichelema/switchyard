@@ -196,8 +196,8 @@ module Switchyard
       # @return [Array<Symbol>] `[:message, :error_code, :current_action,
       #   :organized_by, :_aliases, :_before_actions, :_after_actions]`
       def reserved_keys
-        # _aliases/_before_actions/_after_actions sono chiavi infrastrutturali
-        # scritte da Organizer.with nel context
+        # _aliases/_before_actions/_after_actions are infrastructure keys
+        # written into the context by Organizer.with
         %i[message error_code current_action organized_by
            _aliases _before_actions _after_actions].freeze
       end

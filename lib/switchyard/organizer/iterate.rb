@@ -30,8 +30,6 @@ module Switchyard
       # @param steps [Array<Class, Proc>] actions per item
       # @return [Proc] callable step
       def self.run(organizer, collection_key, steps)
-        # La singolarizzazione dipende solo dalla chiave: si calcola una volta,
-        # non a ogni invocazione dello step (ne' tantomeno per ogni item)
         item_key = INFLECTOR.singularize(collection_key).to_sym
 
         ->(ctx) do
