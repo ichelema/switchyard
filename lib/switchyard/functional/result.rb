@@ -42,6 +42,18 @@ module Switchyard
         Failure.new(e)
       end
     end
+
+    # The variants are generated at runtime by Switchyard.enum; they are
+    # declared here via @!parse so YARD can see them during static analysis.
+    # Names are fully qualified because YARD parses this block in the
+    # Switchyard namespace, not in Result.
+    # @!parse
+    #   # The success variant, wrapping a value.
+    #   class Result::Success < Result; end
+
+    # @!parse
+    #   # The failure variant, wrapping an error.
+    #   class Result::Failure < Result; end
   end
 
   # rubocop:disable Metrics/BlockLength

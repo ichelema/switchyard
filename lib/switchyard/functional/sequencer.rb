@@ -44,7 +44,7 @@ module Switchyard
     # Enters the do-notation block to define a sequence.
     #
     # @yield block defining the steps (see {Sequencer::Sequencer})
-    # @return [Success, Failure] the result of `and_yield`
+    # @return [Result::Success, Result::Failure] the result of `and_yield`
     def in_sequence(&)
       sequencer = Sequencer.new(self)
       sequencer.instance_eval(&)
@@ -60,7 +60,7 @@ module Switchyard
         @operation_wrapper = OperationWrapper.new(instance)
       end
 
-      # Binds the {Success} value of a block to a named variable.
+      # Binds the {Result::Success Success} value of a block to a named variable.
       #
       # The block must return a {Result}. Its inner value is stored so
       # subsequent steps can reference it by name.

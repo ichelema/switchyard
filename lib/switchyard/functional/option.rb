@@ -26,6 +26,12 @@ module Switchyard
   # {Option::None None} representing absence. Unlike {Result}, failure
   # carries no error information.
   class Option
+    # The None variant is generated at runtime by Switchyard.enum; it is
+    # declared here via @!parse so YARD can see it during static analysis.
+    # @!parse
+    #   # The absence variant — carries no value.
+    #   class None < Option; end
+
     # A value-bearing option variant.
     #
     # Raises `ArgumentError` when constructed with `nil` — use {None}
@@ -96,8 +102,8 @@ module Switchyard
     end
   end
 
-  # Le operazioni usano il dispatch diretto invece del motore match:
-  # stessa semantica, ~2 ordini di grandezza piu veloce (audit, finding 3.1)
+  # Operations use direct dispatch instead of the match engine:
+  # same semantics, ~2 orders of magnitude faster
   impl(Option) do
     # Functor map: transforms the inner value, rewrapping as an option.
     #

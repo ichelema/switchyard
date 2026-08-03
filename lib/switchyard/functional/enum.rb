@@ -3,7 +3,7 @@
 module Switchyard
   # Pattern-matching support for enum variants.
   module Enum
-    # Raised by {AnyEnum#match} when not all variants are covered or no
+    # Raised by {EnumBuilder::DataType::AnyEnum#match} when not all variants are covered or no
     # guard matches.
     class MatchError < StandardError; end
   end
@@ -37,7 +37,7 @@ module Switchyard
 
         # Pattern matches this variant against the cases in the block.
         #
-        # Uses the enum's {EnumBuilder::Matcher} to dispatch.
+        # Uses the enum's generated `Matcher` class to dispatch.
         #
         # @yield a block with case clauses (variant names)
         # @return [Object] the matched block's return value
@@ -256,14 +256,12 @@ module Switchyard
       private_class_method :new
 
       def self.match(obj, &block)
-        # Binding#receiver: stesso risultato di binding.eval('self') senza eval
+        # Binding#receiver: same result as binding.eval('self') without eval
         caller_ctx = block.binding.receiver
 
         matcher = self::Matcher.new(obj)
         matcher.instance_eval(&block)
 
-        # exhaustiveness check su classi memoizzate: niente split/sort di
-        # stringhe per chiamata
         covered = matcher.matches.map { |e| e[1] }
         missing = variant_classes.reject { |klass| covered.include?(klass) }
         unless missing.empty?
@@ -303,8 +301,8 @@ module Switchyard
       end
 
       def self.guard_context(obj, args)
-        # Struct.new definisce una classe: va fatto una volta per firma,
-        # non a ogni match con guard
+        # Struct.new defines a class: do it once per signature,
+        # not on every guarded match
         @guard_structs ||= {}
         struct = @guard_structs[args] ||= Struct.new(*args)
 
