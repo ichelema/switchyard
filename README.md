@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="resources/Logo.png" alt="Switchyard logo" width="400">
+</p>
+
 # Switchyard
 
 [![Gem Version](https://img.shields.io/gem/v/switchyard.svg)](https://rubygems.org/gems/switchyard)
