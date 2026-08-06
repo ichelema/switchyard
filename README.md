@@ -34,7 +34,7 @@
 * [Why Switchyard?](#why-switchyard?)
 * [Stopping the Series of Actions](#stopping-the-series-of-actions)
   * [Failing the Context](#failing-the-context)
-  * [Skipping the Rest of the Actions](#skipping-the-rest-of-the-actions)
+  * [Skip the Remaining Actions](#skip-the-remaining-actions)
 * [Benchmarking Actions with Around Advice](#benchmarking-actions-with-around-advice)
 * [Before and After Action Hooks](#before-and-after-action-hooks)
 * [Key Aliases](#key-aliases)
@@ -83,215 +83,89 @@ Or install it yourself as:
 ```
 
 ## Why Switchyard?
-While studying functional programming in Ruby, I discovered the fantastic gem **Deterministic**, which made it much easier to write Ruby code in a functional style. 
-By leveraging its `in_sequence` method, I can chain a series of actions:
 
-- If every step completes without raising an exception, the call returns a `Success()` monad.
-- If any step fails, the remaining actions are skipped and a `Failure()` monad is returned.
+Switchyard lets you organize complex workflows as a **pipeline of small actions**:
 
-I writing this code:
+- each action lives in its own class;
+- each action declares an explicit contract with `expects` and `promises`;
+- the organizer shows the execution order at a glance;
+- the first failure stops the remaining pipeline;
+- actions can intentionally skip the remaining steps without marking the workflow as failed;
+- completed actions can roll back their work when a later step fails.
 
-```ruby
-class Foo
-  include Deterministic::Prelude
 
-  def call(input)
-    result = in_sequence do
-      get(:sanitized_input) { sanitize(input) }
-      and_then              { validate(sanitized_input) }
-      and_then              { connect_db }
-      get(:user)            { get_user(sanitized_input) }
-      and_yield             { print_response(user) }
-    end
-    logger.warn(result.value) if result.failure?
-  rescue StandardError => e
-    logger.fatal(e.message)
-  end
 
-  def sanitize(input)
-    sanitized_input = {}
-    sanitized_input[:name] = input[:name].downcase
-    sanitized_input[:password] = input[:password].downcase
-    Success(sanitized_input)
-  end
+Inside each action, you can write logic in a **functional style** using `Result` (`Success`/`Failure`), `Option` (`Some`/`None`), pattern matching and exception capturing with `try!`
 
-  def validate(sanitized_input)
-    try!  do
-      raise "Not allow empty name" if sanitized_input[:name].empty?
-      raise "Not allow empty password" if sanitized_input[:password].empty?
-    end.map_err { |n| Failure(n.message) }
-  end
+You get both at once:
 
-  def connect_db
-    try! do
-      raise "Error connection to db" if rand(0..1) == 1
-    end.map_err { |n| Failure(n.message) }
-  end
+- **Readable orchestration** — the organizer describes the workflow without hiding it behind callbacks or nested conditionals.
+- **Confident logic** — errors become explicit values, every step has a visible outcome, and failures compose naturally.
+- **Controlled short-circuiting** — stop on failure, or skip the remaining actions while keeping the context successful.
+- **Recoverable workflows** — use rollback handlers to compensate for work already completed when a later action fails.
 
-  def get_user(sanitized_input)
-    user = FAKEDB.find do |_k, v|
-      sanitized_input[:name] == v[:name] && sanitized_input[:password] == v[:password]
-    end
-    user.nil? ? Failure("Name or password error") : Success(user)
-  end
-
-  def print_response(user)
-    Success(logger.info("Login successful id: #{user[0]} name: #{user[1][:name]}"))
-  end
-end
-
-Foo.new.call(:name => "foo", :password => "bar")
-```
-
-While refactoring my codebase, I needed each action to live in a well‑defined context. 
-That’s when I discovered the excellent gem **LightService**. It gives me exactly what I was looking for:
-
-- a clean separation between business concerns and orchestration logic
-- a simple way to arrange actions in a pipeline
-- the freedom to place every action in its own class, each with its own contextual data
+Here is a complete login flow:
 
 ```ruby
-class Foo
-  extend LightService::Organizer
-
-  def self.call(name: "", password: "")
-    result = with(:name => name, :password => password).reduce(actions)
-    logger.warn(result.message) if result.failure?
-  end
-
-  def self.actions
-    [
-      Sanitize,
-      Validate,
-      ConnectDb,
-      GetUser,
-      PrintResponse
-    ]
-  end
-end
-
-class Sanitize
-  extend LightService::Action
-  expects :name, :password
-  promises :sanitized_input
-
-  executed do |ctx|
-    sanitized_input = {}
-    sanitized_input[:name] = ctx.name.downcase
-    sanitized_input[:password] = ctx.password.downcase
-    ctx.sanitized_input = sanitized_input
-  end
-end
-
-class Validate
-  extend LightService::Action
-  expects :sanitized_input
-
-  executed do |ctx|
-    ctx.fail_and_return!("Not allow empty name") if ctx.sanitized_input[:name].empty?
-    ctx.fail_and_return!("Not allow empty password") if ctx.sanitized_input[:password].empty?
-  end
-end
-
-class ConnectDb
-  extend LightService::Action
-
-  executed do |ctx|
-    raise "Error connection to db"
-  rescue StandardError => e
-    ctx.fail!(e.message) if rand(0..1) == 1
-  end
-
-  # private_class_method :..
-end
-
-class GetUser
-  extend LightService::Action
-  expects :sanitized_input
-  promises :user
-
-  executed do |ctx|
-    user = FAKEDB.find do |_k, v|
-      ctx.sanitized_input[:name] == v[:name] && ctx.sanitized_input[:password] == v[:password]
-    end
-    ctx.fail_and_return!("Name or password error") if user.nil?
-    ctx.user = user
-  end
-end
-
-class PrintResponse
-  extend LightService::Action
-  expects :user
-
-  executed do |ctx|
-    logger.info("Login successful id: #{ctx.user[0]} name: #{ctx.user[1][:name]}")
-  end
-end
-
-Foo.call(:name => "foo", :password => "bar")
-```
-
-The switch to **LightService** came at a price: I missed the functional‑programming super‑powers that **Deterministic** had given me. 
-So I asked myself, *why not enjoy the best of both worlds?* 
-That question led me to create **this gem**. Now I can keep all the conveniences LightService offers—action pipelines, clear contexts—while still coding in a fully functional style with expressive monads.
-
-```ruby
-class Foo
+class Authenticator
   extend Switchyard::Organizer
 
-  def self.call(name: "", password: "")
-    result = with(:name => name, :password => password).reduce(actions)
+  def self.call(name:, password:)
+    result = with(name:, password:).reduce(actions)
+
     logger.warn(result.message) if result.failure?
+
+    result
   end
 
   def self.actions
     [
-      Sanitize,
+      Normalize,
       Validate,
       ConnectDb,
       GetUser,
-      PrintResponse
+      PrintResponse,
     ]
   end
 end
 
-class Sanitize
+class Normalize
   extend Switchyard::Action
   expects :name, :password
-  promises :sanitized_input
+  promises :credentials
 
   executed do |ctx|
-    name = ctx.name
-    password = ctx.password
-    ctx.sanitized_input = downcase(name, password).value
+    ctx.credentials = normalize(ctx.name, ctx.password).value
   end
 
-  def self.downcase(name, password)
+  def self.normalize(name, password)
     ctx.try! do
       {
-        :name => name.downcase,
-        :password => password.downcase
+        name: name.strip.downcase,
+        password: password.strip,
       }
-    end.map_err { ctx.fail!("Error nel method downcase") }
+    end.map_err do
+      ctx.fail_and_return!("Error in normalize method")
+    end
   end
 
-  private_class_method :downcase
+  private_class_method :normalize
 end
 
 class Validate
   extend Switchyard::Action
-  expects :sanitized_input
+  expects :credentials
 
   executed do |ctx|
-    validate_params(ctx.sanitized_input).match do
-      None() { ctx.Success(0) }
-      Some() { |errors| ctx.fail_and_return!(errors) }
+    validate_params(ctx.credentials).match do
+      None() { ctx.Success(nil) }
+      Some() { |error| ctx.fail_and_return!(error) }
     end
   end
 
   def self.validate_params(params)
-    return ctx.Some("Not allow empty name") if ctx.Option.any?(params[:name]).none?
-    return ctx.Some("Not allow empty password") if ctx.Option.any?(params[:password]).none?
+    return ctx.Some("Name cannot be empty") if ctx.Option.any?(params[:name]).none?
+    return ctx.Some("Password cannot be empty") if ctx.Option.any?(params[:password]).none?
 
     ctx.None
   end
@@ -304,33 +178,38 @@ class ConnectDb
 
   executed do |ctx|
     ctx.try! do
-      raise "Error connection to db" if rand(0..1) == 1
+      raise "Database connection failed" if rand(0..1) == 1
     end.map_err { |n| ctx.fail!(n.message) }
   end
 end
 
 class GetUser
   extend Switchyard::Action
-  expects :sanitized_input
+  expects :credentials
   promises :user
 
   executed do |ctx|
-    user = Success(ctx.sanitized_input[:name]) >> method(:fetch_name) >> method(:check_password)
+    user = Success(ctx.credentials[:name]) >>
+           method(:fetch_name) >>
+           method(:check_password)
+
     ctx.user = user.value
   end
 
   def self.fetch_name(name)
-    records = FAKEDB.select { |_k, v| name == v[:name] }
-    ctx.fail_and_return!("Name not found in DB") if records.empty?
+    user = FAKEDB.find { |_id, data| data[:name] == name }
 
-    Success(records)
+    ctx.fail_and_return!("Name not found in DB") unless user
+
+    Success(user)
   end
 
-  def self.check_password(records)
-    record = records.select { |_k, v| ctx.sanitized_input[:password] == v[:password] }
-    return ctx.fail_and_return!("Password is not correct") if record.empty?
+  def self.check_password(user)
+    password = ctx.credentials[:password]
 
-    Success(record)
+    ctx.fail_and_return!("Password is not correct") unless user.last[:password] == password
+
+    Success(user)
   end
 
   private_class_method :fetch_name, :check_password
@@ -341,105 +220,132 @@ class PrintResponse
   expects :user
 
   executed do |ctx|
-    id = ctx.user.keys[0]
-    name = ctx.user.values[0][:name]
-    logger.info("Login successful id: #{id} name: #{name}")
+    id, user = ctx.user
+
+    logger.info("Login successful id: #{id} name: #{user[:name]}")
   end
 end
 
-Foo.call(:name => "foo", :password => "bar")
+Authenticator.call(name: "foo", password: "bar")
 ```
+
+
+
+## Your first action
+
+An action is a small, self-contained unit of work. It declares the data it needs with `expects` and the data it produces with `promises`.
+
+```ruby
+class GetUser
+  extend Switchyard::Action
+
+  expects :name
+  promises :user
+
+  executed do |ctx|
+    user = FAKEDB.find { |_id, data| data[:name] == name }
+
+    ctx.fail_and_return!("Name not found in DB") unless user
+
+    ctx.user = user
+  end
+end
+```
+
+You can execute an action directly without an organizer:
+
+```ruby
+result = GetUser.execute(name: "Foo")
+
+if result.success?
+    _id, user = result.user
+
+    puts "Welcome, #{user[:name]}! Authentication completed successfully."
+else
+    puts "Authentication failed: #{result.message}"
+end
+```
+
+`expects :name` defines the input contract of the action. Before execution, Switchyard verifies that `name` is present in the context.
+
+`promises :user` defines its output contract. When the action completes successfully, it must add `user` to the context.
+
+If no matching user exists, `fail_and_return!` marks the context as failed and immediately stops the action.
 
 ## Stopping the Series of Actions
 
-When everything goes smoothly, the organizer returns a **successful** context.  
-You can check it like this:
+Switchyard can stop a workflow in two different ways:
 
-```ruby
-class SomeController < ApplicationController
-  def index
-    result_context = SomeOrganizer.call(current_user.id)
-
-    if result_context.success?
-      redirect_to foo_path, :notice => "Everything went OK! Thanks!"
-    else
-      flash[:error] = result_context.message
-      render :action => "new"
-    end
-  end
-end
-```
-
-Sometimes, though, things don’t go as planned — an external API is down or a business rule fails.  
-In those cases, you can short‑circuit the pipeline in two ways:
-
-1. **Fail the context** – aborts execution and returns a `Failure()` monad with an error message.
-2. **Skip the remaining actions** – stops further actions but keeps the context successful, allowing graceful exits without raising an error.
+1. **Fail the context** — stops the pipeline and marks the result as failed.
+2. **Skip the remaining actions** — stops the pipeline while keeping the result successful.
 
 ### Failing the Context
 
-When an action hits an unrecoverable error, call `context.fail!` to mark the context as failed (`context.failure? #=> true`) and abort the pipeline.  
+When an action encounters an unrecoverable error, call `context.fail!` to mark the context as failed (`context.failure? #=> true`) and abort the pipeline:
+
+![Execution flow: actions 1 and 2 succeed, action 3 fails, action 4 is skipped and the context ends up failed](resources/execution-flow-failed.gif)
+
 You can pass an optional message to describe what went wrong:
 
-```ruby
-context.fail!("Validation failed")
+```
+context.fail!("Authentication failed")
 ```
 
-If you also need to leave the executed block immediately, you have two options:
+The current action can finish its execution, but the organizer will skip every remaining action and return the failed context to the caller.
 
-- next context – after fail!, simply return the context.
-- context.fail_and_return!(msg) – a one‑liner that sets the failure state and exits the block.
+When the action must stop immediately, use `context.fail_and_return!`:
 
-Here is an example:
+```
+context.fail_and_return!("Authentication failed")
+```
+
+It marks the context as failed and exits the current `executed` block, ensuring that no subsequent code inside the action is executed.
+
+For example, `CheckPassword` stops authentication when the provided password does not match the user's password.
 
 ```ruby
-class SubmitsOrderAction
+class CheckPassword
   extend Switchyard::Action
-  expects :order, :mailer
+
+  expects :user, :password
+  promises :authenticated
 
   executed do |context|
-    unless context.order.submit_order_successful?
-      context.fail_and_return!("Failed to submit the order")
+    _user_id, user_data = context.user
+
+    unless user_data[:password] == context.password
+      context.fail_and_return!("Password is not correct")
     end
 
-    # This won't be executed
-    context.mailer.send_order_notification!
+    context.authenticated = true
   end
 end
 ```
 
-![fail-actions](https://raw.githubusercontent.com/ichelema/switchyard/master/resources/fail_actions.png)
+If the password is invalid, the action stops immediately, the context is marked as failed, and every remaining action in the organizer is skipped.
 
-In the example above the organizer called 4 actions. The first 2 actions got executed successfully. The 3rd had a failure, that pushed the context into a failure state and the 4th action was skipped.
+### Skip the Remaining Actions
 
-###  Skipping the rest of the actions
+To short‑circuit the pipeline without marking the context as failed, call `context.skip_remaining!`. It behaves like `fail!`, but the context remains **successful**, so downstream code can still treat the result as OK.
 
-To short‑circuit the pipeline without marking the context as failed, call
-`context.skip_remaining!`. It behaves like `fail!`, but the context
-remains **successful**, so downstream code can still treat the result as OK.
+Typical use case: you run the first few actions, perform a check, and if everything is already fine you can avoid processing the rest.
 
-Typical use case: you run the first few actions, perform a check, and if everything
-is already fine you can avoid processing the rest.
+![Execution flow: actions 1 and 2 succeed, action 3 calls skip_remaining!, action 4 is never executed and the context stays successful](resources/execution-flow-skip.gif)
 
 ```ruby
-class ChecksOrderStatusAction
+class CheckOrderStatus
   extend Switchyard::Action
   expects :order
 
   executed do |context|
-    if context.order.send_notification?
-      context.skip_remaining!("Everything is good, no need to execute the rest of the actions")
+    if context.order.already_notified?
+      context.skip_remaining!("Notification already sent, no need to execute the rest of the actions")
     end
   end
 end
 ```
 
-![skip-actions](https://raw.githubusercontent.com/ichelema/switchyard/master/resources/skip_actions.png)
-
-In the example above, the organizer invokes four actions.
-The first two run successfully; the third calls skip_remaining!, so the fourth is never executed, yet the overall context stays successful.
-
-### Skipping everything, including nested scopes
+### Skipping Everything, Including Nested Scopes
 
 `skip_remaining!` is scoped: constructs like `reduce_if` or `iterate` reset it
 at their boundary, so it only exits the **current** scope. When you need to stop
@@ -895,7 +801,7 @@ class FooAction
 end
 ```
 
-For a full example, see [this acceptance test](spec/acceptance/rollback_spec.rb) 
+For a full example, see [this acceptance test](spec/acceptance/rollback_spec.rb)
 
 ## Localizing Messages
 
@@ -1174,7 +1080,7 @@ end
 No more 20-line fixture setup—just a realistic context ready to go.
 
 If your organizer contains additional logic in its own call method,
-create a test-only organizer inside your specs. 
+create a test-only organizer inside your specs.
 See [acceptance test](spec/acceptance/testing/context_factory_spec.rb#L4-L11) for a full example.
 
 ## Functional Programming
@@ -1628,9 +1534,9 @@ They come from a full technical audit (see `AUDIT-switchyard.md`).
 ### New guarantees and features
 
 - **Declarative hooks are stable**: `before_actions`/`after_actions` declared on anorganizer now apply to *every* call (they used to disappear after the first one).
-  
+
 - **Rollback is complete** even when the same action class appears more than once in the pipeline.
-  
+
 - **Native pattern matching**: every enum variant supports `case/in`:
 
   ```ruby

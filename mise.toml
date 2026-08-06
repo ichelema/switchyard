@@ -1,0 +1,21 @@
+# Ambiente di sviluppo di Switchyard.
+#
+# Ruby 3.4 e' la versione su cui la CI esegue RuboCop e la copertura, quindi
+# usarla in locale evita di vedere risultati diversi da quelli della pipeline.
+# La gem supporta da Ruby 3.1 in su: la matrice completa sta in
+# .github/workflows/project-build.yml.
+
+[tools]
+ruby = "3.4"
+
+[tasks.check]
+description = "Suite completa: rspec + rubocop (task rake di default)"
+run = "bundle exec rake"
+
+[tasks.spec]
+description = "Solo i test"
+run = "bundle exec rspec spec"
+
+[tasks.rubocop]
+description = "Solo il linter"
+run = "bundle exec rubocop"
