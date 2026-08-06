@@ -1,14 +1,31 @@
+<!-- TEXT_SECTION:header:START -->
+
 <p align="center">
-  <img src="resources/Logo.png" alt="Switchyard logo" width="400">
+    <a href="" target="_blank" rel="noopener noreferrer">
+    <img src="resources/Logo.png" alt="Switchyard logo" width="180">
+  </a>
 </p>
 
-# Switchyard
+<h1 align="center">
+  Switchyard
+</h1>
+<h3 align="center">Make complex Ruby workflows readable</h3>
 
-[![Gem Version](https://img.shields.io/gem/v/switchyard.svg)](https://rubygems.org/gems/switchyard)
-[![CI Tests](https://github.com/sphynx79/switchyard/actions/workflows/project-build.yml/badge.svg)](https://github.com/sphynx79/switchyard/actions/workflows/project-build.yml)
-[![Codecov](https://codecov.io/gh/sphynx79/switchyard/branch/master/graph/badge.svg)](https://app.codecov.io/gh/sphynx79/switchyard)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](http://opensource.org/licenses/MIT)
-[![Download Count](https://img.shields.io/gem/dt/switchyard)](https://rubygems.org/gems/switchyard)
+<br/>
+
+<div align="center">
+  <p align="center">
+      <a href="https://rubygems.org/gems/switchyard"><img src="https://img.shields.io/gem/v/switchyard.svg" alt="Gem Version"></a>
+      <a href="https://github.com/ichelema/switchyard/actions/workflows/project-build.yml"><img src="https://github.com/ichelema/switchyard/actions/workflows/project-build.yml/badge.svg" alt="CI Tests"></a>
+      <a href="https://app.codecov.io/gh/ichelema/switchyard"><img src="https://codecov.io/gh/ichelema/switchyard/branch/master/graph/badge.svg" alt="Codecov"></a>
+      <a href="http://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License"></a>
+      <a href="https://rubygems.org/gems/switchyard"><img src="https://img.shields.io/gem/dt/switchyard" alt="Download Count"></a>
+</p>
+</div>
+
+<!-- TEXT_SECTION:header:END -->
+
+<br/>
 
 ## Table of Content
 
@@ -43,7 +60,7 @@
 
 ## Requirements
 
-This gem requires ruby >= 3.1 (tested up to ruby 4.0)
+This gem requires ruby >= 3.1
 
 ## Installation
 
@@ -66,8 +83,7 @@ Or install it yourself as:
 ```
 
 ## Why Switchyard?
-
-While studying functional programming in Ruby, I discovered the fantastic gem **Deterministic**, which made it much easier to write Ruby code in a functional style.  
+While studying functional programming in Ruby, I discovered the fantastic gem **Deterministic**, which made it much easier to write Ruby code in a functional style. 
 By leveraging its `in_sequence` method, I can chain a series of actions:
 
 - If every step completes without raising an exception, the call returns a `Success()` monad.
@@ -127,7 +143,7 @@ end
 Foo.new.call(:name => "foo", :password => "bar")
 ```
 
-While refactoring my codebase, I needed each action to live in a well‑defined context.  
+While refactoring my codebase, I needed each action to live in a well‑defined context. 
 That’s when I discovered the excellent gem **LightService**. It gives me exactly what I was looking for:
 
 - a clean separation between business concerns and orchestration logic
@@ -215,8 +231,8 @@ end
 Foo.call(:name => "foo", :password => "bar")
 ```
 
-The switch to **LightService** came at a price: I missed the functional‑programming super‑powers that **Deterministic** had given me.  
-So I asked myself, *why not enjoy the best of both worlds?*  
+The switch to **LightService** came at a price: I missed the functional‑programming super‑powers that **Deterministic** had given me. 
+So I asked myself, *why not enjoy the best of both worlds?* 
 That question led me to create **this gem**. Now I can keep all the conveniences LightService offers—action pipelines, clear contexts—while still coding in a fully functional style with expressive monads.
 
 ```ruby
@@ -392,11 +408,11 @@ class SubmitsOrderAction
 end
 ```
 
-![fail-actions](https://raw.githubusercontent.com/sphynx79/switchyard/master/resources/fail_actions.png)
+![fail-actions](https://raw.githubusercontent.com/ichelema/switchyard/master/resources/fail_actions.png)
 
 In the example above the organizer called 4 actions. The first 2 actions got executed successfully. The 3rd had a failure, that pushed the context into a failure state and the 4th action was skipped.
 
-### Skipping the rest of the actions
+###  Skipping the rest of the actions
 
 To short‑circuit the pipeline without marking the context as failed, call
 `context.skip_remaining!`. It behaves like `fail!`, but the context
@@ -418,7 +434,7 @@ class ChecksOrderStatusAction
 end
 ```
 
-![skip-actions](https://raw.githubusercontent.com/sphynx79/switchyard/master/resources/skip_actions.png)
+![skip-actions](https://raw.githubusercontent.com/ichelema/switchyard/master/resources/skip_actions.png)
 
 In the example above, the organizer invokes four actions.
 The first two run successfully; the third calls skip_remaining!, so the fourth is never executed, yet the overall context stays successful.
@@ -1178,7 +1194,7 @@ without boilerplate.
 
 ### Usage
 
-### Result – `Success / Failure` <a name="functional-usage-success-failure"></a>
+### Result – Success / Failure
 
 ```ruby
 Success(1).to_s                        # => "1"
@@ -1240,7 +1256,7 @@ Success(params) >>
   build_response
 ```
 
-### Sequencing (do-notation) – `in_sequence` <a name="functional-usage-sequencing"></a>
+### Sequencing (do-notation) – in_sequence
 
 When a pipeline needs the intermediate values of earlier steps, chaining alone
 gets awkward. `in_sequence` (ported from the [deterministic](https://github.com/pzol/deterministic)
@@ -1273,7 +1289,7 @@ end
 * `and_yield { ... }` – mandatory final step; its `Result` is the value of the
   whole `in_sequence` block.
 
-#### Complex Example in a Builder Action <a name="functional-usage-complex-action"></a>
+#### Complex Example in a Builder Action
 
 ```ruby
 class Foo
@@ -1347,7 +1363,7 @@ end
 Success(1) >= method(:error) # Failure(RuntimeError(error 1))
 ```
 
-### Pattern matching <a name="functional-usage-pattern-matching"></a>
+### Pattern matching
 
 Now that you have some result, you want to control flow by providing patterns.
 `#match` can match by
@@ -1402,7 +1418,7 @@ end # => NoMatchError
 
 Matches must be exhaustive, otherwise an error will be raised, showing the variants which have not been covered.
 
-### Option <a name="functional-usage-option"></a>
+### Option
 
 ```ruby
 Some(1).some?                          # #=> true
@@ -1445,7 +1461,7 @@ Some(1) + None                         # => Some(1)
 Some([1]) + None + Some([2])           # => Some([1, 2])
 ```
 
-### Coercion <a name="functional-usage-coercion"></a>
+### Coercion
 
 ```ruby
 Option.any?(nil)                       # => None
@@ -1468,7 +1484,7 @@ Some(1).match {
 }                                      # => 2
 ```
 
-### Maybe <a name="functional-usage-maybe"></a>
+### Maybe
 
 The simplest NullObject wrapper there can be. It adds `#some?` and `#null?` to `Object` though.
 
@@ -1485,7 +1501,7 @@ Maybe(nil).some?      # => false
 Maybe({}).some?       # => true
 ```
 
-### Enums (custom ADTs) <a name="functional-usage-enum"></a>
+### Enums (custom ADTs)
 
 All the above are implemented using enums, see their definition, for more details.
 
@@ -1581,12 +1597,12 @@ Threenum.Nullary + Threenum.Unary(1)   # => Unary(1)
 
 All matches must be exhaustive; otherwise NoMatchError is raised.
 
-## Usage <a name="usage"></a>
+## Usage
 
 Based on the refactoring example above, just create an organizer object that calls the
 actions in order and write code for the actions. That's it.
 
-For further examples, please visit the project's [Wiki](https://github.com/sphynx79/switchyard/wiki).
+For further examples, please visit the project's [Wiki](https://github.com/ichelema/switchyard/wiki).
 
 ## Upgrading to 6.0
 
@@ -1611,12 +1627,10 @@ They come from a full technical audit (see `AUDIT-switchyard.md`).
 
 ### New guarantees and features
 
-- **Declarative hooks are stable**: `before_actions`/`after_actions` declared on an
-  organizer now apply to *every* call (they used to disappear after the first one).
-
-- **Rollback is complete** even when the same action class appears more than once in
-  the pipeline.
-
+- **Declarative hooks are stable**: `before_actions`/`after_actions` declared on anorganizer now apply to *every* call (they used to disappear after the first one).
+  
+- **Rollback is complete** even when the same action class appears more than once in the pipeline.
+  
 - **Native pattern matching**: every enum variant supports `case/in`:
 
   ```ruby
@@ -1644,6 +1658,8 @@ A `Context` is a per-call object: create it inside each organizer call (which is
 (hooks, aliases, logger) is read-only at call time, so calling the same organizer from
 multiple threads (Puma, Sidekiq) is safe.
 
+<br/>
+<!-- TEXT_SECTION:contributing:START -->
 ## Contributing
 
 1. Fork it
@@ -1652,20 +1668,30 @@ multiple threads (Puma, Sidekiq) is safe.
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-Huge thanks to the [contributors](https://github.com/sphynx79/switchyard/graphs/contributors)!
+Huge thanks to the [contributors](https://github.com/ichelema/switchyard/graphs/contributors)!
+<br/>
+<!-- TEXT_SECTION:changelog:END -->
 
+<!-- TEXT_SECTION:changelog:START -->
 ## Changelog
 
-Follow the changelog in this [document](https://github.com/sphynx79/switchyard/blob/master/CHANGELOG.md).
+Follow the changelog in this [document](https://github.com/ichelema/switchyard/blob/master/CHANGELOG.md).
+<br/>
+<!-- TEXT_SECTION:changelog:END -->
 
+<!-- TEXT_SECTION:contribute:START -->
 ## Thank You
 
 A very special thank you to [Attila Domokos](https://github.com/adomokos) for
 his fantastic work on [LightService](https://github.com/adomokos/light-service).
 A very special thank you to [Piotr Zolnierek](https://github.com/pzol) for
 his fantastic work on [Deterministic](https://github.com/pzol/deterministic).
-Switchyard is inspired heavily by the concepts put to code by Attila and add some functionality taken from the excellent work of mario Piotr.
+Switchyard is inspired heavily by the concepts put to code by Attila and add some functionality taken from the excellent work of Piotr.
+<br/>
+<!-- TEXT_SECTION:contribute:END -->
 
+<!-- TEXT_SECTION:license:START -->
 ## License
 
 Switchyard is released under the [MIT License](http://www.opensource.org/licenses/MIT).
+<!-- TEXT_SECTION:license:END -->
